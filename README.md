@@ -1,58 +1,61 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# FEMATA_WEBSITE
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Premium FEMATA institutional web experience built with Laravel, Inertia React, Vite, and Tailwind CSS.
 
-## About Laravel
+## Local Setup
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+1. Copy `.env.example` to `.env` and configure database credentials (MySQL recommended).
+2. Run `composer install` then `npm install`.
+3. Run `php artisan key:generate`.
+4. Run `php artisan migrate`.
+5. Run `php artisan db:seed` to populate demo content.
+6. Run `php artisan storage:link` so uploaded documents resolve via `/storage`.
+7. Start the frontend dev server with `npm run dev` and the backend with `php artisan serve` (or combine with `npm run dev -- --host 0.0.0.0` when using Vite hot reload).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Authentication
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Admin login: `admin@femata.or.tz` / `password`.
+- Visit `/admin/login` to sign in, `/dashboard` to check the protected console, and `/admin/*` for content areas.
 
-## Learning Laravel
+## Frontend Structure
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- `resources/js/app.tsx`: Inertia entrypoint with theme/language providers.
+- `resources/js/layouts`: Public and admin layouts.
+- `resources/js/pages`: Inertia pages for home, news, documents, gallery, leadership, announcements, contact, login, and admin CRUD views.
+- `resources/css/app.css`: Theme-aware Tailwind setup with light/dark/gray palettes and reusable component layers.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Data & Media
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+- Tables: `announcements`, `news_posts`, `leaders`, `gallery_items`, `document_files`, `site_settings`.
+- Documents store metadata via `DocumentFile` and rely on `storage/app/public/documents/`. Use `Storage::url()` to render/download files.
+- Gallery supports both images and YouTube links with dedicated cards.
+- Seeders provide sample announcements, news, leaders, gallery items, documents, and site settings.
 
-## Agentic Development
+## Production & Caching Notes
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Laravel optimizations
+Run the following during deployment/release:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan optimize
+npm run build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### HTTP caching guidance
 
-## Contributing
+- **HTML** (`/`, `/news`, `/documents`, etc.): send `Cache-Control: no-cache, must-revalidate` since each visit should reflect fresh announcements, news, and documents.
+- **Versioned assets** (built JS/CSS): leverage long-lived caching `Cache-Control: max-age=31536000, immutable` because Vite fingerprints filenames.
+- **Documents/images** (stored in `/storage/documents` and `/storage/app/public/*`): use `Cache-Control: public, max-age=86400` with conditional requests (`Last-Modified`/`ETag`) to keep downloads responsive while allowing refreshes when files change.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Ensure `public/storage` is symlinked to `storage/app/public` (via `php artisan storage:link`) so documents/images are accessible and ready for CDN/frontend caching.
 
-## Code of Conduct
+## Notes
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- This project intentionally keeps dependencies minimal for fast loads: React + Inertia + Tailwind + Vite only.
+- Theme selection (light/dark/gray) and locale toggles (English/Swahili) are handled entirely on the client with localStorage persistence.
+- Admin skeleton is ready for future CRUD enhancement without forcing a heavy SPA dashboard.
