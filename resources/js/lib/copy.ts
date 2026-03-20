@@ -5,6 +5,7 @@ type CopyLocale = {
     home: string;
     about: string;
     leadership: string;
+    remas: string;
     news: string;
     gallery: string;
     documents: string;
@@ -22,6 +23,8 @@ type CopyLocale = {
   sections: {
     leadership: string;
     leadershipText: string;
+    remas: string;
+    remasText: string;
     news: string;
     newsText: string;
     gallery: string;
@@ -45,81 +48,97 @@ export const copy: Record<Locale, CopyLocale> = {
       home: 'Home',
       about: 'About FEMATA',
       leadership: 'Leadership',
-      news: 'News',
-      gallery: 'Gallery',
-      documents: 'Resources',
+      remas: 'REMAs',
+      news: 'News & Updates',
+      gallery: 'Media Gallery',
+      documents: 'Documents',
       contact: 'Contact',
     },
     theme: 'Theme',
     language: 'Language',
     hero: {
-      eyebrow: 'Federation of Mining Associations of Tanzania',
-      title: 'The official digital home for FEMATA and Tanzania\'s mining associations.',
+      eyebrow: 'Federation of Miners’ Associations of Tanzania',
+      title: 'The official digital platform for FEMATA and Tanzania’s mining associations.',
       text:
-        'Explore FEMATA\'s mandate, leadership, news, notices, media, and public resources through a modern institutional website built for trust and visibility.',
+        'Discover FEMATA’s mandate, leadership, strategic initiatives, official notices, sector updates, public resources, and the REMAs directory through a modern institutional platform built for visibility, credibility, and sector coordination.',
       primary: 'About FEMATA',
-      secondary: 'Latest News',
+      secondary: 'Explore REMAs',
     },
     sections: {
-      leadership: 'Leadership & Management',
-      leadershipText: 'Meet the board and executive team guiding FEMATA\'s national agenda.',
-      news: 'Newsroom',
-      newsText: 'Announcements, field updates, stakeholder engagements, and official releases.',
-      gallery: 'Media & Gallery',
-      galleryText: 'Highlights from meetings, outreach activities, forums, and national events.',
-      documents: 'Resources & Documents',
-      documentsText: 'Policies, forms, reports, and public reference materials in one place.',
+      leadership: 'Leadership & Governance',
+      leadershipText:
+        'Meet the leaders, board members, and executive team guiding FEMATA’s institutional direction and national mining agenda.',
+      remas: 'REMAs Directory',
+      remasText:
+        'Access regional miners’ associations, member profiles, and links to their respective websites through a centralized national directory.',
+      news: 'News & Sector Updates',
+      newsText:
+        'Follow official announcements, stakeholder engagements, field updates, events, and public communications from FEMATA.',
+      gallery: 'Media & Institutional Gallery',
+      galleryText:
+        'Browse highlights from meetings, mining forums, outreach programs, exhibitions, and national sector engagements.',
+      documents: 'Documents & Public Resources',
+      documentsText:
+        'Access reports, publications, forms, policy references, official statements, and downloadable materials in one place.',
     },
     viewAll: 'View all',
     readMore: 'Read more',
     open: 'View details',
     download: 'Download',
-    contactBlockTitle: 'Connect with the FEMATA secretariat',
+    contactBlockTitle: 'Connect with the FEMATA Secretariat',
     contactBlockText:
-      'For stakeholder engagement, partnerships, media inquiries, or membership coordination, reach out to the official FEMATA office.',
+      'For partnerships, stakeholder engagement, membership coordination, sector inquiries, or official communication, contact the FEMATA secretariat.',
     contactBlockButton: 'Contact Secretariat',
     footerText:
-      'FEMATA serves as a collective institutional voice for mining associations in Tanzania, advancing coordination, representation, and sector growth.',
+      'FEMATA serves as the collective institutional voice for miners’ associations in Tanzania, strengthening representation, coordination, advocacy, and responsible sector development.',
   },
   sw: {
     nav: {
       home: 'Nyumbani',
       about: 'Kuhusu FEMATA',
       leadership: 'Uongozi',
-      news: 'Habari',
-      gallery: 'Matukio',
-      documents: 'Rasilimali',
+      remas: 'REMAs',
+      news: 'Habari na Taarifa',
+      gallery: 'Matukio na Picha',
+      documents: 'Nyaraka',
       contact: 'Wasiliana',
     },
     theme: 'Mandhari',
     language: 'Lugha',
     hero: {
       eyebrow: 'Shirikisho la Vyama vya Wachimbaji Tanzania',
-      title: 'Tovuti rasmi ya FEMATA na vyama vya wachimbaji Tanzania.',
+      title: 'Jukwaa rasmi la kidijitali la FEMATA na vyama vya wachimbaji Tanzania.',
       text:
-        'Tembelea mamlaka ya FEMATA, uongozi, habari, matangazo, matukio, na rasilimali muhimu kupitia tovuti rasmi ya taasisi.',
+        'Tembelea mamlaka ya FEMATA, uongozi, mipango ya kimkakati, matangazo rasmi, taarifa za sekta, rasilimali za umma, na orodha ya REMAs kupitia jukwaa la kisasa la kitaasisi lililojengwa kwa uwazi, hadhi, na uratibu wa sekta.',
       primary: 'Kuhusu FEMATA',
-      secondary: 'Habari Mpya',
+      secondary: 'Angalia REMAs',
     },
     sections: {
-      leadership: 'Uongozi wa Juu',
-      leadershipText: 'Fahamu bodi na viongozi wa utekelezaji wanaoongoza ajenda ya FEMATA.',
-      news: 'Habari',
-      newsText: 'Matangazo rasmi, taarifa za shughuli, na sasisho kwa wadau wa FEMATA.',
-      gallery: 'Matukio na Media',
-      galleryText: 'Picha na video kutoka mikutano, ziara, na shughuli za kitaasisi.',
-      documents: 'Rasilimali na Nyaraka',
-      documentsText: 'Sera, fomu, ripoti, na nyaraka za rejea kwa matumizi ya umma.',
+      leadership: 'Uongozi na Utawala',
+      leadershipText:
+        'Fahamu viongozi, wajumbe wa bodi, na timu ya utendaji inayoongoza mwelekeo wa FEMATA na ajenda ya sekta ya madini kitaifa.',
+      remas: 'Orodha ya REMAs',
+      remasText:
+        'Pata vyama vya wachimbaji vya kikanda, taarifa za wanachama, na viungo vya tovuti zao kupitia orodha ya kitaifa iliyounganishwa.',
+      news: 'Habari na Taarifa za Sekta',
+      newsText:
+        'Fuatilia matangazo rasmi, ushirikiano wa wadau, taarifa za shughuli, matukio, na mawasiliano ya umma kutoka FEMATA.',
+      gallery: 'Matukio na Galeria ya Taasisi',
+      galleryText:
+        'Tazama picha na kumbukumbu za mikutano, majukwaa ya madini, programu za uhamasishaji, maonesho, na shughuli za kitaifa za sekta.',
+      documents: 'Nyaraka na Rasilimali za Umma',
+      documentsText:
+        'Pata ripoti, machapisho, fomu, marejeo ya sera, taarifa rasmi, na nyenzo za kupakua katika eneo moja.',
     },
     viewAll: 'Tazama zote',
     readMore: 'Soma zaidi',
-    open: 'Angalia',
+    open: 'Angalia maelezo',
     download: 'Pakua',
-    contactBlockTitle: 'Wasiliana na sekretarieti ya FEMATA',
+    contactBlockTitle: 'Wasiliana na Sekretarieti ya FEMATA',
     contactBlockText:
-      'Kwa ushirikiano, mawasiliano ya wadau, maswali ya wanachama, au taarifa za vyombo vya habari, wasiliana na ofisi ya FEMATA.',
+      'Kwa ushirikiano, uratibu wa wanachama, mawasiliano ya wadau, maswali ya sekta, au taarifa rasmi, wasiliana na sekretarieti ya FEMATA.',
     contactBlockButton: 'Wasiliana na Sekretarieti',
     footerText:
-      'FEMATA ni sauti ya pamoja ya vyama vya wachimbaji Tanzania, ikikuza uratibu, uwakilishi, na maendeleo ya sekta.',
+      'FEMATA ni sauti ya pamoja ya vyama vya wachimbaji Tanzania, ikiimarisha uwakilishi, uratibu, utetezi, na maendeleo yenye uwajibikaji katika sekta ya madini.',
   },
 };

@@ -1,7 +1,16 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import type { Locale } from '@/types';
 
 const LANGUAGE_STORAGE_KEY = 'femata-locale';
+const SUPPORTED_LOCALES: Locale[] = ['en', 'sw'];
 
 type LanguageContextValue = {
   locale: Locale;
@@ -9,38 +18,69 @@ type LanguageContextValue = {
   toggleLocale: () => void;
 };
 
-const LanguageContext = createContext<LanguageContextValue>({
-  locale: 'en',
-  setLocale: () => undefined,
-  toggleLocale: () => undefined,
-});
+const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
+
+function isValidLocale(value: unknown): value is Locale {
+  return typeof value === 'string' && SUPPORTED_LOCALES.includes(value as Locale);
+}
 
 function readInitialLocale(): Locale {
   if (typeof window === 'undefined') {
     return 'en';
   }
 
-  const saved = window.localStorage.getItem(LANGUAGE_STORAGE_KEY) as Locale | null;
-  if (saved && ['en', 'sw'].includes(saved)) {
-    return saved;
+  try {
+    const saved = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    if (isValidLocale(saved)) {
+      return saved;
+    }
+  } catch {
+    return 'en';
   }
 
   return 'en';
 }
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocale] = useState<Locale>(readInitialLocale);
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [locale, setLocaleState] = useState<Locale>(readInitialLocale);
+
+  const setLocale = useCallback((value: Locale) => {
+    if (isValidLocale(value)) {
+      setLocaleState(value);
+    }
+  }, []);
 
   const toggleLocale = useCallback(() => {
-    setLocale((current) => (current === 'en' ? 'sw' : 'en'));
+    setLocaleState((current) => (current === 'en' ? 'sw' : 'en'));
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, locale);
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.setItem(LANGUAGE_STORAGE_KEY, locale);
+      } catch {
+        // Ignore storage write errors
+      }
+    }
+
     if (typeof document !== 'undefined') {
       document.documentElement.lang = locale;
     }
   }, [locale]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== LANGUAGE_STORAGE_KEY) return;
+      if (isValidLocale(event.newValue)) {
+        setLocaleState(event.newValue);
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -48,12 +88,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       setLocale,
       toggleLocale,
     }),
-    [locale, toggleLocale],
+    [locale, setLocale, toggleLocale],
   );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }
 
 export function useLanguage() {
-  return useContext(LanguageContext);
+  const context = useContext(LanguageContext);
+
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+
+  return context;
 }
