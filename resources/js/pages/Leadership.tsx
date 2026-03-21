@@ -112,7 +112,7 @@ function HeroSection({ leaders }: { leaders: Leader[] }) {
   return (
     <section className="section-shell">
       <div className="container-shell">
-        <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950 shadow-2xl">
+        <div className="relative overflow-hidden rounded-4xl border border-white/10 bg-slate-950 shadow-2xl">
           <div className="absolute inset-0">
             {heroImage ? (
               <img
@@ -122,11 +122,11 @@ function HeroSection({ leaders }: { leaders: Leader[] }) {
               />
             ) : null}
 
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-900/70" />
+            <div className="absolute inset-0 bg-linear-to-r from-slate-950/95 via-slate-950/85 to-slate-900/70" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(245,158,11,0.10),transparent_20%)]" />
           </div>
 
-          <div className="relative z-10 grid min-h-[420px] items-end px-6 py-8 sm:px-10 sm:py-12 lg:grid-cols-12 lg:px-14">
+          <div className="relative z-10 grid min-h-105 items-end px-6 py-8 sm:px-10 sm:py-12 lg:grid-cols-12 lg:px-14">
             <div className="lg:col-span-8">
               <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/85 backdrop-blur-md">
                 Leadership
@@ -289,7 +289,7 @@ function LeaderCard({
             style={{ backfaceVisibility: 'hidden' }}
           >
             <div ref={frontRef}>
-              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500/80 via-sky-500/70 to-emerald-500/80" />
+              <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-amber-500/80 via-sky-500/70 to-emerald-500/80" />
 
               <div className="relative overflow-hidden border-b border-[rgb(var(--border))] bg-[rgb(var(--surface-2))]">
                 {leader.photo_path ? (
@@ -299,14 +299,14 @@ function LeaderCard({
                     className="h-56 w-full object-cover transition-transform duration-700 hover:scale-105"
                   />
                 ) : (
-                  <div className="flex h-56 w-full items-center justify-center bg-gradient-to-br from-[rgb(var(--surface-2))] to-white">
+                  <div className="flex h-56 w-full items-center justify-center bg-linear-to-br from-[rgb(var(--surface-2))] to-white">
                     <div className="flex h-24 w-24 items-center justify-center rounded-[1.75rem] border border-[rgb(var(--border))] bg-white text-2xl font-semibold text-[rgb(var(--primary))] shadow-sm">
                       {getInitials(leader.name)}
                     </div>
                   </div>
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/55 via-black/10 to-transparent" />
 
                 <div className="absolute left-5 top-5 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/85 backdrop-blur-md">
                   Profile {String(index + 1).padStart(2, '0')}
@@ -384,7 +384,7 @@ function LeaderCard({
                   <div
                     className={[
                       'rounded-3xl border border-[rgb(var(--border))] bg-white/80 p-5 shadow-sm',
-                      !isLongBio ? 'mx-auto max-w-[420px]' : '',
+                      !isLongBio ? 'mx-auto max-w-105' : '',
                     ].join(' ')}
                   >
                     <p className="text-sm leading-8 text-[rgb(var(--muted))]">
@@ -434,7 +434,7 @@ function LeaderCard({
                 </div>
 
                 <div className="px-6 py-6">
-                  <div className="mx-auto max-w-[360px] rounded-[1.75rem] border border-[rgb(var(--border))] bg-white p-5 shadow-sm">
+                  <div className="mx-auto max-w-90 rounded-[1.75rem] border border-[rgb(var(--border))] bg-white p-5 shadow-sm">
                     <div className="flex items-center justify-between gap-3 border-b border-[rgb(var(--border))] pb-4">
                       <div>
                         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--muted))]">
@@ -449,7 +449,7 @@ function LeaderCard({
                       </div>
                     </div>
 
-                    <div className="mt-5 rounded-[1.5rem] border border-dashed border-[rgb(var(--border))] bg-[rgb(var(--surface-2))] p-4">
+                    <div className="mt-5 rounded-3xl border border-dashed border-[rgb(var(--border))] bg-[rgb(var(--surface-2))] p-4">
                       {leader.contact_qr_path ? (
                         <img
                           src={leader.contact_qr_path}
@@ -532,7 +532,7 @@ export default function Leadership({
 
         <section className="section-shell pt-0">
           <div className="container-shell">
-            <div className="rounded-[2rem] border border-[rgb(var(--border))] bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,255,255,0.97))] p-6 shadow-sm sm:p-8 lg:p-10">
+            <div className="rounded-4xl border border-[rgb(var(--border))] bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,255,255,0.97))] p-6 shadow-sm sm:p-8 lg:p-10">
               <div className="mx-auto max-w-3xl text-center">
                 <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[rgb(var(--muted))]">
                   Administrative Structure

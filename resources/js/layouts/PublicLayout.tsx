@@ -26,6 +26,8 @@ export default function PublicLayout({
   const branding = props.siteBranding ?? defaultSiteBranding;
   const footer = props.siteFooter ?? defaultSiteFooter;
   const contact = props.siteContact ?? defaultContactInfo;
+  const appVersion = props.appVersion;
+  const appReleaseDate = props.appReleaseDate;
   const adminHref = props.auth?.user?.is_admin ? '/admin/dashboard' : '/admin/login';
   const adminLabel = props.auth?.user?.is_admin
     ? locale === 'sw'
@@ -106,7 +108,14 @@ export default function PublicLayout({
 
       <main className="relative z-10 min-h-[40vh]">{children}</main>
 
-      <Footer locale={locale} branding={branding} footer={footer} contact={contact} />
+      <Footer
+        locale={locale}
+        branding={branding}
+        footer={footer}
+        contact={contact}
+        appVersion={appVersion}
+        appReleaseDate={appReleaseDate}
+      />
     </div>
   );
 }

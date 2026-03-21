@@ -1,6 +1,6 @@
 # Release Notes
 
-## [v2026.03.21] - 2026-03-21
+## [v0.3.0] - 2026-03-21
 
 ### Added
 - Leadership administration level support across database, validation, admin form, and public filtering.

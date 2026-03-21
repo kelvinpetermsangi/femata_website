@@ -25,7 +25,18 @@ return [
     |
     */
 
-    'version' => env('APP_VERSION', '2026.03.21'),
+    'version' => env('APP_VERSION', 'v0.3.0'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Release Date
+    |--------------------------------------------------------------------------
+    |
+    | This value represents the release date for the current version.
+    |
+    */
+
+    'release_date' => env('APP_RELEASE_DATE', '2026-03-21'),
 
     /*
     |--------------------------------------------------------------------------

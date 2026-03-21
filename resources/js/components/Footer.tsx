@@ -7,9 +7,18 @@ interface FooterProps {
   branding: SiteBranding;
   footer: SiteFooter;
   contact: ContactInfo;
+  appVersion?: string;
+  appReleaseDate?: string;
 }
 
-export default function Footer({ locale, branding, footer, contact }: FooterProps) {
+export default function Footer({
+  locale,
+  branding,
+  footer,
+  contact,
+  appVersion,
+  appReleaseDate,
+}: FooterProps) {
   const t = copy[locale];
   const logo = branding.logo_path ? (
     <img
@@ -145,7 +154,15 @@ export default function Footer({ locale, branding, footer, contact }: FooterProp
 
       <div className="border-t border-white/10">
         <div className="container-shell flex flex-col gap-3 py-5 text-sm text-white/58 md:flex-row md:items-center md:justify-between">
-          <p>&copy; {new Date().getFullYear()} {branding.site_name}. All rights reserved.</p>
+          <div className="flex flex-col gap-1">
+            <p>&copy; {new Date().getFullYear()} {branding.site_name}. All rights reserved.</p>
+            {appVersion ? (
+              <p className="text-xs text-white/50">
+                Version {appVersion}
+                {appReleaseDate ? ` · Released ${appReleaseDate}` : ''}
+              </p>
+            ) : null}
+          </div>
 
           {footer.credit_name ? (
             <p className="flex flex-wrap items-center gap-2">

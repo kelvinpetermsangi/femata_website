@@ -97,6 +97,8 @@ export default function AdminSettings({
     });
 
   const flashSuccess = props.flash?.success;
+  const appVersion = props.appVersion ?? 'v0.3.0';
+  const appReleaseDate = props.appReleaseDate ?? '2026-03-21';
 
   return (
     <>
@@ -110,6 +112,34 @@ export default function AdminSettings({
           }}
           className="grid gap-8"
         >
+          <section className="grid gap-4 rounded-[1.5rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[rgb(var(--muted))]">
+                System Release
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-[1.2rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))] px-4 py-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--muted))]">
+                  System version
+                </p>
+                <p className="mt-2 text-lg font-semibold text-[rgb(var(--primary))]">{appVersion}</p>
+              </div>
+
+              <div className="rounded-[1.2rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))] px-4 py-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--muted))]">
+                  Release date
+                </p>
+                <p className="mt-2 text-lg font-semibold text-[rgb(var(--primary))]">{appReleaseDate}</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-[rgb(var(--muted))]">
+              Values come from <code>APP_VERSION</code> and <code>APP_RELEASE_DATE</code> in the environment.
+            </p>
+          </section>
+
           {(flashSuccess || recentlySuccessful) ? (
             <div className="rounded-[1.25rem] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
               {flashSuccess ?? 'Site settings saved successfully.'}

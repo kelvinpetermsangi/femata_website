@@ -250,6 +250,7 @@ export interface SharedPageProps {
   [key: string]: unknown;
   appName?: string;
   appVersion?: string;
+  appReleaseDate?: string;
   auth?: {
     user?: {
       id: number;
