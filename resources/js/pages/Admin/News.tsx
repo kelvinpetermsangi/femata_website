@@ -10,8 +10,16 @@ type NewsItem = {
   excerpt?: string | null;
   body: string;
   cover_image?: string | null;
+  status_id: number;
+  status?: string | null;
   published_at?: string | null;
   is_published: boolean;
+};
+
+type StatusOption = {
+  id: number;
+  name: string;
+  slug: string;
 };
 
 type NewsForm = {
@@ -20,8 +28,8 @@ type NewsForm = {
   excerpt: string;
   body: string;
   cover_image: string;
+  status_id: string;
   published_at: string;
-  is_published: boolean;
 };
 
 function createEmptyNews(): NewsForm {
@@ -31,8 +39,8 @@ function createEmptyNews(): NewsForm {
     excerpt: '',
     body: '',
     cover_image: '',
+    status_id: '',
     published_at: '',
-    is_published: false,
   };
 }
 
@@ -57,7 +65,13 @@ function Field({
   );
 }
 
-export default function AdminNews({ news }: { news: NewsItem[] }) {
+export default function AdminNews({
+  news,
+  contentStatuses,
+}: {
+  news: NewsItem[];
+  contentStatuses: StatusOption[];
+}) {
   const { props } = usePage<SharedPageProps>();
   const [editingId, setEditingId] = useState<number | null>(null);
   const form = useForm<NewsForm>(createEmptyNews());
@@ -76,8 +90,8 @@ export default function AdminNews({ news }: { news: NewsItem[] }) {
       excerpt: item.excerpt ?? '',
       body: item.body,
       cover_image: item.cover_image ?? '',
+      status_id: String(item.status_id),
       published_at: item.published_at ?? '',
-      is_published: item.is_published,
     });
     form.clearErrors();
   };
@@ -90,6 +104,7 @@ export default function AdminNews({ news }: { news: NewsItem[] }) {
       slug: data.slug.trim() || null,
       excerpt: data.excerpt.trim() || null,
       cover_image: data.cover_image.trim() || null,
+      status_id: data.status_id ? Number(data.status_id) : null,
       published_at: data.published_at || null,
     }));
 
@@ -133,7 +148,7 @@ export default function AdminNews({ news }: { news: NewsItem[] }) {
   };
 
   const flashSuccess = props.flash?.success;
-  const publishedCount = news.filter((item) => item.is_published).length;
+  const publishedCount = news.filter((item) => item.status === 'published').length;
 
   return (
     <>
@@ -260,25 +275,24 @@ export default function AdminNews({ news }: { news: NewsItem[] }) {
                 </Field>
               </div>
 
-              <div className="rounded-[1.25rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))]/65 px-4 py-4">
-                <label className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={form.data.is_published}
-                    onChange={(event) => form.setData('is_published', event.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-[rgb(var(--border))]"
-                  />
-                  <span>
-                    <span className="block text-sm font-semibold text-[rgb(var(--primary))]">
-                      Published
-                    </span>
-                    <span className="mt-1 block text-sm leading-6 text-[rgb(var(--muted))]">
-                      Published posts appear in the public newsroom when their publication time has
-                      been reached.
-                    </span>
-                  </span>
-                </label>
-              </div>
+              <Field
+                label="Workflow status"
+                error={form.errors.status_id}
+                hint="Content now moves through editorial workflow stages before publication."
+              >
+                <select
+                  value={form.data.status_id}
+                  onChange={(event) => form.setData('status_id', event.target.value)}
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                >
+                  <option value="">Select status</option>
+                  {contentStatuses.map((status) => (
+                    <option key={status.id} value={status.id}>
+                      {status.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -317,12 +331,12 @@ export default function AdminNews({ news }: { news: NewsItem[] }) {
                       <div className="flex flex-wrap items-center gap-2">
                         <span
                           className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
-                            item.is_published
+                            item.status === 'published'
                               ? 'bg-emerald-50 text-emerald-700'
                               : 'bg-amber-50 text-amber-700'
                           }`}
                         >
-                          {item.is_published ? 'Published' : 'Draft'}
+                          {item.status ? item.status.replace('_', ' ') : 'Draft'}
                         </span>
                         <span className="rounded-full bg-[rgb(var(--surface-2))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
                           {item.published_at || 'Not scheduled'}

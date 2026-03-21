@@ -1,6 +1,19 @@
 export type Locale = 'en' | 'sw';
 export type ThemeMode = 'light' | 'dark' | 'gray';
 
+export interface ContentStatus {
+  id: number;
+  name: string;
+  slug: string;
+  is_public?: boolean;
+}
+
+export interface AdminSection {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 export interface Announcement {
   id: number;
   title: string;
@@ -18,9 +31,35 @@ export interface NewsPost {
   slug: string;
   excerpt?: string | null;
   body: string;
+  content?: string;
   cover_image?: string | null;
+  featured_image?: string | null;
   published_at?: string | null;
-  is_published: boolean;
+  is_published?: boolean;
+  is_featured?: boolean;
+  status?: string | null;
+  status_id?: number | null;
+  category?: string | null;
+  category_id?: number | null;
+  tag_ids?: number[];
+}
+
+export interface VideoPost {
+  id: number;
+  title: string;
+  slug: string;
+  summary?: string | null;
+  description?: string | null;
+  youtube_url: string;
+  youtube_video_id: string;
+  thumbnail?: string | null;
+  duration?: string | null;
+  category?: string | null;
+  category_id?: number | null;
+  status?: string | null;
+  status_id?: number | null;
+  published_at?: string | null;
+  is_featured?: boolean;
 }
 
 export interface GalleryItem {
@@ -35,25 +74,83 @@ export interface GalleryItem {
   published_at?: string | null;
 }
 
-export interface DocumentFile {
+export interface DocumentItem {
   id: number;
   title: string;
   slug: string;
   description?: string | null;
   file_path: string;
-  file_type: string;
+  file_type?: string | null;
   category?: string | null;
   is_public: boolean;
+  is_featured?: boolean;
   published_at?: string | null;
+  download_url?: string | null;
+  status?: string | null;
+  status_id?: number | null;
+  category_id?: number | null;
+  tag_ids?: number[];
 }
+
+export type DocumentFile = DocumentItem;
 
 export interface Leader {
   id: number;
   name: string;
   title: string;
+  designation?: string;
+  department?: string | null;
   photo_path?: string | null;
+  image_path?: string | null;
   bio?: string | null;
-  sort_order: number;
+  sort_order?: number;
+  rank_order?: number;
+  email?: string | null;
+  phone?: string | null;
+  is_active: boolean;
+}
+
+export interface PageRecord {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  featured_image?: string | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  status_id?: number;
+  status?: string | null;
+  published_at?: string | null;
+}
+
+export interface PressBriefing {
+  id: number;
+  title: string;
+  slug: string;
+  summary?: string | null;
+  content: string;
+  featured_image?: string | null;
+  briefing_date?: string | null;
+  location?: string | null;
+  status_id?: number;
+  status?: string | null;
+  published_at?: string | null;
+}
+
+export interface Association {
+  id: number;
+  name: string;
+  slug: string;
+  region?: string | null;
+  district?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  website?: string | null;
+  logo_path?: string | null;
+  description?: string | null;
+  chairperson_name?: string | null;
+  secretary_name?: string | null;
   is_active: boolean;
 }
 
@@ -153,6 +250,8 @@ export interface SharedPageProps {
       name: string;
       email: string;
       is_admin: boolean;
+      roles?: string[];
+      admin_sections?: string[];
     } | null;
   };
   flash?: {
@@ -168,7 +267,7 @@ export interface HomePageProps {
   announcements: Announcement[];
   news: NewsPost[];
   galleryItems: GalleryItem[];
-  documents: DocumentFile[];
+  documents: DocumentItem[];
   leaders: Leader[];
   homeContent: HomeContent;
 }

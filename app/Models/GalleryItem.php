@@ -2,50 +2,52 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsCmsActivity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class GalleryItem extends Model
 {
-    use HasFactory;
-
-    public const TYPE_IMAGE = 'image';
-
-    public const TYPE_YOUTUBE = 'youtube';
+    use HasFactory, LogsActivity, LogsCmsActivity;
 
     protected $fillable = [
         'title',
-        'slug',
-        'type',
-        'image_path',
-        'youtube_url',
-        'description',
+        'caption',
+        'media_id',
+        'category_id',
+        'display_order',
         'is_featured',
-        'published_at',
+        'created_by',
     ];
 
     protected function casts(): array
     {
         return [
+            'display_order' => 'integer',
             'is_featured' => 'boolean',
-            'published_at' => 'datetime',
         ];
     }
 
-    public function getRouteKeyName(): string
+    public function media(): BelongsTo
     {
-        return 'slug';
+        return $this->belongsTo(MediaLibrary::class, 'media_id');
     }
 
-    public function scopePublished(Builder $query): Builder
+    public function category(): BelongsTo
     {
-        return $query
-            ->where(function (Builder $subQuery): void {
-                $subQuery->whereNull('published_at')->orWhere('published_at', '<=', now());
-            })
-            ->orderByDesc('is_featured')
-            ->orderByDesc('published_at')
-            ->orderByDesc('created_at');
+        return $this->belongsTo(MediaCategory::class, 'category_id');
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function scopeFeaturedFirst(Builder $query): Builder
+    {
+        return $query->orderByDesc('is_featured')->orderBy('display_order')->orderByDesc('created_at');
     }
 }

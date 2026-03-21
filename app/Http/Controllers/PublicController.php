@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Announcement;
-use App\Models\DocumentFile;
+use App\Models\Document;
+use App\Models\DocumentDownloadLog;
 use App\Models\GalleryItem;
 use App\Models\Leader;
 use App\Models\NewsPost;
+use App\Models\Page;
+use App\Models\VideoPost;
 use App\Support\SiteSettings;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -27,8 +32,18 @@ class PublicController extends Controller
 
     public function about()
     {
+        $page = Page::query()->published()->where('slug', 'about')->first();
+
         return Inertia::render('About', [
-            'about' => SiteSettings::about(),
+            'about' => $page
+                ? [
+                    'title' => $page->title,
+                    'body' => $page->content,
+                    'mission' => '',
+                    'vision' => '',
+                    'values' => '',
+                ]
+                : SiteSettings::about(),
             'announcements' => $this->buildAnnouncements(),
         ]);
     }
@@ -51,6 +66,8 @@ class PublicController extends Controller
 
     public function newsSingle(NewsPost $newsPost)
     {
+        abort_unless($newsPost->status?->slug === 'published', 404);
+
         return Inertia::render('News/Show', [
             'news' => $this->mapNewsPost($newsPost),
             'announcements' => $this->buildAnnouncements(),
@@ -73,12 +90,30 @@ class PublicController extends Controller
         ]);
     }
 
-    public function documentSingle(DocumentFile $documentFile)
+    public function documentSingle(Document $document)
     {
+        abort_unless($document->status?->slug === 'published' && $document->is_public, 404);
+
         return Inertia::render('Documents/Show', [
-            'document' => $this->mapDocument($documentFile),
+            'document' => $this->mapDocument($document),
             'announcements' => $this->buildAnnouncements(),
         ]);
+    }
+
+    public function downloadDocument(Request $request, Document $document): RedirectResponse
+    {
+        abort_unless($document->status?->slug === 'published' && $document->is_public, 404);
+
+        $document->increment('download_count');
+
+        DocumentDownloadLog::query()->create([
+            'document_id' => $document->id,
+            'user_id' => $request->user()?->id,
+            'ip_address' => $request->ip(),
+            'downloaded_at' => now(),
+        ]);
+
+        return redirect()->away($this->resolveUrl($document->file_path) ?? '/documents');
     }
 
     public function contact()
@@ -99,23 +134,17 @@ class PublicController extends Controller
     private function buildAnnouncements(): array
     {
         return Announcement::query()
-            ->where('is_active', true)
-            ->where(function ($query) {
-                $query->whereNull('starts_at')->orWhere('starts_at', '<=', now());
-            })
-            ->where(function ($query) {
-                $query->whereNull('ends_at')->orWhere('ends_at', '>=', now());
-            })
-            ->orderByDesc('priority')
-            ->orderByDesc('starts_at')
-            ->orderByDesc('created_at')
+            ->active()
+            ->priorityOrdered()
             ->get()
             ->map(fn (Announcement $announcement) => [
                 'id' => $announcement->id,
                 'title' => $announcement->title,
                 'body' => $announcement->body,
-                'slug' => $announcement->slug,
-                'priority' => $announcement->priority,
+                'slug' => 'announcement-'.$announcement->id,
+                'priority' => $announcement->priority_level ?? 0,
+                'starts_at' => $announcement->starts_at?->toDateString(),
+                'ends_at' => $announcement->expires_at?->toDateString(),
             ])
             ->toArray();
     }
@@ -123,10 +152,8 @@ class PublicController extends Controller
     private function buildNews(): array
     {
         return NewsPost::query()
-            ->where('is_published', true)
-            ->where(function ($query) {
-                $query->whereNull('published_at')->orWhere('published_at', '<=', now());
-            })
+            ->with(['status', 'category'])
+            ->published()
             ->orderByDesc('published_at')
             ->orderByDesc('created_at')
             ->get()
@@ -141,69 +168,97 @@ class PublicController extends Controller
             'title' => $news->title,
             'slug' => $news->slug,
             'excerpt' => $news->excerpt,
-            'body' => $news->body,
-            'cover_image' => $this->resolveUrl($news->cover_image),
+            'body' => $news->content,
+            'content' => $news->content,
+            'cover_image' => $this->resolveUrl($news->featured_image),
+            'featured_image' => $this->resolveUrl($news->featured_image),
             'published_at' => $news->published_at?->toDateString(),
+            'status' => $news->status?->slug,
+            'category' => $news->category?->name,
+            'is_featured' => $news->is_featured,
         ];
     }
 
     private function buildLeaders(): array
     {
         return Leader::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
+            ->active()
             ->get()
             ->map(fn (Leader $leader) => [
                 'id' => $leader->id,
                 'name' => $leader->name,
-                'title' => $leader->title,
+                'title' => $leader->designation,
+                'designation' => $leader->designation,
+                'department' => $leader->department,
                 'bio' => $leader->bio,
-                'photo_path' => $this->resolveUrl($leader->photo_path),
+                'photo_path' => $this->resolveUrl($leader->image_path),
+                'image_path' => $this->resolveUrl($leader->image_path),
+                'rank_order' => $leader->rank_order,
             ])
             ->toArray();
     }
 
     private function buildGallery(): array
     {
-        return GalleryItem::query()
-            ->where(function ($query) {
-                $query->whereNull('published_at')->orWhere('published_at', '<=', now());
-            })
-            ->orderByDesc('is_featured')
-            ->orderByDesc('published_at')
-            ->orderByDesc('created_at')
+        $gallery = GalleryItem::query()
+            ->with('media')
+            ->featuredFirst()
             ->get()
             ->map(fn (GalleryItem $item) => [
                 'id' => $item->id,
-                'title' => $item->title,
-                'slug' => $item->slug,
-                'type' => $item->type,
-                'description' => $item->description,
-                'image_path' => $this->resolveUrl($item->image_path),
-                'youtube_url' => $item->youtube_url,
+                'title' => $item->title ?? $item->media?->title ?? $item->media?->file_name,
+                'slug' => 'gallery-'.$item->id,
+                'type' => 'image',
+                'description' => $item->caption ?? $item->media?->caption,
+                'image_path' => $this->resolveUrl($item->media?->file_path),
+                'youtube_url' => null,
                 'is_featured' => $item->is_featured,
-                'published_at' => $item->published_at?->toDateString(),
-            ])
-            ->toArray();
+                'published_at' => $item->created_at?->toDateString(),
+            ]);
+
+        $videos = VideoPost::query()
+            ->with('status')
+            ->published()
+            ->featured()
+            ->orderByDesc('published_at')
+            ->limit(6)
+            ->get()
+            ->map(fn (VideoPost $video) => [
+                'id' => 100000 + $video->id,
+                'title' => $video->title,
+                'slug' => $video->slug,
+                'type' => 'youtube',
+                'description' => $video->summary ?: $video->description,
+                'image_path' => $video->thumbnail,
+                'youtube_url' => $video->youtube_url,
+                'is_featured' => $video->is_featured,
+                'published_at' => $video->published_at?->toDateString(),
+            ]);
+
+        return $gallery
+            ->concat($videos)
+            ->sortByDesc(fn (array $item) => [$item['is_featured'], $item['published_at']])
+            ->values()
+            ->all();
     }
 
     private function buildDocuments(): array
     {
-        return DocumentFile::query()
+        return Document::query()
+            ->with(['status', 'category'])
+            ->published()
             ->where('is_public', true)
-            ->where(function ($query) {
-                $query->whereNull('published_at')->orWhere('published_at', '<=', now());
-            })
             ->orderByDesc('published_at')
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn (DocumentFile $document) => $this->mapDocument($document))
+            ->map(fn (Document $document) => $this->mapDocument($document))
             ->toArray();
     }
 
-    private function mapDocument(DocumentFile $document): array
+    private function mapDocument(Document $document): array
     {
         $url = $this->resolveUrl($document->file_path);
+        $extension = strtolower((string) ($document->file_extension ?: pathinfo($document->file_path, PATHINFO_EXTENSION)));
 
         return [
             'id' => $document->id,
@@ -211,14 +266,13 @@ class PublicController extends Controller
             'slug' => $document->slug,
             'description' => $document->description,
             'file_path' => $url,
-            'file_type' => $document->file_type,
-            'category' => $document->category,
+            'download_url' => route('documents.download', $document),
+            'file_type' => $document->document_type ?: $extension,
+            'category' => $document->category?->name,
             'published_at' => $document->published_at?->toDateString(),
-            'preview' => $document->file_type === 'application/pdf'
+            'preview' => $extension === 'pdf'
                 ? 'pdf'
-                : ($document->file_type && str_starts_with($document->file_type, 'image/')
-                    ? 'image'
-                    : null),
+                : (in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true) ? 'image' : null),
         ];
     }
 

@@ -2,27 +2,32 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsCmsActivity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Leader extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity, LogsCmsActivity;
 
     protected $fillable = [
         'name',
-        'title',
-        'photo_path',
+        'designation',
+        'department',
+        'rank_order',
         'bio',
-        'sort_order',
+        'image_path',
+        'email',
+        'phone',
         'is_active',
     ];
 
     protected function casts(): array
     {
         return [
-            'sort_order' => 'integer',
+            'rank_order' => 'integer',
             'is_active' => 'boolean',
         ];
     }
@@ -31,7 +36,7 @@ class Leader extends Model
     {
         return $query
             ->where('is_active', true)
-            ->orderBy('sort_order')
+            ->orderBy('rank_order')
             ->orderBy('name');
     }
 }

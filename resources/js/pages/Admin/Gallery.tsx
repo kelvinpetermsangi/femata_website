@@ -7,7 +7,7 @@ type GalleryItemFormData = {
   id: number;
   title: string;
   slug: string;
-  type: 'image' | 'youtube';
+  type: 'image';
   image_path?: string | null;
   youtube_url?: string | null;
   description?: string | null;
@@ -18,7 +18,7 @@ type GalleryItemFormData = {
 type GalleryForm = {
   title: string;
   slug: string;
-  type: 'image' | 'youtube';
+  type: 'image';
   image_path: string;
   youtube_url: string;
   description: string;
@@ -112,7 +112,7 @@ export default function AdminGallery({
       const current = galleryItems.find((item) => item.id === editingId);
       if (!current) return;
 
-      form.put(`/admin/gallery/${current.slug}`, {
+      form.put(`/admin/gallery/${current.id}`, {
         preserveScroll: true,
         onSuccess,
       });
@@ -131,7 +131,7 @@ export default function AdminGallery({
       return;
     }
 
-    router.delete(`/admin/gallery/${item.slug}`, {
+    router.delete(`/admin/gallery/${item.id}`, {
       preserveScroll: true,
       onSuccess: () => {
         if (editingId === item.id) {
@@ -154,11 +154,11 @@ export default function AdminGallery({
             Media management
           </p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
-            Curate field images and video highlights for the public gallery.
+            Curate field images for the public gallery.
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-white/82 sm:text-base">
-            Gallery items help the FEMATA website feel active and credible. Add image entries or
-            YouTube highlights and control which moments should be featured most prominently.
+            Gallery items help the FEMATA website feel active and credible. Image media is managed
+            here, while FEMATA Online TV entries now belong to the dedicated video workflow.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3 text-sm">
@@ -221,42 +221,17 @@ export default function AdminGallery({
                 />
               </Field>
 
-              <Field label="Media type" error={form.errors.type}>
-                <select
-                  value={form.data.type}
-                  onChange={(event) => form.setData('type', event.target.value as 'image' | 'youtube')}
+              <Field
+                label="Image URL"
+                error={form.errors.image_path}
+                hint="Required for gallery image items."
+              >
+                <input
+                  value={form.data.image_path}
+                  onChange={(event) => form.setData('image_path', event.target.value)}
                   className="rounded-2xl border bg-white px-4 py-3 text-sm"
-                >
-                  <option value="image">Image</option>
-                  <option value="youtube">YouTube video</option>
-                </select>
+                />
               </Field>
-
-              {form.data.type === 'image' ? (
-                <Field
-                  label="Image URL"
-                  error={form.errors.image_path}
-                  hint="Required for image items."
-                >
-                  <input
-                    value={form.data.image_path}
-                    onChange={(event) => form.setData('image_path', event.target.value)}
-                    className="rounded-2xl border bg-white px-4 py-3 text-sm"
-                  />
-                </Field>
-              ) : (
-                <Field
-                  label="YouTube URL"
-                  error={form.errors.youtube_url}
-                  hint="Required for video items."
-                >
-                  <input
-                    value={form.data.youtube_url}
-                    onChange={(event) => form.setData('youtube_url', event.target.value)}
-                    className="rounded-2xl border bg-white px-4 py-3 text-sm"
-                  />
-                </Field>
-              )}
 
               <Field label="Description" error={form.errors.description}>
                 <textarea
@@ -326,7 +301,7 @@ export default function AdminGallery({
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="rounded-full bg-[rgb(var(--surface-2))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
-                          {item.type === 'youtube' ? 'Video' : 'Image'}
+                          Image
                         </span>
                         {item.is_featured ? (
                           <span className="rounded-full bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-700">
@@ -363,17 +338,13 @@ export default function AdminGallery({
                   </div>
 
                   <div className="mt-5 overflow-hidden rounded-[1.2rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))]">
-                    {item.type === 'image' && item.image_path ? (
+                    {item.image_path ? (
                       <img
                         src={item.image_path}
                         alt={item.title}
                         className="h-52 w-full object-cover"
                         loading="lazy"
                       />
-                    ) : item.youtube_url ? (
-                      <div className="flex min-h-[208px] items-center justify-center px-6 text-center text-sm text-[rgb(var(--muted))]">
-                        YouTube link: {item.youtube_url}
-                      </div>
                     ) : (
                       <div className="flex min-h-[208px] items-center justify-center px-6 text-center text-sm text-[rgb(var(--muted))]">
                         Media preview unavailable

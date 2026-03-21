@@ -2,31 +2,31 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreAnnouncementRequest;
 use App\Models\Announcement;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class AnnouncementController extends Controller
+class AnnouncementController extends AdminController
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Announcement::class);
+
         $announcements = Announcement::query()
             ->priorityOrdered()
             ->get()
             ->map(fn (Announcement $announcement) => [
                 'id' => $announcement->id,
+                'slug' => 'announcement-'.$announcement->id,
                 'title' => $announcement->title,
-                'slug' => $announcement->slug,
                 'body' => $announcement->body,
                 'is_active' => $announcement->is_active,
                 'starts_at' => $announcement->starts_at?->format('Y-m-d\TH:i'),
-                'ends_at' => $announcement->ends_at?->format('Y-m-d\TH:i'),
-                'priority' => $announcement->priority,
+                'ends_at' => $announcement->expires_at?->format('Y-m-d\TH:i'),
+                'priority' => $announcement->priority_level ?? 0,
             ])
             ->all();
 
@@ -35,18 +35,16 @@ class AnnouncementController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreAnnouncementRequest $request): RedirectResponse
     {
-        $data = $this->validatedData($request);
+        $this->authorize('create', Announcement::class);
 
         Announcement::query()->create([
-            'title' => $data['title'],
-            'slug' => $this->generateUniqueSlug($data['slug'] ?: $data['title']),
-            'body' => $data['body'],
-            'is_active' => $data['is_active'],
-            'starts_at' => $data['starts_at'],
-            'ends_at' => $data['ends_at'],
-            'priority' => $data['priority'],
+            ...$request->validated(),
+            'created_by' => $request->user()?->id,
+            'updated_by' => $request->user()?->id,
+            'expires_at' => $request->validated()['expires_at'] ?? ($request->validated()['ends_at'] ?? null),
+            'priority_level' => $request->validated()['priority_level'] ?? ($request->validated()['priority'] ?? null),
         ]);
 
         return redirect()
@@ -54,18 +52,15 @@ class AnnouncementController extends Controller
             ->with('success', 'Announcement created successfully.');
     }
 
-    public function update(Request $request, Announcement $announcement): RedirectResponse
+    public function update(StoreAnnouncementRequest $request, Announcement $announcement): RedirectResponse
     {
-        $data = $this->validatedData($request, $announcement);
+        $this->authorize('update', $announcement);
 
         $announcement->update([
-            'title' => $data['title'],
-            'slug' => $this->generateUniqueSlug($data['slug'] ?: $data['title'], $announcement->id),
-            'body' => $data['body'],
-            'is_active' => $data['is_active'],
-            'starts_at' => $data['starts_at'],
-            'ends_at' => $data['ends_at'],
-            'priority' => $data['priority'],
+            ...$request->validated(),
+            'updated_by' => $request->user()?->id,
+            'expires_at' => $request->validated()['expires_at'] ?? ($request->validated()['ends_at'] ?? null),
+            'priority_level' => $request->validated()['priority_level'] ?? ($request->validated()['priority'] ?? null),
         ]);
 
         return redirect()
@@ -73,50 +68,14 @@ class AnnouncementController extends Controller
             ->with('success', 'Announcement updated successfully.');
     }
 
-    public function destroy(Announcement $announcement): RedirectResponse
+    public function destroy(Request $request, Announcement $announcement): RedirectResponse
     {
+        $this->authorize('delete', $announcement);
+
         $announcement->delete();
 
         return redirect()
             ->route('admin.announcements.index')
             ->with('success', 'Announcement deleted successfully.');
-    }
-
-    private function validatedData(Request $request, ?Announcement $announcement = null): array
-    {
-        return $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'slug' => [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('announcements', 'slug')->ignore($announcement?->id),
-            ],
-            'body' => ['required', 'string'],
-            'is_active' => ['required', 'boolean'],
-            'starts_at' => ['nullable', 'date'],
-            'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
-            'priority' => ['required', 'integer', 'min:0', 'max:9999'],
-        ]);
-    }
-
-    private function generateUniqueSlug(string $value, ?int $ignoreId = null): string
-    {
-        $base = Str::slug($value);
-        $base = $base !== '' ? $base : 'announcement';
-        $slug = $base;
-        $suffix = 2;
-
-        while (
-            Announcement::query()
-                ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))
-                ->where('slug', $slug)
-                ->exists()
-        ) {
-            $slug = $base.'-'.$suffix;
-            $suffix++;
-        }
-
-        return $slug;
     }
 }

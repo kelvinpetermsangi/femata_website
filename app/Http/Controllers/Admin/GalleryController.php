@@ -2,35 +2,34 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\GalleryItem;
+use App\Models\MediaLibrary;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class GalleryController extends Controller
+class GalleryController extends AdminController
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $this->authorize('viewAny', GalleryItem::class);
+
         $items = GalleryItem::query()
-            ->orderByDesc('is_featured')
-            ->orderByDesc('published_at')
-            ->orderByDesc('created_at')
+            ->with('media')
+            ->featuredFirst()
             ->get()
             ->map(fn (GalleryItem $item) => [
                 'id' => $item->id,
-                'title' => $item->title,
-                'slug' => $item->slug,
-                'type' => $item->type,
-                'image_path' => $item->image_path,
-                'youtube_url' => $item->youtube_url,
-                'description' => $item->description,
+                'slug' => 'gallery-'.$item->id,
+                'title' => $item->title ?? $item->media?->title ?? '',
+                'type' => 'image',
+                'image_path' => $item->media?->file_path,
+                'youtube_url' => null,
+                'description' => $item->caption ?? $item->media?->caption,
                 'is_featured' => $item->is_featured,
-                'published_at' => $item->published_at?->format('Y-m-d\TH:i'),
+                'published_at' => $item->created_at?->format('Y-m-d\TH:i'),
             ])
             ->all();
 
@@ -41,9 +40,26 @@ class GalleryController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', GalleryItem::class);
         $data = $this->validatedData($request);
 
-        GalleryItem::query()->create($this->payload($data));
+        $media = MediaLibrary::query()->create([
+            'title' => $data['title'],
+            'file_name' => basename((string) parse_url($data['image_path'], PHP_URL_PATH)),
+            'file_path' => $data['image_path'],
+            'file_type' => 'image',
+            'caption' => $data['description'],
+            'uploaded_by' => $request->user()?->id,
+        ]);
+
+        GalleryItem::query()->create([
+            'title' => $data['title'],
+            'caption' => $data['description'],
+            'media_id' => $media->id,
+            'display_order' => 0,
+            'is_featured' => $data['is_featured'],
+            'created_by' => $request->user()?->id,
+        ]);
 
         return redirect()
             ->route('admin.gallery.index')
@@ -52,17 +68,33 @@ class GalleryController extends Controller
 
     public function update(Request $request, GalleryItem $galleryItem): RedirectResponse
     {
-        $data = $this->validatedData($request, $galleryItem);
+        $this->authorize('update', $galleryItem);
+        $data = $this->validatedData($request);
 
-        $galleryItem->update($this->payload($data, $galleryItem->id));
+        $galleryItem->update([
+            'title' => $data['title'],
+            'caption' => $data['description'],
+            'is_featured' => $data['is_featured'],
+        ]);
+
+        $galleryItem->media?->update([
+            'title' => $data['title'],
+            'file_name' => basename((string) parse_url($data['image_path'], PHP_URL_PATH)),
+            'file_path' => $data['image_path'],
+            'file_type' => 'image',
+            'caption' => $data['description'],
+        ]);
 
         return redirect()
             ->route('admin.gallery.index')
             ->with('success', 'Gallery item updated successfully.');
     }
 
-    public function destroy(GalleryItem $galleryItem): RedirectResponse
+    public function destroy(Request $request, GalleryItem $galleryItem): RedirectResponse
     {
+        $this->authorize('delete', $galleryItem);
+
+        $galleryItem->media?->delete();
         $galleryItem->delete();
 
         return redirect()
@@ -70,70 +102,29 @@ class GalleryController extends Controller
             ->with('success', 'Gallery item deleted successfully.');
     }
 
-    private function validatedData(Request $request, ?GalleryItem $galleryItem = null): array
+    private function validatedData(Request $request): array
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'slug' => [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('gallery_items', 'slug')->ignore($galleryItem?->id),
-            ],
-            'type' => ['required', Rule::in([GalleryItem::TYPE_IMAGE, GalleryItem::TYPE_YOUTUBE])],
+            'type' => ['nullable', 'string'],
             'image_path' => ['nullable', 'string', 'max:2048'],
             'youtube_url' => ['nullable', 'string', 'max:2048'],
             'description' => ['nullable', 'string'],
             'is_featured' => ['required', 'boolean'],
-            'published_at' => ['nullable', 'date'],
         ]);
 
-        if ($data['type'] === GalleryItem::TYPE_IMAGE && blank($data['image_path'] ?? null)) {
+        if (($data['type'] ?? 'image') === 'youtube') {
             throw ValidationException::withMessages([
-                'image_path' => 'An image URL is required for image items.',
+                'type' => 'Online TV videos are now managed through the video module.',
             ]);
         }
 
-        if ($data['type'] === GalleryItem::TYPE_YOUTUBE && blank($data['youtube_url'] ?? null)) {
+        if (blank($data['image_path'] ?? null)) {
             throw ValidationException::withMessages([
-                'youtube_url' => 'A YouTube URL is required for video items.',
+                'image_path' => 'An image URL or storage path is required.',
             ]);
         }
 
         return $data;
-    }
-
-    private function payload(array $data, ?int $ignoreId = null): array
-    {
-        return [
-            'title' => $data['title'],
-            'slug' => $this->generateUniqueSlug($data['slug'] ?: $data['title'], $ignoreId),
-            'type' => $data['type'],
-            'image_path' => $data['type'] === GalleryItem::TYPE_IMAGE ? $data['image_path'] : null,
-            'youtube_url' => $data['type'] === GalleryItem::TYPE_YOUTUBE ? $data['youtube_url'] : null,
-            'description' => $data['description'],
-            'is_featured' => $data['is_featured'],
-            'published_at' => $data['published_at'],
-        ];
-    }
-
-    private function generateUniqueSlug(string $value, ?int $ignoreId = null): string
-    {
-        $base = Str::slug($value);
-        $base = $base !== '' ? $base : 'gallery-item';
-        $slug = $base;
-        $suffix = 2;
-
-        while (
-            GalleryItem::query()
-                ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))
-                ->where('slug', $slug)
-                ->exists()
-        ) {
-            $slug = $base.'-'.$suffix;
-            $suffix++;
-        }
-
-        return $slug;
     }
 }

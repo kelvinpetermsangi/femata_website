@@ -11,8 +11,16 @@ type DocumentItem = {
   file_path: string;
   file_type?: string | null;
   category?: string | null;
+  status_id: number;
+  status?: string | null;
   is_public: boolean;
   published_at?: string | null;
+};
+
+type StatusOption = {
+  id: number;
+  name: string;
+  slug: string;
 };
 
 type DocumentForm = {
@@ -22,6 +30,7 @@ type DocumentForm = {
   file_path: string;
   file_type: string;
   category: string;
+  status_id: string;
   is_public: boolean;
   published_at: string;
 };
@@ -34,6 +43,7 @@ function createEmptyDocument(): DocumentForm {
     file_path: '',
     file_type: '',
     category: '',
+    status_id: '',
     is_public: true,
     published_at: '',
   };
@@ -60,7 +70,13 @@ function Field({
   );
 }
 
-export default function AdminDocuments({ documents }: { documents: DocumentItem[] }) {
+export default function AdminDocuments({
+  documents,
+  contentStatuses,
+}: {
+  documents: DocumentItem[];
+  contentStatuses: StatusOption[];
+}) {
   const { props } = usePage<SharedPageProps>();
   const [editingId, setEditingId] = useState<number | null>(null);
   const form = useForm<DocumentForm>(createEmptyDocument());
@@ -80,6 +96,7 @@ export default function AdminDocuments({ documents }: { documents: DocumentItem[
       file_path: document.file_path,
       file_type: document.file_type ?? '',
       category: document.category ?? '',
+      status_id: String(document.status_id),
       is_public: document.is_public,
       published_at: document.published_at ?? '',
     });
@@ -95,6 +112,7 @@ export default function AdminDocuments({ documents }: { documents: DocumentItem[
       description: data.description.trim() || null,
       file_type: data.file_type.trim() || null,
       category: data.category.trim() || null,
+      status_id: data.status_id ? Number(data.status_id) : null,
       published_at: data.published_at || null,
     }));
 
@@ -138,7 +156,7 @@ export default function AdminDocuments({ documents }: { documents: DocumentItem[
   };
 
   const flashSuccess = props.flash?.success;
-  const publicCount = documents.filter((document) => document.is_public).length;
+  const publicCount = documents.filter((document) => document.status === 'published').length;
 
   return (
     <>
@@ -268,24 +286,24 @@ export default function AdminDocuments({ documents }: { documents: DocumentItem[
                   />
                 </Field>
 
-                <div className="rounded-[1.25rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))]/65 px-4 py-4">
-                  <label className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      checked={form.data.is_public}
-                      onChange={(event) => form.setData('is_public', event.target.checked)}
-                      className="mt-1 h-4 w-4 rounded border-[rgb(var(--border))]"
-                    />
-                    <span>
-                      <span className="block text-sm font-semibold text-[rgb(var(--primary))]">
-                        Public document
-                      </span>
-                      <span className="mt-1 block text-sm leading-6 text-[rgb(var(--muted))]">
-                        Public resources can appear in the website document centre once published.
-                      </span>
-                    </span>
-                  </label>
-                </div>
+                <Field
+                  label="Workflow status"
+                  error={form.errors.status_id}
+                  hint="Published documents appear publicly when their publish time has been reached."
+                >
+                  <select
+                    value={form.data.status_id}
+                    onChange={(event) => form.setData('status_id', event.target.value)}
+                    className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                  >
+                    <option value="">Select status</option>
+                    {contentStatuses.map((status) => (
+                      <option key={status.id} value={status.id}>
+                        {status.name}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
               </div>
             </div>
 
@@ -317,12 +335,12 @@ export default function AdminDocuments({ documents }: { documents: DocumentItem[
                       <div className="flex flex-wrap items-center gap-2">
                         <span
                           className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
-                            document.is_public
+                            document.status === 'published'
                               ? 'bg-emerald-50 text-emerald-700'
                               : 'bg-slate-100 text-slate-600'
                           }`}
                         >
-                          {document.is_public ? 'Public' : 'Private'}
+                          {document.status ? document.status.replace('_', ' ') : 'Draft'}
                         </span>
                         {document.category ? (
                           <span className="rounded-full bg-[rgb(var(--surface-2))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">

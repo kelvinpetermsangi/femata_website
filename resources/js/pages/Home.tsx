@@ -439,7 +439,7 @@ export default function Home({
                         <AppLink href={`/documents/${document.slug}`} className="story-link">
                           Open
                         </AppLink>
-                        <a href={document.file_path} className="story-link" download>
+                        <a href={document.download_url ?? document.file_path} className="story-link" download>
                           Download
                         </a>
                       </div>

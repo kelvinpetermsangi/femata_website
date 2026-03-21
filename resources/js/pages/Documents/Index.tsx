@@ -13,6 +13,7 @@ export default function DocumentsIndex({
     description?: string | null;
     category?: string | null;
     file_path?: string | null;
+    download_url?: string | null;
   }[];
   announcements?: [];
 }) {
@@ -60,7 +61,7 @@ export default function DocumentsIndex({
                     </AppLink>
                     {document.file_path ? (
                       <a
-                        href={document.file_path}
+                        href={document.download_url ?? document.file_path}
                         download
                         className="btn-primary text-center"
                         target="_blank"

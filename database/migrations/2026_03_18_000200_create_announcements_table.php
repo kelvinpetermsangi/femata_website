@@ -6,27 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('announcements', function (Blueprint $table): void {
             $table->id();
             $table->string('title');
-            $table->string('slug')->unique();
-            $table->longText('body');
-            $table->boolean('is_active')->default(true)->index();
+            $table->text('body');
             $table->timestamp('starts_at')->nullable()->index();
-            $table->timestamp('ends_at')->nullable()->index();
-            $table->unsignedInteger('priority')->default(0)->index();
+            $table->timestamp('expires_at')->nullable()->index();
+            $table->boolean('is_active')->default(true)->index();
+            $table->unsignedInteger('priority_level')->nullable()->index();
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('announcements');

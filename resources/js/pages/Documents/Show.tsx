@@ -11,6 +11,7 @@ export default function DocumentShow({
     description?: string | null;
     category?: string | null;
     file_path?: string | null;
+    download_url?: string | null;
     file_type?: string | null;
     preview?: 'pdf' | 'image' | null;
   };
@@ -76,7 +77,7 @@ export default function DocumentShow({
                 </AppLink>
                 {document.file_path ? (
                   <a
-                    href={document.file_path}
+                    href={document.download_url ?? document.file_path}
                     className="btn-primary text-center"
                     target="_blank"
                     rel="noreferrer"

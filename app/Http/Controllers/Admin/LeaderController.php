@@ -2,28 +2,36 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreLeaderRequest;
 use App\Models\Leader;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class LeaderController extends Controller
+class LeaderController extends AdminController
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Leader::class);
+
         $leaders = Leader::query()
-            ->orderBy('sort_order')
+            ->orderBy('rank_order')
             ->orderByDesc('created_at')
             ->get()
             ->map(fn (Leader $leader) => [
                 'id' => $leader->id,
                 'name' => $leader->name,
-                'title' => $leader->title,
-                'photo_path' => $leader->photo_path,
+                'title' => $leader->designation,
+                'designation' => $leader->designation,
+                'department' => $leader->department,
+                'photo_path' => $leader->image_path,
+                'image_path' => $leader->image_path,
                 'bio' => $leader->bio,
-                'sort_order' => $leader->sort_order,
+                'sort_order' => $leader->rank_order,
+                'rank_order' => $leader->rank_order,
+                'email' => $leader->email,
+                'phone' => $leader->phone,
                 'is_active' => $leader->is_active,
             ])
             ->all();
@@ -33,30 +41,32 @@ class LeaderController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreLeaderRequest $request): RedirectResponse
     {
-        $data = $this->validatedData($request);
+        $this->authorize('create', Leader::class);
 
-        Leader::query()->create($data);
+        Leader::query()->create($this->payload($request->validated()));
 
         return redirect()
             ->route('admin.leaders.index')
             ->with('success', 'Leader created successfully.');
     }
 
-    public function update(Request $request, Leader $leader): RedirectResponse
+    public function update(StoreLeaderRequest $request, Leader $leader): RedirectResponse
     {
-        $data = $this->validatedData($request);
+        $this->authorize('update', $leader);
 
-        $leader->update($data);
+        $leader->update($this->payload($request->validated()));
 
         return redirect()
             ->route('admin.leaders.index')
             ->with('success', 'Leader updated successfully.');
     }
 
-    public function destroy(Leader $leader): RedirectResponse
+    public function destroy(Request $request, Leader $leader): RedirectResponse
     {
+        $this->authorize('delete', $leader);
+
         $leader->delete();
 
         return redirect()
@@ -64,15 +74,18 @@ class LeaderController extends Controller
             ->with('success', 'Leader deleted successfully.');
     }
 
-    private function validatedData(Request $request): array
+    private function payload(array $data): array
     {
-        return $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'title' => ['required', 'string', 'max:255'],
-            'photo_path' => ['nullable', 'string', 'max:2048'],
-            'bio' => ['nullable', 'string'],
-            'sort_order' => ['required', 'integer', 'min:0', 'max:9999'],
-            'is_active' => ['required', 'boolean'],
-        ]);
+        return [
+            'name' => $data['name'],
+            'designation' => $data['designation'] ?? ($data['title'] ?? ''),
+            'department' => $data['department'] ?? null,
+            'image_path' => $data['image_path'] ?? ($data['photo_path'] ?? null),
+            'bio' => $data['bio'] ?? null,
+            'rank_order' => $data['rank_order'] ?? ($data['sort_order'] ?? 0),
+            'email' => $data['email'] ?? null,
+            'phone' => $data['phone'] ?? null,
+            'is_active' => $data['is_active'],
+        ];
     }
 }

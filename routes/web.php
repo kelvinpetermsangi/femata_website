@@ -12,6 +12,7 @@ Route::controller(PublicController::class)->group(function () {
     Route::get('/announcements', 'announcements')->name('announcements');
     Route::get('/gallery', 'gallery')->name('gallery');
     Route::get('/documents', 'documents')->name('documents.index');
-    Route::get('/documents/{documentFile:slug}', 'documentSingle')->name('documents.show');
+    Route::get('/documents/{document:slug}', 'documentSingle')->name('documents.show');
+    Route::get('/documents/{document:slug}/download', 'downloadDocument')->name('documents.download');
     Route::get('/contact', 'contact')->name('contact');
 });

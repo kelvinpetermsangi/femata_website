@@ -2,29 +2,52 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Concerns\HasContentWorkflow;
+use App\Models\Concerns\HasTags;
+use App\Models\Concerns\LogsCmsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class NewsPost extends Model
 {
-    use HasFactory;
+    use HasFactory, HasContentWorkflow, HasTags, LogsActivity, LogsCmsActivity, SoftDeletes;
 
     protected $fillable = [
         'title',
         'slug',
         'excerpt',
-        'body',
-        'cover_image',
+        'content',
+        'featured_image',
+        'seo_title',
+        'seo_description',
+        'category_id',
+        'is_featured',
+        'views_count',
+        'status_id',
+        'created_by',
+        'updated_by',
+        'submitted_by',
+        'reviewed_by',
+        'approved_by',
+        'published_by',
+        'submitted_at',
+        'reviewed_at',
+        'approved_at',
         'published_at',
-        'is_published',
     ];
 
     protected function casts(): array
     {
         return [
+            'is_featured' => 'boolean',
+            'views_count' => 'integer',
+            'submitted_at' => 'datetime',
+            'reviewed_at' => 'datetime',
+            'approved_at' => 'datetime',
             'published_at' => 'datetime',
-            'is_published' => 'boolean',
         ];
     }
 
@@ -33,12 +56,8 @@ class NewsPost extends Model
         return 'slug';
     }
 
-    public function scopePublished(Builder $query): Builder
+    public function category(): BelongsTo
     {
-        return $query
-            ->where('is_published', true)
-            ->where(function (Builder $subQuery): void {
-                $subQuery->whereNull('published_at')->orWhere('published_at', '<=', now());
-            });
+        return $this->belongsTo(NewsCategory::class, 'category_id');
     }
 }

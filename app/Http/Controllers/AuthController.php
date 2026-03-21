@@ -30,7 +30,7 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        if (! Auth::user()?->is_admin) {
+        if (! Auth::user()?->hasAdminAccess()) {
             Auth::logout();
 
             return back()->withErrors([

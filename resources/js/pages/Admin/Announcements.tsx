@@ -107,7 +107,7 @@ export default function AdminAnnouncements({
       const current = announcements.find((item) => item.id === editingId);
       if (!current) return;
 
-      form.put(`/admin/announcements/${current.slug}`, {
+      form.put(`/admin/announcements/${current.id}`, {
         preserveScroll: true,
         onSuccess,
       });
@@ -126,7 +126,7 @@ export default function AdminAnnouncements({
       return;
     }
 
-    router.delete(`/admin/announcements/${announcement.slug}`, {
+    router.delete(`/admin/announcements/${announcement.id}`, {
       preserveScroll: true,
       onSuccess: () => {
         if (editingId === announcement.id) {
