@@ -15,10 +15,12 @@ class Leader extends Model
     protected $fillable = [
         'name',
         'designation',
+        'administration_level',
         'department',
         'rank_order',
         'bio',
         'image_path',
+        'contact_qr_path',
         'email',
         'phone',
         'is_active',

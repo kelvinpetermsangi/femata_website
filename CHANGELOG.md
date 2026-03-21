@@ -1,5 +1,17 @@
 # Release Notes
 
+## [v2026.03.21] - 2026-03-21
+
+### Added
+- Leadership administration level support across database, validation, admin form, and public filtering.
+- Contact QR image URL support for leaders (schema, admin form, and public payload) with embed snippet extraction.
+- About page redesign with a new hero layout, mission/vision/values cards, and floating gallery accents.
+- App version configuration via `APP_VERSION`, shared to the frontend.
+
+### Fixed
+- Leadership cache invalidation on create/update/delete to keep the public page fresh.
+- Shared `Leader` type updated to include `contact_qr_path`.
+
 ## [Unreleased](https://github.com/laravel/laravel/compare/v12.12.2...12.x)
 
 ## [v12.12.2](https://github.com/laravel/laravel/compare/v12.12.1...v12.12.2) - 2026-03-14

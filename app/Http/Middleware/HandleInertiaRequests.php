@@ -33,6 +33,7 @@ class HandleInertiaRequests extends Middleware
     {
         return array_merge(parent::share($request), [
             'appName' => config('app.name', 'FEMATA'),
+            'appVersion' => config('app.version', '2026.03.21'),
             'auth' => [
                 'user' => $request->user()
                     ? [

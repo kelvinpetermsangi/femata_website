@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | This value represents the current release label for the application.
+    | It can be surfaced in the UI or logs for quick verification.
+    |
+    */
+
+    'version' => env('APP_VERSION', '2026.03.21'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

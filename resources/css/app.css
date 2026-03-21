@@ -544,3 +544,42 @@ html[data-theme='gray'] {
     transform: translate3d(-50%, 0, 0);
   }
 }
+
+@keyframes aboutFloatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(-7deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(-5deg);
+  }
+}
+
+@keyframes aboutFloatMedium {
+  0%, 100% {
+    transform: translateY(0px) rotate(8deg);
+  }
+  50% {
+    transform: translateY(-18px) rotate(5deg);
+  }
+}
+
+@keyframes aboutFloatSoft {
+  0%, 100% {
+    transform: translateY(0px) rotate(6deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
+}
+
+.about-float-slow {
+  animation: aboutFloatSlow 7s ease-in-out infinite;
+}
+
+.about-float-medium {
+  animation: aboutFloatMedium 8s ease-in-out infinite;
+}
+
+.about-float-soft {
+  animation: aboutFloatSoft 6s ease-in-out infinite;
+}

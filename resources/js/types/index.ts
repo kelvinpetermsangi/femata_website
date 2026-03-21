@@ -99,8 +99,10 @@ export interface Leader {
   name: string;
   title: string;
   designation?: string;
+  administration_level?: string | null;
   department?: string | null;
   photo_path?: string | null;
+  contact_qr_path?: string | null;
   image_path?: string | null;
   bio?: string | null;
   sort_order?: number;
@@ -216,12 +218,15 @@ export interface HomeContent {
   secondary_cta_label: string;
 }
 
+
 export interface AboutContent {
   title: string;
   body: string;
   mission: string;
   vision: string;
   values: string;
+  featured_image?: string | null;
+  gallery?: string[];
 }
 
 export interface ContactInfo {
@@ -244,6 +249,7 @@ export interface SiteFooter {
 export interface SharedPageProps {
   [key: string]: unknown;
   appName?: string;
+  appVersion?: string;
   auth?: {
     user?: {
       id: number;

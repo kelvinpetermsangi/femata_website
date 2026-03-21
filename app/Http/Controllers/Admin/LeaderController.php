@@ -6,6 +6,7 @@ use App\Http\Requests\Admin\StoreLeaderRequest;
 use App\Models\Leader;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,6 +25,7 @@ class LeaderController extends AdminController
                 'name' => $leader->name,
                 'title' => $leader->designation,
                 'designation' => $leader->designation,
+                'administration_level' => $leader->administration_level,
                 'department' => $leader->department,
                 'photo_path' => $leader->image_path,
                 'image_path' => $leader->image_path,
@@ -33,6 +35,7 @@ class LeaderController extends AdminController
                 'email' => $leader->email,
                 'phone' => $leader->phone,
                 'is_active' => $leader->is_active,
+                'contact_qr_path' => $leader->contact_qr_path,
             ])
             ->all();
 
@@ -46,6 +49,7 @@ class LeaderController extends AdminController
         $this->authorize('create', Leader::class);
 
         Leader::query()->create($this->payload($request->validated()));
+        Cache::forget('public_leaders_v2');
 
         return redirect()
             ->route('admin.leaders.index')
@@ -57,6 +61,7 @@ class LeaderController extends AdminController
         $this->authorize('update', $leader);
 
         $leader->update($this->payload($request->validated()));
+        Cache::forget('public_leaders_v2');
 
         return redirect()
             ->route('admin.leaders.index')
@@ -68,6 +73,7 @@ class LeaderController extends AdminController
         $this->authorize('delete', $leader);
 
         $leader->delete();
+        Cache::forget('public_leaders_v2');
 
         return redirect()
             ->route('admin.leaders.index')
@@ -79,6 +85,7 @@ class LeaderController extends AdminController
         return [
             'name' => $data['name'],
             'designation' => $data['designation'] ?? ($data['title'] ?? ''),
+            'administration_level' => $data['administration_level'] ?? null,
             'department' => $data['department'] ?? null,
             'image_path' => $data['image_path'] ?? ($data['photo_path'] ?? null),
             'bio' => $data['bio'] ?? null,
@@ -86,6 +93,7 @@ class LeaderController extends AdminController
             'email' => $data['email'] ?? null,
             'phone' => $data['phone'] ?? null,
             'is_active' => $data['is_active'],
+            'contact_qr_path' => $data['contact_qr_path'] ?? null,
         ];
     }
 }

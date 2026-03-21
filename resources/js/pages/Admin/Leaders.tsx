@@ -7,26 +7,51 @@ type LeaderItem = {
   id: number;
   name: string;
   title: string;
+  administration_level?: string | null;
   photo_path?: string | null;
   bio?: string | null;
   sort_order: number;
   is_active: boolean;
+  contact_qr_path?: string | null;
 };
 
 type LeaderForm = {
   name: string;
   title: string;
+  administration_level: string;
   photo_path: string;
+  contact_qr_path: string;
   bio: string;
   sort_order: string;
   is_active: boolean;
 };
 
+function extractQrUrl(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  const imgMatch = trimmed.match(/<img[^>]+src=['"]([^'"]+)['"]/i);
+  if (imgMatch?.[1]) {
+    return imgMatch[1];
+  }
+
+  const urlMatch = trimmed.match(/https?:\/\/[^\s"'<>]+/i);
+  if (urlMatch?.[0]) {
+    return urlMatch[0];
+  }
+
+  return trimmed;
+}
+
 function createEmptyLeader(): LeaderForm {
   return {
     name: '',
     title: '',
+    administration_level: '',
     photo_path: '',
+    contact_qr_path: '',
     bio: '',
     sort_order: '0',
     is_active: true,
@@ -70,7 +95,9 @@ export default function AdminLeaders({ leaders }: { leaders: LeaderItem[] }) {
     form.setData({
       name: leader.name,
       title: leader.title,
+      administration_level: leader.administration_level ?? '',
       photo_path: leader.photo_path ?? '',
+      contact_qr_path: leader.contact_qr_path ?? '',
       bio: leader.bio ?? '',
       sort_order: String(leader.sort_order),
       is_active: leader.is_active,
@@ -83,7 +110,9 @@ export default function AdminLeaders({ leaders }: { leaders: LeaderItem[] }) {
 
     form.transform((data) => ({
       ...data,
+      administration_level: data.administration_level || null,
       photo_path: data.photo_path.trim() || null,
+      contact_qr_path: extractQrUrl(data.contact_qr_path) || null,
       bio: data.bio.trim() || null,
       sort_order: Number(data.sort_order || 0),
     }));
@@ -200,6 +229,18 @@ export default function AdminLeaders({ leaders }: { leaders: LeaderItem[] }) {
                 />
               </Field>
 
+              <Field label="Administration level" error={form.errors.administration_level}>
+                <select
+                  value={form.data.administration_level}
+                  onChange={(event) => form.setData('administration_level', event.target.value)}
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                >
+                  <option value="">Select level</option>
+                  <option value="Management Team">Management Team</option>
+                  <option value="Secretariat">Secretariat</option>
+                </select>
+              </Field>
+
               <Field
                 label="Photo URL"
                 error={form.errors.photo_path}
@@ -208,6 +249,18 @@ export default function AdminLeaders({ leaders }: { leaders: LeaderItem[] }) {
                 <input
                   value={form.data.photo_path}
                   onChange={(event) => form.setData('photo_path', event.target.value)}
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                />
+              </Field>
+
+              <Field
+                label="Contact QR URL"
+                error={form.errors.contact_qr_path}
+                hint="Paste a direct image URL or the embed snippet; we'll extract the image link."
+              >
+                <input
+                  value={form.data.contact_qr_path}
+                  onChange={(event) => form.setData('contact_qr_path', event.target.value)}
                   className="rounded-2xl border bg-white px-4 py-3 text-sm"
                 />
               </Field>
