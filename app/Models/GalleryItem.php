@@ -16,6 +16,8 @@ class GalleryItem extends Model
     protected $fillable = [
         'title',
         'caption',
+        'event_name',
+        'event_date',
         'media_id',
         'category_id',
         'display_order',
@@ -28,6 +30,7 @@ class GalleryItem extends Model
         return [
             'display_order' => 'integer',
             'is_featured' => 'boolean',
+            'event_date' => 'date',
         ];
     }
 

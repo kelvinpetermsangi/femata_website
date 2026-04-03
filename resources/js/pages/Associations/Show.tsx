@@ -398,8 +398,86 @@ function AboutContent({ association }: { association: Association }) {
   );
 }
 
+function normalizeAssociationLeaderGroup(value?: string | null) {
+  const normalized = (value ?? '').trim().toLowerCase();
+
+  if (
+    normalized === 'secretariat' ||
+    normalized === 'secretariate' ||
+    normalized.includes('secret')
+  ) {
+    return 'secretariat';
+  }
+
+  return 'management';
+}
+
+function labelForAssociationLeaderGroup(value: string) {
+  return value === 'secretariat' ? 'Secretariat' : 'Management Team';
+}
+
+function formatAssociationEventDate(value?: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return parsed.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+function buildAssociationGalleryGroups(association: Association) {
+  const gallery = association.gallery ?? [];
+  const groups = new Map<string, {
+    key: string;
+    title: string;
+    date?: string | null;
+    items: NonNullable<Association['gallery']>;
+  }>();
+
+  gallery.forEach((item) => {
+    const title = item.event_title || `${association.name} field archive`;
+    const date = item.event_date || null;
+    const key = `${title}::${date ?? 'undated'}`;
+    const existing = groups.get(key);
+
+    if (existing) {
+      existing.items.push(item);
+      return;
+    }
+
+    groups.set(key, {
+      key,
+      title,
+      date,
+      items: [item],
+    });
+  });
+
+  return Array.from(groups.values()).sort((left, right) => {
+      const leftDate = left.date ? new Date(left.date).getTime() : 0;
+      const rightDate = right.date ? new Date(right.date).getTime() : 0;
+
+      return rightDate - leftDate;
+    });
+}
+
 function LeadershipContent({ association }: { association: Association }) {
   const leaders = association.leaders ?? [];
+  const groupedLeaders = {
+    management: leaders.filter((leader) => normalizeAssociationLeaderGroup(leader.group || leader.title) === 'management'),
+    secretariat: leaders.filter((leader) => normalizeAssociationLeaderGroup(leader.group || leader.title) === 'secretariat'),
+  };
+  const visibleGroups = (['management', 'secretariat'] as const).filter(
+    (key) => groupedLeaders[key].length > 0,
+  );
 
   if (leaders.length === 0) {
     return (
@@ -419,13 +497,34 @@ function LeadershipContent({ association }: { association: Association }) {
       <div className="container-shell">
         <SectionLead
           eyebrow="Leadership"
-          title="Association leaders"
-          text="These leadership cards match the FEMATA profile experience, including a bio view and a QR-enabled contact card."
+          title="Management and secretariat leadership"
+          text="These leadership cards match the FEMATA profile experience, including grouped sections, a bio view, and a QR-enabled contact card."
         />
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {leaders.map((leader, index) => (
-            <AssociationLeaderFlipCard key={`${leader.name}-${index}`} leader={leader} index={index} />
+        <div className="grid gap-10">
+          {visibleGroups.map((groupKey) => (
+            <section key={groupKey} className="grid gap-5">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
+                    {labelForAssociationLeaderGroup(groupKey)}
+                  </p>
+                  <h3 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">
+                    {labelForAssociationLeaderGroup(groupKey)} profiles
+                  </h3>
+                </div>
+
+                <span className="ui-chip px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+                  {groupedLeaders[groupKey].length} published
+                </span>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {groupedLeaders[groupKey].map((leader, index) => (
+                  <AssociationLeaderFlipCard key={`${groupKey}-${leader.name}-${index}`} leader={leader} index={index} />
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       </div>
@@ -487,7 +586,7 @@ function DocumentsContent({ association }: { association: Association }) {
 }
 
 function GalleryContent({ association }: { association: Association }) {
-  const gallery = association.gallery ?? [];
+  const gallery = buildAssociationGalleryGroups(association);
 
   if (gallery.length === 0) {
     return (
@@ -507,21 +606,73 @@ function GalleryContent({ association }: { association: Association }) {
       <div className="container-shell">
         <SectionLead
           eyebrow="Gallery"
-          title="Association gallery"
-          text="Images uploaded for this association profile stay inside the association mini-site and can be shown or hidden from the admin builder."
+          title="Association gallery by event"
+          text="Images uploaded for this association profile stay inside the association mini-site and can now be grouped by event, meeting, field visit, or milestone from the admin builder."
         />
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {gallery.map((item, index) => (
-            <figure key={`${item.image_path}-${index}`} className="card-shell overflow-hidden">
-              <img src={item.image_path} alt={item.caption ?? association.name} className="h-72 w-full object-cover" loading="lazy" />
-              {item.caption ? (
-                <figcaption className="p-5 text-sm leading-7 text-[rgb(var(--muted))]">
-                  {item.caption}
-                </figcaption>
-              ) : null}
-            </figure>
-          ))}
+        <div className="grid gap-8">
+          {gallery.map((group) => {
+            const leadItem = group.items[0];
+            const remainingItems = group.items.slice(1);
+
+            return (
+              <section key={group.key} className="ui-section-layer p-5 sm:p-7">
+                <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
+                      Association event
+                    </p>
+                    <h3 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">
+                      {group.title}
+                    </h3>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    {group.date ? (
+                      <span className="ui-chip px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+                        {formatAssociationEventDate(group.date)}
+                      </span>
+                    ) : null}
+                    <span className="ui-chip px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+                      {group.items.length} images
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid gap-5 xl:grid-cols-[minmax(0,1.06fr)_minmax(320px,0.94fr)]">
+                  {leadItem ? (
+                    <figure className="card-shell overflow-hidden">
+                      <img src={leadItem.image_path} alt={leadItem.caption ?? association.name} className="h-full min-h-[320px] w-full object-cover" loading="lazy" />
+                      {leadItem.caption ? (
+                        <figcaption className="p-5 text-sm leading-7 text-[rgb(var(--muted))]">
+                          {leadItem.caption}
+                        </figcaption>
+                      ) : null}
+                    </figure>
+                  ) : null}
+
+                  <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-1">
+                    {remainingItems.length > 0 ? (
+                      remainingItems.map((item, index) => (
+                        <figure key={`${group.key}-${item.image_path}-${index}`} className="card-shell overflow-hidden">
+                          <img src={item.image_path} alt={item.caption ?? association.name} className="h-72 w-full object-cover" loading="lazy" />
+                          {item.caption ? (
+                            <figcaption className="p-5 text-sm leading-7 text-[rgb(var(--muted))]">
+                              {item.caption}
+                            </figcaption>
+                          ) : null}
+                        </figure>
+                      ))
+                    ) : (
+                      <div className="card-shell flex items-center justify-center p-6 text-center text-sm leading-7 text-[rgb(var(--muted))]">
+                        This event currently has one published lead image on the association profile.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -75,6 +75,28 @@ class Association extends Model
         return ['website', 'instagram', 'facebook', 'x', 'linkedin', 'youtube', 'whatsapp'];
     }
 
+    public static function supportedLeaderGroups(): array
+    {
+        return ['management', 'secretariat'];
+    }
+
+    public static function normalizeLeaderGroup(?string $group, ?string $title = null): string
+    {
+        $normalized = strtolower(trim((string) $group));
+
+        if (in_array($normalized, static::supportedLeaderGroups(), true)) {
+            return $normalized;
+        }
+
+        $titleText = strtolower(trim((string) $title));
+
+        if ($titleText !== '' && str_contains($titleText, 'secret')) {
+            return 'secretariat';
+        }
+
+        return 'management';
+    }
+
     public static function socialPlatformLabel(string $platform): string
     {
         return match ($platform) {

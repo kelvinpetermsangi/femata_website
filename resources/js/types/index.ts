@@ -74,6 +74,8 @@ export interface GalleryItem {
   youtube_url?: string | null;
   description?: string | null;
   is_featured: boolean;
+  event_name?: string | null;
+  event_date?: string | null;
   published_at?: string | null;
 }
 
@@ -149,6 +151,7 @@ export interface AssociationHighlight {
 
 export interface AssociationLeaderProfile {
   name: string;
+  group?: string | null;
   title?: string | null;
   bio?: string | null;
   photo_path?: string | null;
@@ -160,6 +163,8 @@ export interface AssociationLeaderProfile {
 export interface AssociationGalleryItem {
   image_path: string;
   caption?: string | null;
+  event_title?: string | null;
+  event_date?: string | null;
 }
 
 export interface AssociationPageConfig {

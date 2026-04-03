@@ -2,25 +2,139 @@ import { Head } from '@inertiajs/react';
 import AdvertCarousel from '@/components/AdvertCarousel';
 import { advertsForSlot } from '@/lib/adverts';
 import PublicLayout from '@/layouts/PublicLayout';
-import type { AdvertSlots } from '@/types';
+import type { AdvertSlots, GalleryItem } from '@/types';
+
+type GalleryGroup = {
+  key: string;
+  title: string;
+  date?: string | null;
+  items: GalleryItem[];
+};
+
+function formatDate(date?: string | null) {
+  if (!date) {
+    return null;
+  }
+
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) {
+    return date;
+  }
+
+  return parsed.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+function buildGalleryGroups(items: GalleryItem[]): GalleryGroup[] {
+  const groups = new Map<string, GalleryGroup>();
+
+  items.forEach((item) => {
+    const title = item.event_name || 'FEMATA Field Archive';
+    const date = item.event_date || item.published_at || null;
+    const key = `${title}::${date ?? 'undated'}`;
+    const existing = groups.get(key);
+
+    if (existing) {
+      existing.items.push(item);
+      return;
+    }
+
+    groups.set(key, {
+      key,
+      title,
+      date,
+      items: [item],
+    });
+  });
+
+  return Array.from(groups.values()).sort((left, right) => {
+    const leftDate = left.date ? new Date(left.date).getTime() : 0;
+    const rightDate = right.date ? new Date(right.date).getTime() : 0;
+
+    return rightDate - leftDate;
+  });
+}
+
+function MediaTile({
+  item,
+  featured = false,
+}: {
+  item: GalleryItem;
+  featured?: boolean;
+}) {
+  return (
+    <article className="card-shell overflow-hidden">
+      <div className={featured ? 'aspect-[16/10] bg-[rgb(var(--surface-2))]' : 'aspect-[4/3] bg-[rgb(var(--surface-2))]'}>
+        {item.type === 'image' && item.image_path ? (
+          <img
+            src={item.image_path}
+            alt={item.title}
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="relative flex h-full items-center justify-center overflow-hidden bg-slate-950">
+            {item.image_path ? (
+              <img
+                src={item.image_path}
+                alt={item.title}
+                className="absolute inset-0 h-full w-full object-cover opacity-45"
+                loading="lazy"
+              />
+            ) : null}
+            <div className="absolute inset-0 bg-linear-to-br from-slate-950/88 to-slate-900/72" />
+            <div className="relative px-5 text-center text-sm font-semibold text-white">
+              FEMATA video highlight
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="p-5 sm:p-6">
+        <div className="ui-chip mb-3 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+          {item.type === 'youtube' ? 'Video' : 'Image'}
+        </div>
+
+        <h3 className={`${featured ? 'text-2xl' : 'text-lg'} font-semibold text-[rgb(var(--primary))]`}>
+          {item.title}
+        </h3>
+
+        {item.description ? (
+          <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">{item.description}</p>
+        ) : null}
+
+        {item.youtube_url ? (
+          <a
+            href={item.youtube_url}
+            className="mt-4 inline-flex text-sm font-semibold text-[rgb(var(--primary))]"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Watch video
+          </a>
+        ) : null}
+      </div>
+    </article>
+  );
+}
 
 export default function Gallery({
   galleryItems,
   adverts,
   announcements,
 }: {
-  galleryItems: {
-    id: number;
-    title: string;
-    slug: string;
-    type: 'image' | 'youtube';
-    image_path?: string | null;
-    youtube_url?: string | null;
-    description?: string | null;
-  }[];
+  galleryItems: GalleryItem[];
   adverts?: AdvertSlots;
   announcements?: [];
 }) {
+  const groups = buildGalleryGroups(galleryItems);
+  const heroAdverts = advertsForSlot(adverts, 1);
+  const inlineAdverts = advertsForSlot(adverts, 2);
+  const closingAdverts = advertsForSlot(adverts, 3);
+
   return (
     <>
       <Head title="Gallery" />
@@ -29,21 +143,25 @@ export default function Gallery({
         <section className="section-shell">
           <div className="container-shell">
             <div className="glass-shell p-6 sm:p-10">
-              <h1 className="section-title">Gallery & Media</h1>
-              <p className="section-copy">Visual highlights from FEMATA events and outreach.</p>
+              <h1 className="section-title">Gallery &amp; Media</h1>
+              <p className="section-copy">
+                Event-based visual coverage from FEMATA meetings, field visits, stakeholder sessions, and public-facing sector activity.
+              </p>
             </div>
           </div>
         </section>
 
-        <section className="section-shell pt-0">
-          <div className="container-shell">
-            <AdvertCarousel adverts={advertsForSlot(adverts, 1)} slotNumber={1} />
-          </div>
-        </section>
+        {heroAdverts.length > 0 ? (
+          <section className="section-shell pt-0">
+            <div className="container-shell">
+              <AdvertCarousel adverts={heroAdverts} slotNumber={1} />
+            </div>
+          </section>
+        ) : null}
 
         <section className="section-shell pt-0">
           <div className="container-shell">
-            {galleryItems.length === 0 ? (
+            {groups.length === 0 ? (
               <div className="card-shell p-8 text-center sm:p-12">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
                   Media archive
@@ -57,50 +175,71 @@ export default function Gallery({
                 </p>
               </div>
             ) : (
-              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {galleryItems.map((item) => (
-                  <article key={item.id} className="card-shell overflow-hidden">
-                    <div className="aspect-[16/10] bg-[rgb(var(--surface-2))]">
-                      {item.type === 'image' && item.image_path ? (
-                        <img
-                          src={item.image_path}
-                          alt={item.title}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center px-4 text-center text-sm text-[rgb(var(--muted))]">
-                          {item.youtube_url ? 'FEMATA video highlight' : 'FEMATA media preview'}
+              <div className="grid gap-8">
+                {groups.map((group, index) => {
+                  const leadItem = group.items[0];
+                  const remainingItems = group.items.slice(1);
+
+                  return (
+                    <div key={group.key} className="grid gap-8">
+                      <section className="ui-section-layer p-5 sm:p-7">
+                        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--muted))]">
+                              Event gallery
+                            </p>
+                            <h2 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))] sm:text-3xl">
+                              {group.title}
+                            </h2>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2">
+                            {group.date ? (
+                              <span className="ui-chip px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+                                {formatDate(group.date)}
+                              </span>
+                            ) : null}
+                            <span className="ui-chip px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+                              {group.items.length} items
+                            </span>
+                          </div>
                         </div>
-                      )}
-                    </div>
 
-                    <div className="p-5 sm:p-6">
-                      <div className="ui-chip mb-3 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
-                        {item.type === 'youtube' ? 'Video' : 'Image'}
-                      </div>
+                        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.06fr)_minmax(340px,0.94fr)]">
+                          {leadItem ? <MediaTile item={leadItem} featured /> : null}
 
-                      <h3 className="text-lg font-semibold text-[rgb(var(--primary))]">{item.title}</h3>
-                      {item.description ? (
-                        <p className="mt-2 text-sm leading-7 text-[rgb(var(--muted))]">{item.description}</p>
-                      ) : null}
-                      {item.youtube_url ? (
-                        <a
-                          href={item.youtube_url}
-                          className="mt-3 inline-flex text-sm font-semibold text-[rgb(var(--primary))]"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Watch video
-                        </a>
+                          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
+                            {remainingItems.length > 0 ? (
+                              remainingItems.map((item) => (
+                                <MediaTile key={item.id} item={item} />
+                              ))
+                            ) : leadItem ? (
+                              <div className="card-shell flex items-center justify-center p-6 text-center text-sm leading-7 text-[rgb(var(--muted))]">
+                                This event currently has one lead visual published on the FEMATA gallery.
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      </section>
+
+                      {index === 0 && inlineAdverts.length > 0 ? (
+                        <AdvertCarousel adverts={inlineAdverts} slotNumber={2} compact />
                       ) : null}
                     </div>
-                  </article>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
         </section>
+
+        {closingAdverts.length > 0 ? (
+          <section className="section-shell pt-0">
+            <div className="container-shell">
+              <AdvertCarousel adverts={closingAdverts} slotNumber={3} compact />
+            </div>
+          </section>
+        ) : null}
       </PublicLayout>
     </>
   );

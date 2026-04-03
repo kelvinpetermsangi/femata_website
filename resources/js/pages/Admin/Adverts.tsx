@@ -364,6 +364,10 @@ export default function AdminAdverts({
                 </Field>
               </div>
 
+              <div className="rounded-[1.2rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))]/55 px-4 py-4 text-sm leading-7 text-[rgb(var(--muted))]">
+                Use slot 1 for the main billboard placement, slot 2 for an inline mid-page campaign, and slot 3 for a closing placement lower down the page. Campaigns in the same slot rotate automatically.
+              </div>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Placement scope" error={fieldError('placement_scope')}>
                   <select

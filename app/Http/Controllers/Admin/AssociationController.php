@@ -218,10 +218,29 @@ class AssociationController extends AdminController
                 ->all(),
             'leaders' => collect($association->leaders ?? [])
                 ->filter(fn ($item) => filled(data_get($item, 'name')))
+                ->map(fn ($item) => [
+                    'name' => data_get($item, 'name'),
+                    'group' => Association::normalizeLeaderGroup(
+                        data_get($item, 'group'),
+                        data_get($item, 'title'),
+                    ),
+                    'title' => data_get($item, 'title'),
+                    'bio' => data_get($item, 'bio'),
+                    'photo_path' => data_get($item, 'photo_path'),
+                    'email' => data_get($item, 'email'),
+                    'phone' => data_get($item, 'phone'),
+                    'contact_qr_path' => data_get($item, 'contact_qr_path'),
+                ])
                 ->values()
                 ->all(),
             'gallery' => collect($association->gallery ?? [])
                 ->filter(fn ($item) => filled(data_get($item, 'image_path')))
+                ->map(fn ($item) => [
+                    'image_path' => data_get($item, 'image_path'),
+                    'caption' => data_get($item, 'caption'),
+                    'event_title' => data_get($item, 'event_title'),
+                    'event_date' => data_get($item, 'event_date'),
+                ])
                 ->values()
                 ->all(),
             'profile_pages' => Association::normalizeProfilePages($association->profile_pages, $association->name),
@@ -250,6 +269,10 @@ class AssociationController extends AdminController
         return collect($items)
             ->map(fn ($item) => [
                 'name' => trim((string) data_get($item, 'name')),
+                'group' => Association::normalizeLeaderGroup(
+                    data_get($item, 'group'),
+                    data_get($item, 'title'),
+                ),
                 'title' => trim((string) data_get($item, 'title')),
                 'bio' => trim((string) data_get($item, 'bio')),
                 'photo_path' => trim((string) data_get($item, 'photo_path')),
@@ -268,6 +291,10 @@ class AssociationController extends AdminController
             ->map(fn ($item) => [
                 'image_path' => trim((string) data_get($item, 'image_path')),
                 'caption' => trim((string) data_get($item, 'caption')),
+                'event_title' => trim((string) data_get($item, 'event_title')),
+                'event_date' => filled(data_get($item, 'event_date'))
+                    ? (string) data_get($item, 'event_date')
+                    : null,
             ])
             ->filter(fn (array $item) => $item['image_path'] !== '')
             ->values()

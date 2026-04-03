@@ -13,6 +13,7 @@ type Highlight = {
 
 type LeaderProfile = {
   name: string;
+  group: string;
   title: string;
   bio: string;
   photo_path: string;
@@ -24,6 +25,8 @@ type LeaderProfile = {
 type GalleryProfile = {
   image_path: string;
   caption: string;
+  event_title: string;
+  event_date: string;
 };
 
 type ProfilePage = {
@@ -179,6 +182,7 @@ function emptyHighlight(): Highlight {
 function emptyLeader(): LeaderProfile {
   return {
     name: '',
+    group: 'management',
     title: '',
     bio: '',
     photo_path: '',
@@ -189,7 +193,7 @@ function emptyLeader(): LeaderProfile {
 }
 
 function emptyGallery(): GalleryProfile {
-  return { image_path: '', caption: '' };
+  return { image_path: '', caption: '', event_title: '', event_date: '' };
 }
 
 export default function AdminAssociationProfile({
@@ -654,8 +658,11 @@ export default function AdminAssociationProfile({
                     Leaders
                   </p>
                   <h2 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">
-                    Leadership profiles and QR cards
+                    Management and secretariat leadership
                   </h2>
+                  <p className="mt-2 text-sm leading-7 text-[rgb(var(--muted))]">
+                    Each leader can now be assigned to the management team or secretariat so the public profile mirrors FEMATA&apos;s own leadership structure.
+                  </p>
                 </div>
 
                 <button type="button" onClick={() => form.setData('leaders', [...form.data.leaders, emptyLeader()])} className="btn-secondary">
@@ -678,6 +685,13 @@ export default function AdminAssociationProfile({
                     <div className="mt-4 grid gap-4 md:grid-cols-2">
                       <Field label="Name" error={fieldError(`leaders.${index}.name`)}>
                         <input value={item.name} onChange={(event) => updateLeader(index, 'name', event.target.value)} className="field-shell px-4 py-3 text-sm text-[rgb(var(--foreground))]" />
+                      </Field>
+
+                      <Field label="Leadership group" error={fieldError(`leaders.${index}.group`)}>
+                        <select value={item.group} onChange={(event) => updateLeader(index, 'group', event.target.value)} className="field-shell px-4 py-3 text-sm text-[rgb(var(--foreground))]">
+                          <option value="management">Management Team</option>
+                          <option value="secretariat">Secretariat</option>
+                        </select>
                       </Field>
 
                       <Field label="Title" error={fieldError(`leaders.${index}.title`)}>
@@ -720,14 +734,17 @@ export default function AdminAssociationProfile({
             <section className="grid gap-6">
               <section className="card-shell p-5 sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--muted))]">
-                      Gallery
-                    </p>
-                    <h2 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">
-                      Association gallery
-                    </h2>
-                  </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--muted))]">
+                    Gallery
+                  </p>
+                  <h2 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">
+                      Association gallery by event
+                  </h2>
+                  <p className="mt-2 text-sm leading-7 text-[rgb(var(--muted))]">
+                    Add event names and dates so the public gallery can group images into real activity albums instead of a flat image list.
+                  </p>
+                </div>
 
                   <button type="button" onClick={() => form.setData('gallery', [...form.data.gallery, emptyGallery()])} className="btn-secondary">
                     Add image
@@ -750,6 +767,16 @@ export default function AdminAssociationProfile({
                         <Field label="Image URL" error={fieldError(`gallery.${index}.image_path`)}>
                           <input value={item.image_path} onChange={(event) => updateGallery(index, 'image_path', event.target.value)} className="field-shell px-4 py-3 text-sm text-[rgb(var(--foreground))]" />
                         </Field>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <Field label="Event title" error={fieldError(`gallery.${index}.event_title`)}>
+                            <input value={item.event_title} onChange={(event) => updateGallery(index, 'event_title', event.target.value)} className="field-shell px-4 py-3 text-sm text-[rgb(var(--foreground))]" />
+                          </Field>
+
+                          <Field label="Event date" error={fieldError(`gallery.${index}.event_date`)}>
+                            <input type="date" value={item.event_date} onChange={(event) => updateGallery(index, 'event_date', event.target.value)} className="field-shell px-4 py-3 text-sm text-[rgb(var(--foreground))]" />
+                          </Field>
+                        </div>
 
                         <Field label="Caption" error={fieldError(`gallery.${index}.caption`)}>
                           <textarea value={item.caption} onChange={(event) => updateGallery(index, 'caption', event.target.value)} rows={4} className="field-shell px-4 py-3 text-sm leading-7 text-[rgb(var(--foreground))]" />

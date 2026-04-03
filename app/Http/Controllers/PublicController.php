@@ -499,11 +499,13 @@ class PublicController extends Controller
                 'thumbnail' => $this->resolveUrl($item->media?->file_path),
                 'youtube_url' => null,
                 'is_featured' => (bool) $item->is_featured,
+                'event_name' => $item->event_name,
+                'event_date' => $item->event_date?->toDateString(),
                 'published_at' => $item->created_at?->toDateString(),
             ]);
 
         $videos = VideoPost::query()
-            ->with('status')
+            ->with(['status', 'category'])
             ->published()
             ->featured()
             ->orderByDesc('published_at')
@@ -519,6 +521,8 @@ class PublicController extends Controller
                 'thumbnail' => $video->thumbnail,
                 'youtube_url' => $video->youtube_url,
                 'is_featured' => (bool) $video->is_featured,
+                'event_name' => $video->category?->name ?: 'FEMATA Online TV',
+                'event_date' => $video->published_at?->toDateString(),
                 'published_at' => $video->published_at?->toDateString(),
             ]);
 
@@ -607,6 +611,10 @@ class PublicController extends Controller
             ->filter(fn ($item) => filled(data_get($item, 'name')))
             ->map(fn ($item) => [
                 'name' => data_get($item, 'name'),
+                'group' => Association::normalizeLeaderGroup(
+                    data_get($item, 'group'),
+                    data_get($item, 'title'),
+                ),
                 'title' => data_get($item, 'title'),
                 'bio' => data_get($item, 'bio'),
                 'photo_path' => $this->resolveUrl(data_get($item, 'photo_path')),
@@ -621,6 +629,7 @@ class PublicController extends Controller
             $leaders = collect([
                 $association->chairperson_name ? [
                     'name' => $association->chairperson_name,
+                    'group' => 'management',
                     'title' => 'Chairperson',
                     'bio' => null,
                     'photo_path' => null,
@@ -630,6 +639,7 @@ class PublicController extends Controller
                 ] : null,
                 $association->secretary_name ? [
                     'name' => $association->secretary_name,
+                    'group' => 'secretariat',
                     'title' => 'Secretary',
                     'bio' => null,
                     'photo_path' => null,
@@ -700,6 +710,8 @@ class PublicController extends Controller
                 ->map(fn ($item) => [
                     'image_path' => $this->resolveUrl(data_get($item, 'image_path')),
                     'caption' => data_get($item, 'caption'),
+                    'event_title' => data_get($item, 'event_title'),
+                    'event_date' => data_get($item, 'event_date'),
                 ])
                 ->values()
                 ->all(),

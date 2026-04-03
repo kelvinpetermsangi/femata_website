@@ -28,6 +28,8 @@ class GalleryController extends AdminController
                 'image_path' => $item->media?->file_path,
                 'youtube_url' => null,
                 'description' => $item->caption ?? $item->media?->caption,
+                'event_name' => $item->event_name,
+                'event_date' => $item->event_date?->toDateString(),
                 'is_featured' => $item->is_featured,
                 'published_at' => $item->created_at?->format('Y-m-d\TH:i'),
             ])
@@ -55,6 +57,8 @@ class GalleryController extends AdminController
         GalleryItem::query()->create([
             'title' => $data['title'],
             'caption' => $data['description'],
+            'event_name' => $data['event_name'] ?? null,
+            'event_date' => $data['event_date'] ?? null,
             'media_id' => $media->id,
             'display_order' => 0,
             'is_featured' => $data['is_featured'],
@@ -74,6 +78,8 @@ class GalleryController extends AdminController
         $galleryItem->update([
             'title' => $data['title'],
             'caption' => $data['description'],
+            'event_name' => $data['event_name'] ?? null,
+            'event_date' => $data['event_date'] ?? null,
             'is_featured' => $data['is_featured'],
         ]);
 
@@ -110,6 +116,8 @@ class GalleryController extends AdminController
             'image_path' => ['nullable', 'string', 'max:2048'],
             'youtube_url' => ['nullable', 'string', 'max:2048'],
             'description' => ['nullable', 'string'],
+            'event_name' => ['nullable', 'string', 'max:160'],
+            'event_date' => ['nullable', 'date'],
             'is_featured' => ['required', 'boolean'],
         ]);
 

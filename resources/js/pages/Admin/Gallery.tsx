@@ -12,6 +12,8 @@ type GalleryItemFormData = {
   image_path?: string | null;
   youtube_url?: string | null;
   description?: string | null;
+  event_name?: string | null;
+  event_date?: string | null;
   is_featured: boolean;
   published_at?: string | null;
 };
@@ -23,6 +25,8 @@ type GalleryForm = {
   image_path: string;
   youtube_url: string;
   description: string;
+  event_name: string;
+  event_date: string;
   is_featured: boolean;
   published_at: string;
 };
@@ -35,6 +39,8 @@ function createEmptyGalleryItem(): GalleryForm {
     image_path: '',
     youtube_url: '',
     description: '',
+    event_name: '',
+    event_date: '',
     is_featured: false,
     published_at: '',
   };
@@ -85,6 +91,8 @@ export default function AdminGallery({
       image_path: item.image_path ?? '',
       youtube_url: item.youtube_url ?? '',
       description: item.description ?? '',
+      event_name: item.event_name ?? '',
+      event_date: item.event_date ?? '',
       is_featured: item.is_featured,
       published_at: item.published_at ?? '',
     });
@@ -100,6 +108,8 @@ export default function AdminGallery({
       image_path: data.image_path.trim() || null,
       youtube_url: data.youtube_url.trim() || null,
       description: data.description.trim() || null,
+      event_name: data.event_name.trim() || null,
+      event_date: data.event_date || null,
       published_at: data.published_at || null,
     }));
 
@@ -153,7 +163,7 @@ export default function AdminGallery({
         <AdminPageIntro
           eyebrow="Media management"
           title="Curate field images for the public gallery."
-          text="Gallery items help the FEMATA website feel active and credible. Image media is managed here, while FEMATA Online TV entries now belong to the dedicated video workflow."
+          text="Gallery items help the FEMATA website feel active and credible. Use event titles and dates to group media into clear public storylines, while FEMATA Online TV entries stay in the dedicated video workflow."
           metrics={[
             { label: 'Total items', value: String(galleryItems.length) },
             { label: 'Featured items', value: String(featuredCount) },
@@ -232,6 +242,25 @@ export default function AdminGallery({
               </Field>
 
               <div className="grid gap-4 md:grid-cols-2">
+                <Field label="Event title" error={form.errors.event_name}>
+                  <input
+                    value={form.data.event_name}
+                    onChange={(event) => form.setData('event_name', event.target.value)}
+                    className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                  />
+                </Field>
+
+                <Field label="Event date" error={form.errors.event_date}>
+                  <input
+                    type="date"
+                    value={form.data.event_date}
+                    onChange={(event) => form.setData('event_date', event.target.value)}
+                    className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                  />
+                </Field>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Published at" error={form.errors.published_at}>
                   <input
                     type="datetime-local"
@@ -292,6 +321,11 @@ export default function AdminGallery({
                         <span className="rounded-full bg-[rgb(var(--surface-2))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
                           Image
                         </span>
+                        {item.event_name ? (
+                          <span className="rounded-full bg-[rgb(var(--surface-2))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+                            {item.event_name}
+                          </span>
+                        ) : null}
                         {item.is_featured ? (
                           <span className="rounded-full bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-700">
                             Featured
@@ -343,6 +377,12 @@ export default function AdminGallery({
 
                   {item.description ? (
                     <p className="mt-4 text-sm leading-7 text-[rgb(var(--muted))]">{item.description}</p>
+                  ) : null}
+
+                  {item.event_date ? (
+                    <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-[rgb(var(--accent-2))]">
+                      Event date: {item.event_date}
+                    </p>
                   ) : null}
                 </article>
               ))
