@@ -1,5 +1,6 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { type FormEvent, type ReactNode, useState } from 'react';
+import AdminPageIntro from '@/components/AdminPageIntro';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { SharedPageProps } from '@/types';
 
@@ -155,27 +156,15 @@ export default function AdminNews({
       <Head title="News admin" />
 
       <AdminLayout title="News">
-        <section className="soft-band overflow-hidden rounded-[1.8rem] px-5 py-6 text-white sm:px-7">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/68">
-            Newsroom management
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
-            Create stories, publish updates, and manage public visibility.
-          </h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/82 sm:text-base">
-            News posts power the FEMATA newsroom. Use them for articles, official releases, field
-            updates, and stakeholder communication with optional cover imagery.
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-3 text-sm">
-            <div className="rounded-full border border-white/16 bg-white/10 px-4 py-2">
-              {news.length} total posts
-            </div>
-            <div className="rounded-full border border-white/16 bg-white/10 px-4 py-2">
-              {publishedCount} published
-            </div>
-          </div>
-        </section>
+        <AdminPageIntro
+          eyebrow="Newsroom management"
+          title="Create stories, publish updates, and manage public visibility."
+          text="News posts power the FEMATA newsroom. Use them for articles, official releases, field updates, and stakeholder communication with optional cover imagery."
+          metrics={[
+            { label: 'Total posts', value: String(news.length) },
+            { label: 'Published', value: String(publishedCount) },
+          ]}
+        />
 
         {(flashSuccess || form.recentlySuccessful) ? (
           <div className="mt-6 rounded-[1.25rem] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
@@ -321,7 +310,7 @@ export default function AdminNews({
           <section className="grid gap-4">
             {news.length === 0 ? (
               <div className="card-shell p-6 text-sm text-[rgb(var(--muted))]">
-                No news posts yet. Create the first article using the form.
+                No FEMATA news posts have been created yet. Publish the first newsroom article using the form.
               </div>
             ) : (
               news.map((item) => (

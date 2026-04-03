@@ -128,19 +128,21 @@ function HeroSection({ leaders }: { leaders: Leader[] }) {
 
           <div className="relative z-10 grid min-h-105 items-end px-6 py-8 sm:px-10 sm:py-12 lg:grid-cols-12 lg:px-14">
             <div className="lg:col-span-8">
-              <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/85 backdrop-blur-md">
-                Leadership
+              <div className="ui-shell-strong max-w-3xl p-6 sm:p-8">
+                <div className="ui-chip px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-[rgb(var(--accent-2))]">
+                  Leadership
+                </div>
+
+                <h1 className="mt-6 max-w-3xl text-4xl font-semibold leading-tight text-[rgb(var(--primary))] sm:text-5xl lg:text-6xl">
+                  Leadership &amp; Administration
+                </h1>
+
+                <p className="mt-6 max-w-2xl text-sm leading-8 text-[rgb(var(--muted))] sm:text-base">
+                  FEMATA is guided by an institutional structure that combines
+                  strategic leadership and administrative coordination to support
+                  representation, governance, and implementation.
+                </p>
               </div>
-
-              <h1 className="mt-6 max-w-3xl text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-                Leadership &amp; Administration
-              </h1>
-
-              <p className="mt-6 max-w-2xl text-sm leading-8 text-white/80 sm:text-base">
-                FEMATA is guided by an institutional structure that combines
-                strategic leadership and administrative coordination to support
-                representation, governance, and implementation.
-              </p>
             </div>
           </div>
         </div>
@@ -162,7 +164,7 @@ function ToggleBar({
 
   return (
     <div className="flex justify-center">
-      <div className="inline-flex rounded-full border border-[rgb(var(--border))] bg-white p-2 shadow-sm">
+      <div className="ui-shell inline-flex p-2 shadow-[0_14px_30px_rgba(15,23,42,0.06)]">
         {tabs.map((tab) => {
           const active = activeFilter === tab;
 
@@ -174,7 +176,7 @@ function ToggleBar({
               className={[
                 'inline-flex items-center gap-3 rounded-full px-5 py-3 text-sm font-semibold transition-all duration-200',
                 active
-                  ? 'bg-[rgb(var(--primary))] text-white shadow-sm'
+                  ? 'border border-[rgb(var(--primary))]/20 bg-[rgb(var(--primary))]/[0.08] text-[rgb(var(--primary))] shadow-sm'
                   : 'text-[rgb(var(--primary))] hover:bg-[rgb(var(--surface-2))]',
               ].join(' ')}
             >
@@ -183,7 +185,7 @@ function ToggleBar({
                 className={[
                   'inline-flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-[11px]',
                   active
-                    ? 'bg-white/15 text-white'
+                    ? 'bg-[rgba(var(--surface),0.94)] text-[rgb(var(--primary))]'
                     : 'bg-[rgb(var(--surface-2))] text-[rgb(var(--muted))]',
                 ].join(' ')}
               >
@@ -210,7 +212,7 @@ function ActionButton({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-2 rounded-full border border-[rgb(var(--border))] bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[rgb(var(--primary))] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-sm"
+      className="ui-chip inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[rgb(var(--primary))] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm"
     >
       {icon}
       <span>{label}</span>
@@ -233,7 +235,7 @@ function LeaderCard({
 
   const bioText =
     leader.bio ||
-    'Profile details will be updated soon. This role contributes to institutional stewardship, coordination, and sector representation.';
+    'This FEMATA leadership role supports national coordination, institutional stewardship, and representation of Tanzania\'s artisanal and small-scale mining community.';
 
   const isLongBio = bioText.length > 320;
   const isVeryLongBio = bioText.length > 650;
@@ -285,7 +287,7 @@ function LeaderCard({
         >
           {/* Front */}
           <article
-            className="absolute inset-0 overflow-hidden rounded-[1.75rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface))] shadow-sm"
+            className="card-shell absolute inset-0"
             style={{ backfaceVisibility: 'hidden' }}
           >
             <div ref={frontRef}>
@@ -299,26 +301,28 @@ function LeaderCard({
                     className="h-56 w-full object-cover transition-transform duration-700 hover:scale-105"
                   />
                 ) : (
-                  <div className="flex h-56 w-full items-center justify-center bg-linear-to-br from-[rgb(var(--surface-2))] to-white">
-                    <div className="flex h-24 w-24 items-center justify-center rounded-[1.75rem] border border-[rgb(var(--border))] bg-white text-2xl font-semibold text-[rgb(var(--primary))] shadow-sm">
+                  <div className="flex h-56 w-full items-center justify-center bg-linear-to-br from-[rgb(var(--surface-2))] to-[rgba(var(--surface),0.62)]">
+                    <div className="ui-soft-panel flex h-24 w-24 items-center justify-center text-2xl font-semibold text-[rgb(var(--primary))] shadow-sm">
                       {getInitials(leader.name)}
                     </div>
                   </div>
                 )}
 
-                <div className="absolute inset-0 bg-linear-to-t from-black/55 via-black/10 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent" />
 
-                <div className="absolute left-5 top-5 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/85 backdrop-blur-md">
+                <div className="ui-chip absolute left-5 top-5 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--primary))]">
                   Profile {String(index + 1).padStart(2, '0')}
                 </div>
 
                 <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/70">
-                    {leader.title}
-                  </p>
-                  <h3 className="mt-2 text-2xl font-semibold text-white">
-                    {leader.name}
-                  </h3>
+                  <div className="ui-shell max-w-[18rem] px-4 py-4 shadow-[0_18px_40px_rgba(15,23,42,0.1)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[rgb(var(--muted))]">
+                      {leader.title}
+                    </p>
+                    <h3 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">
+                      {leader.name}
+                    </h3>
+                  </div>
                 </div>
               </div>
 
@@ -346,7 +350,7 @@ function LeaderCard({
           {/* Bio */}
           {view === 'bio' && (
             <article
-              className="absolute inset-0 overflow-hidden rounded-[1.75rem] border border-[rgb(var(--border))] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,250,252,0.98))] shadow-xl"
+              className="ui-shell-strong absolute inset-0 overflow-hidden shadow-xl"
               style={{
                 transform: 'rotateY(180deg)',
                 backfaceVisibility: 'hidden',
@@ -372,7 +376,7 @@ function LeaderCard({
                     <button
                       type="button"
                       onClick={() => setView('front')}
-                      className="inline-flex items-center gap-2 rounded-full border border-[rgb(var(--border))] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[rgb(var(--primary))] transition-all duration-200 hover:bg-[rgb(var(--surface-2))]"
+                      className="ui-chip inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[rgb(var(--primary))] transition-all duration-200"
                     >
                       <IconBack />
                       Back
@@ -383,7 +387,7 @@ function LeaderCard({
                 <div className="px-6 py-6">
                   <div
                     className={[
-                      'rounded-3xl border border-[rgb(var(--border))] bg-white/80 p-5 shadow-sm',
+                      'ui-soft-panel p-5 shadow-sm',
                       !isLongBio ? 'mx-auto max-w-105' : '',
                     ].join(' ')}
                   >
@@ -399,7 +403,7 @@ function LeaderCard({
           {/* Contact */}
           {view === 'contact' && (
             <article
-              className="absolute inset-0 overflow-hidden rounded-[1.75rem] border border-[rgb(var(--border))] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,250,252,0.98))] shadow-xl"
+              className="ui-shell-strong absolute inset-0 overflow-hidden shadow-xl"
               style={{
                 transform: 'rotateY(-180deg)',
                 backfaceVisibility: 'hidden',
@@ -425,7 +429,7 @@ function LeaderCard({
                     <button
                       type="button"
                       onClick={() => setView('front')}
-                      className="inline-flex items-center gap-2 rounded-full border border-[rgb(var(--border))] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[rgb(var(--primary))] transition-all duration-200 hover:bg-[rgb(var(--surface-2))]"
+                      className="ui-chip inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[rgb(var(--primary))] transition-all duration-200"
                     >
                       <IconBack />
                       Back
@@ -434,7 +438,7 @@ function LeaderCard({
                 </div>
 
                 <div className="px-6 py-6">
-                  <div className="mx-auto max-w-90 rounded-[1.75rem] border border-[rgb(var(--border))] bg-white p-5 shadow-sm">
+                  <div className="ui-shell mx-auto max-w-90 p-5 shadow-sm">
                     <div className="flex items-center justify-between gap-3 border-b border-[rgb(var(--border))] pb-4">
                       <div>
                         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--muted))]">
@@ -457,7 +461,7 @@ function LeaderCard({
                           className="mx-auto h-52 w-52 object-contain"
                         />
                       ) : (
-                        <div className="flex h-52 items-center justify-center rounded-2xl bg-white text-center">
+                        <div className="ui-soft-panel flex h-52 items-center justify-center text-center">
                           <div>
                             <p className="text-sm font-semibold text-[rgb(var(--primary))]">
                               QR code not uploaded
@@ -532,7 +536,7 @@ export default function Leadership({
 
         <section className="section-shell pt-0">
           <div className="container-shell">
-            <div className="rounded-4xl border border-[rgb(var(--border))] bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,255,255,0.97))] p-6 shadow-sm sm:p-8 lg:p-10">
+            <div className="ui-section-layer rounded-4xl p-6 shadow-[0_20px_46px_rgba(15,23,42,0.08)] sm:p-8 lg:p-10">
               <div className="mx-auto max-w-3xl text-center">
                 <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[rgb(var(--muted))]">
                   Administrative Structure
@@ -562,7 +566,7 @@ export default function Leadership({
         <section className="section-shell pt-0">
           <div className="container-shell">
             {filteredLeaders.length === 0 ? (
-              <div className="rounded-[1.75rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-8 text-sm text-[rgb(var(--muted))] shadow-sm">
+              <div className="ui-shell p-8 text-sm text-[rgb(var(--muted))] shadow-sm">
                 No profiles found under{' '}
                 <span className="font-semibold text-[rgb(var(--primary))]">
                   {activeFilter}

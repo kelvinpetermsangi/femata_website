@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\Admin\UpdateAdminPasswordRequest;
 use App\Http\Requests\Admin\UpdateSiteSettingsRequest;
 use App\Models\SiteSetting;
 use App\Support\SiteSettings;
@@ -92,6 +93,19 @@ class SiteSettingsController extends AdminController
         return redirect()
             ->route('admin.settings.index')
             ->with('success', 'Site settings updated successfully.');
+    }
+
+    public function updatePassword(UpdateAdminPasswordRequest $request): RedirectResponse
+    {
+        $this->authorize('manage', SiteSetting::class);
+
+        $request->user()?->update([
+            'password' => $request->validated()['password'],
+        ]);
+
+        return redirect()
+            ->route('admin.settings.index')
+            ->with('success', 'Admin password changed successfully.');
     }
 
     private function storeSetting(string $key, array $value, string $groupName, ?int $userId): void

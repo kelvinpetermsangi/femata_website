@@ -1,5 +1,6 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { type FormEvent, type ReactNode, useState } from 'react';
+import AdminPageIntro from '@/components/AdminPageIntro';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { SharedPageProps } from '@/types';
 
@@ -161,27 +162,15 @@ export default function AdminLeaders({ leaders }: { leaders: LeaderItem[] }) {
       <Head title="Leaders admin" />
 
       <AdminLayout title="Leaders">
-        <section className="soft-band overflow-hidden rounded-[1.8rem] px-5 py-6 text-white sm:px-7">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/68">
-            Leadership management
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
-            Maintain public leadership profiles and executive visibility.
-          </h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/82 sm:text-base">
-            Use this section to manage chairpersons, directors, board members, and other official
-            FEMATA leadership profiles shown on the public site.
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-3 text-sm">
-            <div className="rounded-full border border-white/16 bg-white/10 px-4 py-2">
-              {leaders.length} total profiles
-            </div>
-            <div className="rounded-full border border-white/16 bg-white/10 px-4 py-2">
-              {activeCount} active leaders
-            </div>
-          </div>
-        </section>
+        <AdminPageIntro
+          eyebrow="Leadership management"
+          title="Maintain public leadership profiles and executive visibility."
+          text="Use this section to manage chairpersons, directors, board members, and other official FEMATA leadership profiles shown on the public site."
+          metrics={[
+            { label: 'Total profiles', value: String(leaders.length) },
+            { label: 'Active leaders', value: String(activeCount) },
+          ]}
+        />
 
         {(flashSuccess || form.recentlySuccessful) ? (
           <div className="mt-6 rounded-[1.25rem] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
@@ -329,7 +318,7 @@ export default function AdminLeaders({ leaders }: { leaders: LeaderItem[] }) {
           <section className="grid gap-4">
             {leaders.length === 0 ? (
               <div className="card-shell p-6 text-sm text-[rgb(var(--muted))]">
-                No leadership profiles yet. Create the first public profile using the form.
+                No FEMATA leadership profiles have been added yet. Create the first public leadership entry using the form.
               </div>
             ) : (
               leaders.map((leader) => (

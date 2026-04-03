@@ -95,6 +95,11 @@ export default function AdminSettings({
       contact,
       footer,
     });
+  const passwordForm = useForm({
+    current_password: '',
+    password: '',
+    password_confirmation: '',
+  });
 
   const flashSuccess = props.flash?.success;
   const appVersion = props.appVersion ?? 'v0.3.0';
@@ -150,7 +155,7 @@ export default function AdminSettings({
             <div>
               <h2 className="text-xl font-semibold text-[rgb(var(--primary))]">Branding</h2>
               <p className="mt-1 text-sm text-[rgb(var(--muted))]">
-                Shared organization name, header text, logo path, and primary navigation call-to-action.
+                Shared FEMATA organization name, public header text, official logo asset, and primary site call-to-action.
               </p>
             </div>
 
@@ -196,7 +201,7 @@ export default function AdminSettings({
               <Field
                 label="Logo path or URL"
                 error={errors['branding.logo_path']}
-                hint="Use a public URL or storage path once the logo is exported to PNG, JPG, or SVG."
+                hint="Use /brand/femata-logo.png for the exported official logo, or another approved public PNG, JPG, or SVG asset."
               >
                 <input
                   value={data.branding.logo_path ?? ''}
@@ -703,6 +708,68 @@ export default function AdminSettings({
                   className="rounded-2xl border bg-white px-4 py-3 text-sm"
                 />
               </Field>
+            </div>
+          </section>
+
+          <section className="grid gap-4 rounded-[1.5rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))]/50 p-5">
+            <div>
+              <h2 className="text-xl font-semibold text-[rgb(var(--primary))]">Change Password</h2>
+              <p className="mt-1 text-sm text-[rgb(var(--muted))]">
+                Update the current admin password from inside the settings area.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Current password" error={passwordForm.errors.current_password}>
+                <input
+                  type="password"
+                  value={passwordForm.data.current_password}
+                  onChange={(event) => passwordForm.setData('current_password', event.target.value)}
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                />
+              </Field>
+
+              <div />
+
+              <Field label="New password" error={passwordForm.errors.password}>
+                <input
+                  type="password"
+                  value={passwordForm.data.password}
+                  onChange={(event) => passwordForm.setData('password', event.target.value)}
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                />
+              </Field>
+
+              <Field
+                label="Confirm new password"
+                error={passwordForm.errors.password_confirmation}
+              >
+                <input
+                  type="password"
+                  value={passwordForm.data.password_confirmation}
+                  onChange={(event) =>
+                    passwordForm.setData('password_confirmation', event.target.value)
+                  }
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                />
+              </Field>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() =>
+                  passwordForm.put('/admin/settings/password', {
+                    preserveScroll: true,
+                    onSuccess: () =>
+                      passwordForm.reset('current_password', 'password', 'password_confirmation'),
+                  })
+                }
+                disabled={passwordForm.processing}
+                className="btn-secondary min-w-[220px] disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {passwordForm.processing ? 'Changing password...' : 'Change password'}
+              </button>
             </div>
           </section>
 

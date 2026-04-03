@@ -110,10 +110,10 @@ export default function AdminVideos({
           <h2 className="text-lg font-semibold text-[rgb(var(--primary))]">
             {editingId ? 'Edit Video' : 'Create Video'}
           </h2>
-          <input value={form.data.title} onChange={(e) => form.setData('title', e.target.value)} className="rounded-xl border px-3 py-2 text-sm" placeholder="Title" />
-          <input value={form.data.slug} onChange={(e) => form.setData('slug', e.target.value)} className="rounded-xl border px-3 py-2 text-sm" placeholder="Slug (optional)" />
-          <input value={form.data.youtube_url} onChange={(e) => form.setData('youtube_url', e.target.value)} className="rounded-xl border px-3 py-2 text-sm" placeholder="YouTube URL" />
-          <textarea value={form.data.summary} onChange={(e) => form.setData('summary', e.target.value)} className="rounded-xl border px-3 py-2 text-sm" placeholder="Summary" />
+          <input value={form.data.title} onChange={(e) => form.setData('title', e.target.value)} className="rounded-xl border px-3 py-2 text-sm" placeholder="e.g. FEMATA field visit highlight" />
+          <input value={form.data.slug} onChange={(e) => form.setData('slug', e.target.value)} className="rounded-xl border px-3 py-2 text-sm" placeholder="femata-field-visit-highlight" />
+          <input value={form.data.youtube_url} onChange={(e) => form.setData('youtube_url', e.target.value)} className="rounded-xl border px-3 py-2 text-sm" placeholder="Paste the approved YouTube link" />
+          <textarea value={form.data.summary} onChange={(e) => form.setData('summary', e.target.value)} className="rounded-xl border px-3 py-2 text-sm" placeholder="Short summary for the FEMATA video feature..." />
           <div className="grid gap-3 md:grid-cols-2">
             <select value={form.data.category_id} onChange={(e) => form.setData('category_id', e.target.value)} className="rounded-xl border px-3 py-2 text-sm">
               <option value="">Select category</option>

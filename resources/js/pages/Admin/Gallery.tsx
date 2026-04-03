@@ -1,5 +1,6 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { type FormEvent, type ReactNode, useState } from 'react';
+import AdminPageIntro from '@/components/AdminPageIntro';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { SharedPageProps } from '@/types';
 
@@ -149,27 +150,15 @@ export default function AdminGallery({
       <Head title="Gallery admin" />
 
       <AdminLayout title="Gallery">
-        <section className="soft-band overflow-hidden rounded-[1.8rem] px-5 py-6 text-white sm:px-7">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/68">
-            Media management
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
-            Curate field images for the public gallery.
-          </h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/82 sm:text-base">
-            Gallery items help the FEMATA website feel active and credible. Image media is managed
-            here, while FEMATA Online TV entries now belong to the dedicated video workflow.
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-3 text-sm">
-            <div className="rounded-full border border-white/16 bg-white/10 px-4 py-2">
-              {galleryItems.length} total items
-            </div>
-            <div className="rounded-full border border-white/16 bg-white/10 px-4 py-2">
-              {featuredCount} featured items
-            </div>
-          </div>
-        </section>
+        <AdminPageIntro
+          eyebrow="Media management"
+          title="Curate field images for the public gallery."
+          text="Gallery items help the FEMATA website feel active and credible. Image media is managed here, while FEMATA Online TV entries now belong to the dedicated video workflow."
+          metrics={[
+            { label: 'Total items', value: String(galleryItems.length) },
+            { label: 'Featured items', value: String(featuredCount) },
+          ]}
+        />
 
         {(flashSuccess || form.recentlySuccessful) ? (
           <div className="mt-6 rounded-[1.25rem] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
@@ -292,7 +281,7 @@ export default function AdminGallery({
           <section className="grid gap-4">
             {galleryItems.length === 0 ? (
               <div className="card-shell p-6 text-sm text-[rgb(var(--muted))]">
-                No gallery items yet. Create the first media entry using the form.
+                No FEMATA gallery items have been published yet. Add the first approved photo or media entry using the form.
               </div>
             ) : (
               galleryItems.map((item) => (
@@ -347,7 +336,7 @@ export default function AdminGallery({
                       />
                     ) : (
                       <div className="flex min-h-[208px] items-center justify-center px-6 text-center text-sm text-[rgb(var(--muted))]">
-                        Media preview unavailable
+                        FEMATA media preview
                       </div>
                     )}
                   </div>

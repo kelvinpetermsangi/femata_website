@@ -1,5 +1,6 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { type FormEvent, type ReactNode, useState } from 'react';
+import AdminPageIntro from '@/components/AdminPageIntro';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { SharedPageProps } from '@/types';
 
@@ -163,27 +164,15 @@ export default function AdminDocuments({
       <Head title="Documents admin" />
 
       <AdminLayout title="Documents">
-        <section className="soft-band overflow-hidden rounded-[1.8rem] px-5 py-6 text-white sm:px-7">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/68">
-            Resource management
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
-            Manage public documents, reports, and downloadable resources.
-          </h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/82 sm:text-base">
-            Documents feed the public resource centre. Use this section to manage reports,
-            strategic plans, reference files, and links to hosted content.
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-3 text-sm">
-            <div className="rounded-full border border-white/16 bg-white/10 px-4 py-2">
-              {documents.length} total resources
-            </div>
-            <div className="rounded-full border border-white/16 bg-white/10 px-4 py-2">
-              {publicCount} public documents
-            </div>
-          </div>
-        </section>
+        <AdminPageIntro
+          eyebrow="Resource management"
+          title="Manage public documents, reports, and downloadable resources."
+          text="Documents feed the public resource centre. Use this section to manage reports, strategic plans, reference files, and links to hosted content."
+          metrics={[
+            { label: 'Total resources', value: String(documents.length) },
+            { label: 'Public documents', value: String(publicCount) },
+          ]}
+        />
 
         {(flashSuccess || form.recentlySuccessful) ? (
           <div className="mt-6 rounded-[1.25rem] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
@@ -262,7 +251,7 @@ export default function AdminDocuments({
                     value={form.data.file_type}
                     onChange={(event) => form.setData('file_type', event.target.value)}
                     className="rounded-2xl border bg-white px-4 py-3 text-sm"
-                    placeholder="application/pdf"
+                    placeholder="application/pdf or image/jpeg"
                   />
                 </Field>
 
@@ -271,7 +260,7 @@ export default function AdminDocuments({
                     value={form.data.category}
                     onChange={(event) => form.setData('category', event.target.value)}
                     className="rounded-2xl border bg-white px-4 py-3 text-sm"
-                    placeholder="Strategy"
+                    placeholder="e.g. Circular, Policy, Guide, Report"
                   />
                 </Field>
               </div>
@@ -325,7 +314,7 @@ export default function AdminDocuments({
           <section className="grid gap-4">
             {documents.length === 0 ? (
               <div className="card-shell p-6 text-sm text-[rgb(var(--muted))]">
-                No documents yet. Create the first public resource using the form.
+                No FEMATA public documents have been uploaded yet. Add the first report, circular, guide, or policy resource using the form.
               </div>
             ) : (
               documents.map((document) => (

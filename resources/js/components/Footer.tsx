@@ -1,4 +1,5 @@
 import AppLink from '@/components/AppLink';
+import BrandMark from '@/components/BrandMark';
 import { copy } from '@/lib/copy';
 import type { ContactInfo, Locale, SiteBranding, SiteFooter } from '@/types';
 
@@ -20,27 +21,21 @@ export default function Footer({
   appReleaseDate,
 }: FooterProps) {
   const t = copy[locale];
-  const logo = branding.logo_path ? (
-    <img
-      src={branding.logo_path}
-      alt={branding.logo_alt ?? branding.site_name}
-      className="h-full w-full rounded-full object-contain bg-white p-2"
-    />
-  ) : (
-    <div className="relative flex h-full w-full items-center justify-center rounded-full border-[3px] border-[rgb(var(--accent))] bg-white/10 text-lg font-bold text-white shadow-[0_8px_30px_rgba(0,0,0,0.18)]">
-      <span className="absolute inset-[5px] rounded-full border border-white/25" />
-      <span className="relative">{branding.site_name.slice(0, 1)}</span>
-    </div>
-  );
+  const footerLabel = locale === 'sw' ? 'Tovuti rasmi ya FEMATA' : 'FEMATA national portal';
+  const contactLabel = locale === 'sw' ? 'Mawasiliano' : 'Contact';
+  const navLabel = locale === 'sw' ? 'Urambazaji' : 'Navigation';
+  const platformLabel = locale === 'sw' ? 'Muundo wa tovuti' : 'Platform';
 
   return (
-    <footer className="mt-16 bg-[linear-gradient(145deg,rgba(8,34,31,0.99),rgba(10,53,48,0.98),rgba(37,75,59,0.98))] text-white shadow-[0_-24px_70px_rgba(0,0,0,0.18)]">
-      <div className="border-b border-white/10">
-        <div className="container-shell py-10">
+    <footer className="relative mt-20 overflow-hidden bg-[linear-gradient(145deg,rgba(8,34,31,0.99),rgba(10,53,48,0.98),rgba(37,75,59,0.98))] text-white shadow-[0_-24px_70px_rgba(0,0,0,0.18)]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(var(--accent),0.16),transparent_28%)]" />
+
+      <div className="container-shell relative py-10 sm:py-12">
+        <div className="overflow-hidden rounded-[2rem] border border-white/12 bg-white/8 p-6 shadow-[0_22px_60px_rgba(0,0,0,0.18)] backdrop-blur-xl sm:p-8">
           <div className="grid gap-8 lg:grid-cols-[1.1fr_auto] lg:items-end">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/58">
-                {branding.organization_name}
+                {footerLabel}
               </p>
               <h2 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
                 {footer.strapline}
@@ -55,24 +50,29 @@ export default function Footer({
                 {branding.navigation_cta_label}
               </AppLink>
               <AppLink
-                href="/documents"
-                className="btn-secondary border-white/20 bg-white/10 text-white hover:bg-white/15"
+                href="/associations"
+                className="btn-secondary border-white/18 bg-white/10 text-white hover:bg-white/15"
               >
-                {t.nav.documents}
+                {t.nav.remas}
               </AppLink>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container-shell py-12">
-        <div className="grid gap-10 lg:grid-cols-[1.1fr_0.85fr_1fr]">
-          <div>
+      <div className="container-shell relative pb-12">
+        <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr_0.9fr_0.9fr]">
+          <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-6">
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 shrink-0">{logo}</div>
+              <div className="h-16 w-16 shrink-0">
+                <BrandMark
+                  imageClassName="h-full w-full rounded-full object-contain bg-white p-2 shadow-[0_8px_30px_rgba(0,0,0,0.18)]"
+                  fallbackClassName="relative flex h-full w-full items-center justify-center rounded-full border-[3px] border-[rgb(var(--accent))] bg-white/10 text-lg font-bold text-white shadow-[0_8px_30px_rgba(0,0,0,0.18)]"
+                />
+              </div>
 
               <div>
-                <h3 className="text-xl font-semibold tracking-[0.16em]">{branding.site_name}</h3>
+                <h3 className="text-xl font-semibold tracking-[0.14em]">{branding.site_name}</h3>
                 <p className="mt-1 text-sm text-white/68">{branding.organization_name}</p>
               </div>
             </div>
@@ -93,15 +93,16 @@ export default function Footer({
             </div>
           </div>
 
-          <div>
+          <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-6">
             <h4 className="text-sm font-semibold uppercase tracking-[0.24em] text-white/60">
-              Navigation
+              {navLabel}
             </h4>
 
             <div className="mt-5 grid gap-3 text-sm text-white/80">
               <AppLink href="/" className="transition hover:text-white">{t.nav.home}</AppLink>
               <AppLink href="/about" className="transition hover:text-white">{t.nav.about}</AppLink>
               <AppLink href="/leadership" className="transition hover:text-white">{t.nav.leadership}</AppLink>
+              <AppLink href="/associations" className="transition hover:text-white">{t.nav.remas}</AppLink>
               <AppLink href="/news" className="transition hover:text-white">{t.nav.news}</AppLink>
               <AppLink href="/gallery" className="transition hover:text-white">{t.nav.gallery}</AppLink>
               <AppLink href="/documents" className="transition hover:text-white">{t.nav.documents}</AppLink>
@@ -109,9 +110,9 @@ export default function Footer({
             </div>
           </div>
 
-          <div>
+          <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-6">
             <h4 className="text-sm font-semibold uppercase tracking-[0.24em] text-white/60">
-              Contact
+              {contactLabel}
             </h4>
 
             <div className="mt-5 space-y-4 text-sm text-white/80">
@@ -136,30 +137,33 @@ export default function Footer({
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="mt-10 rounded-[1.4rem] border border-white/10 bg-white/5 px-5 py-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <p className="text-sm text-white/72">{footer.prompt_text}</p>
+          <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-6">
+            <h4 className="text-sm font-semibold uppercase tracking-[0.24em] text-white/60">
+              {platformLabel}
+            </h4>
 
-            <AppLink
-              href={branding.navigation_cta_href}
-              className="inline-flex items-center justify-center rounded-full border border-[rgb(var(--accent))]/50 bg-[rgb(var(--accent))]/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-[rgb(var(--accent))]/20"
-            >
-              {branding.navigation_cta_label}
-            </AppLink>
+            <div className="mt-5 space-y-4 text-sm text-white/76">
+              <p>{t.footerText}</p>
+              <AppLink
+                href={branding.navigation_cta_href}
+                className="inline-flex items-center justify-center rounded-full border border-white/18 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
+              >
+                {branding.navigation_cta_label}
+              </AppLink>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-white/10">
+      <div className="relative border-t border-white/10">
         <div className="container-shell flex flex-col gap-3 py-5 text-sm text-white/58 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-1">
             <p>&copy; {new Date().getFullYear()} {branding.site_name}. All rights reserved.</p>
             {appVersion ? (
               <p className="text-xs text-white/50">
                 Version {appVersion}
-                {appReleaseDate ? ` · Released ${appReleaseDate}` : ''}
+                {appReleaseDate ? ` | Released ${appReleaseDate}` : ''}
               </p>
             ) : null}
           </div>

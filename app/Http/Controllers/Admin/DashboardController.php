@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Announcement;
+use App\Models\Association;
 use App\Models\Document;
 use App\Models\Leader;
 use App\Models\NewsPost;
@@ -46,6 +47,12 @@ class DashboardController extends AdminController
                     'value' => Leader::query()->count(),
                     'detail' => Leader::query()->active()->count().' active profiles',
                     'href' => '/admin/leaders',
+                ],
+                [
+                    'label' => 'Associations',
+                    'value' => Association::query()->count(),
+                    'detail' => Association::query()->active()->count().' public REMA profiles',
+                    'href' => '/admin/associations',
                 ],
                 [
                     'label' => 'Documents',

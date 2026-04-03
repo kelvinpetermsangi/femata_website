@@ -63,13 +63,13 @@ export default function AdminPages({ pages, contentStatuses }: { pages: PageItem
       <AdminLayout title="Pages">
         <form onSubmit={submit} className="grid gap-4 rounded-2xl border border-[rgb(var(--border))] p-4">
           <h2 className="text-lg font-semibold text-[rgb(var(--primary))]">{editingId ? 'Edit Page' : 'Create Page'}</h2>
-          <input value={form.data.title} onChange={(e) => form.setData('title', e.target.value)} className="rounded-xl border px-3 py-2 text-sm" placeholder="Title" />
-          <input value={form.data.slug} onChange={(e) => form.setData('slug', e.target.value)} className="rounded-xl border px-3 py-2 text-sm" placeholder="Slug (optional)" />
+          <input value={form.data.title} onChange={(e) => form.setData('title', e.target.value)} className="rounded-xl border px-3 py-2 text-sm" placeholder="e.g. Membership Services Overview" />
+          <input value={form.data.slug} onChange={(e) => form.setData('slug', e.target.value)} className="rounded-xl border px-3 py-2 text-sm" placeholder="membership-services-overview" />
           <select value={form.data.status_id} onChange={(e) => form.setData('status_id', e.target.value)} className="rounded-xl border px-3 py-2 text-sm">
             <option value="">Select status</option>
             {contentStatuses.map((status) => <option key={status.id} value={status.id}>{status.name}</option>)}
           </select>
-          <textarea value={form.data.content} onChange={(e) => form.setData('content', e.target.value)} rows={8} className="rounded-xl border px-3 py-2 text-sm" placeholder="Content" />
+          <textarea value={form.data.content} onChange={(e) => form.setData('content', e.target.value)} rows={8} className="rounded-xl border px-3 py-2 text-sm" placeholder="Write the full FEMATA page content here..." />
           <div className="flex gap-3">
             <button type="submit" className="btn-primary">{editingId ? 'Update page' : 'Create page'}</button>
             <button type="button" onClick={reset} className="btn-secondary">Reset</button>

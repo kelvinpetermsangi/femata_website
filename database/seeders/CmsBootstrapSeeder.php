@@ -34,6 +34,8 @@ class CmsBootstrapSeeder extends Seeder
             'manage media',
             'manage settings',
             'manage associations',
+            'manage association types',
+            'manage adverts',
             'manage press briefings',
             'publish press briefings',
         ];
@@ -57,6 +59,7 @@ class CmsBootstrapSeeder extends Seeder
             'manage leaders',
             'manage media',
             'manage associations',
+            'manage adverts',
             'manage press briefings',
         ]);
         $reviewer->syncPermissions([
@@ -81,6 +84,8 @@ class CmsBootstrapSeeder extends Seeder
             [AdminSection::PAGES, 'Pages'],
             [AdminSection::SETTINGS, 'Settings'],
             [AdminSection::ASSOCIATIONS, 'Associations'],
+            [AdminSection::ASSOCIATION_TYPES, 'Association Types'],
+            [AdminSection::ADVERTS, 'Adverts'],
             [AdminSection::PRESS_BRIEFINGS, 'Press Briefings'],
         ];
 

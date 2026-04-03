@@ -60,10 +60,10 @@ const news: NewsPost[] = [
   },
   {
     id: 2,
-    title: 'New digital platform improves access to FEMATA notices, resources, and sector updates',
+    title: 'New official FEMATA portal improves access to notices, resources, and sector updates',
     slug: 'new-digital-platform-for-sector-access',
     excerpt: 'The updated official website brings together public documents, media, announcements, leadership information, and institutional updates in one place.',
-    body: 'The FEMATA digital platform is designed to improve trust, accessibility, and communication by providing one central online destination for official notices, public resources, media highlights, and institutional engagement.',
+    body: 'The official FEMATA portal improves trust, accessibility, and communication by providing one central online destination for notices, public resources, media highlights, and institutional engagement.',
     cover_image:
       'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1400&q=80',
     published_at: '2026-03-12',
@@ -167,7 +167,7 @@ const documents: DocumentFile[] = [
     title: 'FEMATA Strategic Outlook 2026',
     slug: 'strategic-outlook-2026',
     description: 'Strategic directions, priority actions, and institutional goals for the year ahead.',
-    file_path: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    file_path: '/documents/strategic-outlook-2026.pdf',
     file_type: 'application/pdf',
     category: 'Strategy',
     is_public: true,
@@ -175,11 +175,10 @@ const documents: DocumentFile[] = [
   },
   {
     id: 2,
-    title: 'Public stakeholder engagement brief',
-    slug: 'public-stakeholder-engagement-brief',
-    description: 'An overview of how FEMATA is coordinating public engagement, partnerships, and institutional visibility.',
-    file_path:
-      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1400&q=80',
+    title: 'Investment readiness brief',
+    slug: 'investment-readiness-brief',
+    description: 'A concise briefing on institutional visibility, finance readiness, and partnership positioning for member associations.',
+    file_path: '/documents/investment-readiness-brief.jpg',
     file_type: 'image/jpeg',
     category: 'Brief',
     is_public: true,
@@ -190,7 +189,7 @@ const documents: DocumentFile[] = [
     title: 'Association governance guide',
     slug: 'association-governance-guide',
     description: 'Reference guidance for governance, record-keeping, and association coordination.',
-    file_path: 'https://example.com/femata-governance-guide.pdf',
+    file_path: '/documents/association-governance-guide.pdf',
     file_type: 'application/pdf',
     category: 'Guide',
     is_public: true,
@@ -219,7 +218,7 @@ export function getPreviewPage(pathname: string): PreviewPage {
 
   if (matchedNews) {
     return {
-      component: 'News/Show',
+      component: 'News/Index',
       props: {
         news: matchedNews,
         announcements,
@@ -228,14 +227,16 @@ export function getPreviewPage(pathname: string): PreviewPage {
   }
 
   if (matchedDocument) {
+    const fileType = matchedDocument.file_type ?? '';
+
     return {
       component: 'Documents/Show',
       props: {
         document: {
           ...matchedDocument,
-          preview: matchedDocument.file_type === 'application/pdf'
+          preview: fileType === 'application/pdf'
             ? 'pdf'
-            : matchedDocument.file_type.startsWith('image/')
+            : fileType.startsWith('image/')
               ? 'image'
               : null,
         },
@@ -430,7 +431,7 @@ export function getPreviewPage(pathname: string): PreviewPage {
 
     case '/news':
       return {
-        component: 'News/Index',
+        component: 'News/Archive',
         props: {
           news,
           announcements,

@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\AnnouncementController;
+use App\Http\Controllers\Admin\AdvertController;
+use App\Http\Controllers\Admin\AssociationTypeController;
 use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\LeaderController;
@@ -43,6 +45,7 @@ Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->
 
 Route::get('/settings', [SiteSettingsController::class, 'index'])->name('settings.index');
 Route::put('/settings', [SiteSettingsController::class, 'update'])->name('settings.update');
+Route::put('/settings/password', [SiteSettingsController::class, 'updatePassword'])->name('settings.password');
 
 Route::get('/videos', [VideoController::class, 'index'])->name('videos.index');
 Route::post('/videos', [VideoController::class, 'store'])->name('videos.store');
@@ -61,5 +64,16 @@ Route::delete('/press-briefings/{pressBriefing}', [PressBriefingController::clas
 
 Route::get('/associations', [AssociationController::class, 'index'])->name('associations.index');
 Route::post('/associations', [AssociationController::class, 'store'])->name('associations.store');
+Route::get('/associations/{association}', [AssociationController::class, 'show'])->name('associations.show');
 Route::put('/associations/{association}', [AssociationController::class, 'update'])->name('associations.update');
 Route::delete('/associations/{association}', [AssociationController::class, 'destroy'])->name('associations.destroy');
+
+Route::get('/association-types', [AssociationTypeController::class, 'index'])->name('association-types.index');
+Route::post('/association-types', [AssociationTypeController::class, 'store'])->name('association-types.store');
+Route::put('/association-types/{associationType}', [AssociationTypeController::class, 'update'])->name('association-types.update');
+Route::delete('/association-types/{associationType}', [AssociationTypeController::class, 'destroy'])->name('association-types.destroy');
+
+Route::get('/adverts', [AdvertController::class, 'index'])->name('adverts.index');
+Route::post('/adverts', [AdvertController::class, 'store'])->name('adverts.store');
+Route::put('/adverts/{advert}', [AdvertController::class, 'update'])->name('adverts.update');
+Route::delete('/adverts/{advert}', [AdvertController::class, 'destroy'])->name('adverts.destroy');

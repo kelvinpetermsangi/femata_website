@@ -1,17 +1,26 @@
-import { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
+import AdvertCarousel from '@/components/AdvertCarousel';
+import { advertsForSlot } from '@/lib/adverts';
 import PublicLayout from '@/layouts/PublicLayout';
 import { defaultContactInfo } from '@/lib/siteDefaults';
-import type { ContactInfo } from '@/types';
+import type { AdvertSlots, ContactInfo, SharedPageProps } from '@/types';
 
 export default function Contact({
   contact = defaultContactInfo,
+  adverts,
   announcements,
 }: {
   contact: ContactInfo;
+  adverts?: AdvertSlots;
   announcements?: [];
 }) {
-  const [submitted, setSubmitted] = useState(false);
+  const { props } = usePage<SharedPageProps>();
+  const flashSuccess = props.flash?.success;
+  const form = useForm({
+    name: '',
+    email: '',
+    message: '',
+  });
 
   return (
     <>
@@ -29,6 +38,12 @@ export default function Contact({
 
         <section className="section-shell pt-0">
           <div className="container-shell">
+            <AdvertCarousel adverts={advertsForSlot(adverts, 1)} slotNumber={1} />
+          </div>
+        </section>
+
+        <section className="section-shell pt-0">
+          <div className="container-shell">
             <div className="grid gap-6 md:grid-cols-2">
               <div className="card-shell p-6">
                 <p className="text-sm uppercase tracking-[0.2em] text-[rgb(var(--muted))]">Headquarters</p>
@@ -38,43 +53,64 @@ export default function Contact({
                 ) : null}
                 <p className="mt-2 text-sm text-[rgb(var(--muted))]">Email: {contact.email}</p>
                 <p className="text-sm text-[rgb(var(--muted))]">Phone: {contact.phone}</p>
+                <div className="ui-soft-panel mt-5 px-4 py-4 text-sm text-[rgb(var(--muted))]">
+                  Use this channel for partnership requests, membership questions, media engagement,
+                  advert placement enquiries, and other matters that need attention from the FEMATA secretariat.
+                </div>
               </div>
               <div className="card-shell p-6">
                 <p className="text-sm uppercase tracking-[0.2em] text-[rgb(var(--muted))]">Send a note</p>
                 <form
                   onSubmit={(event) => {
                     event.preventDefault();
-                    setSubmitted(true);
+                    form.post('/contact', {
+                      preserveScroll: true,
+                      onSuccess: () => form.reset(),
+                    });
                   }}
                   className="mt-4 flex flex-col gap-3"
                 >
                   <input
-                    className="rounded-2xl border bg-[rgb(var(--surface))] px-4 py-3 text-sm"
-                    style={{ borderColor: 'rgb(var(--border))' }}
-                    placeholder="Name"
+                    value={form.data.name}
+                    onChange={(event) => form.setData('name', event.target.value)}
+                    className="field-shell px-4 py-3 text-sm"
+                    placeholder="Your full name or organization name"
+                    autoComplete="name"
                     required
                   />
+                  {form.errors.name ? (
+                    <p className="text-sm text-red-600">{form.errors.name}</p>
+                  ) : null}
                   <input
-                    className="rounded-2xl border bg-[rgb(var(--surface))] px-4 py-3 text-sm"
-                    style={{ borderColor: 'rgb(var(--border))' }}
+                    value={form.data.email}
+                    onChange={(event) => form.setData('email', event.target.value)}
+                    className="field-shell px-4 py-3 text-sm"
                     type="email"
-                    placeholder="Email"
+                    placeholder="name@example.com"
+                    autoComplete="email"
                     required
                   />
+                  {form.errors.email ? (
+                    <p className="text-sm text-red-600">{form.errors.email}</p>
+                  ) : null}
                   <textarea
-                    className="rounded-2xl border bg-[rgb(var(--surface))] px-4 py-3 text-sm"
-                    style={{ borderColor: 'rgb(var(--border))' }}
-                    placeholder="Your message"
+                    value={form.data.message}
+                    onChange={(event) => form.setData('message', event.target.value)}
+                    className="field-shell min-h-[132px] px-4 py-3 text-sm"
+                    placeholder="Tell FEMATA what you need support with, the region concerned, and any useful background."
                     rows={4}
                     required
                   />
-                  <button type="submit" className="btn-primary text-center">
-                    Submit
+                  {form.errors.message ? (
+                    <p className="text-sm text-red-600">{form.errors.message}</p>
+                  ) : null}
+                  <button type="submit" className="btn-primary text-center" disabled={form.processing}>
+                    {form.processing ? 'Sending to FEMATA...' : 'Send message to FEMATA'}
                   </button>
                 </form>
-                {submitted ? (
+                {flashSuccess ? (
                   <p className="mt-3 text-sm font-semibold text-[rgb(var(--primary))]">
-                    Thanks for reaching out. We will respond shortly.
+                    {flashSuccess}
                   </p>
                 ) : null}
               </div>

@@ -35,13 +35,16 @@ export interface NewsPost {
   cover_image?: string | null;
   featured_image?: string | null;
   published_at?: string | null;
+  updated_at?: string | null;
   is_published?: boolean;
   is_featured?: boolean;
+  is_breaking?: boolean;
   status?: string | null;
   status_id?: number | null;
   category?: string | null;
   category_id?: number | null;
   tag_ids?: number[];
+  reading_time?: number;
 }
 
 export interface VideoPost {
@@ -139,20 +142,124 @@ export interface PressBriefing {
   published_at?: string | null;
 }
 
+export interface AssociationHighlight {
+  title?: string | null;
+  text?: string | null;
+}
+
+export interface AssociationLeaderProfile {
+  name: string;
+  title?: string | null;
+  bio?: string | null;
+  photo_path?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  contact_qr_path?: string | null;
+}
+
+export interface AssociationGalleryItem {
+  image_path: string;
+  caption?: string | null;
+}
+
+export interface AssociationPageConfig {
+  key: string;
+  label: string;
+  slug: string;
+  visible: boolean;
+  headline: string;
+  intro: string;
+  href?: string;
+}
+
+export interface AssociationSocialLink {
+  platform: string;
+  label: string;
+  url: string;
+  visible: boolean;
+}
+
+export interface AssociationType {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+  sort_order?: number;
+  is_active?: boolean;
+  association_count?: number;
+}
+
+export interface AdvertItem {
+  id: number;
+  title: string;
+  slug: string;
+  media_type: 'image' | 'video';
+  asset_url: string;
+  poster_url?: string | null;
+  headline?: string | null;
+  body?: string | null;
+  cta_label?: string | null;
+  cta_url?: string | null;
+  page_key: string;
+  page_label?: string;
+  slot_number: number;
+  placement_scope: string;
+  placement_label?: string;
+  association_id?: number | null;
+  association_type_id?: number | null;
+  association_name?: string | null;
+  association_type_name?: string | null;
+  region?: string | null;
+  display_order?: number;
+  duration_seconds: number;
+  is_active: boolean;
+}
+
+export type AdvertSlots = Record<string, AdvertItem[]>;
+
 export interface Association {
   id: number;
   name: string;
   slug: string;
+  association_type_id?: number | null;
+  association_type?: AssociationType | null;
   region?: string | null;
+  regions?: string[];
   district?: string | null;
   address?: string | null;
+  postal_address?: string | null;
   phone?: string | null;
   email?: string | null;
   website?: string | null;
+  rema_website_url?: string | null;
   logo_path?: string | null;
+  hero_image?: string | null;
   description?: string | null;
+  homepage_title?: string | null;
+  homepage_intro?: string | null;
+  mission?: string | null;
+  vision?: string | null;
+  gender_commitment?: string | null;
+  esg_commitment?: string | null;
+  about_title?: string | null;
+  about_body?: string | null;
+  focus_areas?: string[] | string | null;
+  highlights?: AssociationHighlight[];
+  leaders?: AssociationLeaderProfile[];
+  gallery?: AssociationGalleryItem[];
+  documents?: DocumentItem[];
+  profile_pages?: AssociationPageConfig[];
+  current_page?: AssociationPageConfig;
+  social_links?: AssociationSocialLink[];
   chairperson_name?: string | null;
   secretary_name?: string | null;
+  contact_title?: string | null;
+  contact_body?: string | null;
+  document_ids?: number[];
+  document_count?: number;
+  leaders_count?: number;
+  gallery_count?: number;
+  visible_page_count?: number;
   is_active: boolean;
 }
 
@@ -276,5 +383,7 @@ export interface HomePageProps {
   galleryItems: GalleryItem[];
   documents: DocumentItem[];
   leaders: Leader[];
+  associations?: Association[];
+  adverts?: AdvertSlots;
   homeContent: HomeContent;
 }

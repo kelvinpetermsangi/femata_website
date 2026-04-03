@@ -1,5 +1,6 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { type FormEvent, type ReactNode, useState } from 'react';
+import AdminPageIntro from '@/components/AdminPageIntro';
 import AdminLayout from '@/layouts/AdminLayout';
 import type { SharedPageProps } from '@/types';
 
@@ -144,27 +145,15 @@ export default function AdminAnnouncements({
       <Head title="Announcements admin" />
 
       <AdminLayout title="Announcements">
-        <section className="soft-band overflow-hidden rounded-[1.8rem] px-5 py-6 text-white sm:px-7">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/68">
-            Content management
-          </p>
-          <h2 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
-            Publish, schedule, and prioritize official announcements.
-          </h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/82 sm:text-base">
-            Use announcements for public notices, homepage ticker items, and time-sensitive updates
-            that need high visibility on the FEMATA website.
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-3 text-sm">
-            <div className="rounded-full border border-white/16 bg-white/10 px-4 py-2">
-              {announcements.length} total announcements
-            </div>
-            <div className="rounded-full border border-white/16 bg-white/10 px-4 py-2">
-              {activeCount} currently active
-            </div>
-          </div>
-        </section>
+        <AdminPageIntro
+          eyebrow="Content management"
+          title="Publish, schedule, and prioritize official announcements."
+          text="Use announcements for public notices, homepage ticker items, and time-sensitive updates that need high visibility on the FEMATA website."
+          metrics={[
+            { label: 'Total announcements', value: String(announcements.length) },
+            { label: 'Currently active', value: String(activeCount) },
+          ]}
+        />
 
         {(flashSuccess || form.recentlySuccessful) ? (
           <div className="mt-6 rounded-[1.25rem] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
@@ -308,7 +297,7 @@ export default function AdminAnnouncements({
           <section className="grid gap-4">
             {announcements.length === 0 ? (
               <div className="card-shell p-6 text-sm text-[rgb(var(--muted))]">
-                No announcements yet. Create the first official notice using the form.
+                No FEMATA announcements have been created yet. Publish the first official notice using the form.
               </div>
             ) : (
               announcements.map((announcement) => (

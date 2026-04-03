@@ -19,6 +19,8 @@ class AdminSection extends Model
     public const PAGES = 'pages';
     public const SETTINGS = 'settings';
     public const ASSOCIATIONS = 'associations';
+    public const ASSOCIATION_TYPES = 'association-types';
+    public const ADVERTS = 'adverts';
     public const PRESS_BRIEFINGS = 'press-briefings';
 
     protected $fillable = [

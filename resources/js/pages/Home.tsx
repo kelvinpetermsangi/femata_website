@@ -1,193 +1,506 @@
 import { Head } from '@inertiajs/react';
+import AdvertCarousel from '@/components/AdvertCarousel';
 import AppLink from '@/components/AppLink';
-import PageHero from '@/components/PageHero';
-import SectionLead from '@/components/SectionLead';
-import { useSitePreferences } from '@/hooks/useSitePreferences';
-import PublicLayout from '@/layouts/PublicLayout';
-import { copy } from '@/lib/copy';
+import { advertsForSlot } from '@/lib/adverts';
+import {
+  femataClosingNarrative,
+  femataCorridors,
+  femataExplorationSignals,
+  femataFinanceSignals,
+  femataFormalizationStats,
+  femataGovernanceModel,
+  femataGrowthSignals,
+  femataHeroContext,
+  femataHeroSummary,
+  femataInclusionThemes,
+  femataIntroductoryOverview,
+  femataMineralFamilies,
+  femataModernizationThemes,
+  femataSectorMetrics,
+  femataWhatMakesPossible,
+} from '@/lib/femataNarrative';
 import { defaultHomeContent } from '@/lib/siteDefaults';
-import type { GalleryItem, HomePageProps } from '@/types';
+import PublicLayout from '@/layouts/PublicLayout';
+import type { HomePageProps } from '@/types';
 
-function youtubeThumb(url?: string | null) {
-  if (!url) {
-    return null;
-  }
-
-  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{6,})/);
-  return match ? `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg` : null;
+function SectionHeader({
+  eyebrow,
+  title,
+  text,
+}: {
+  eyebrow: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="max-w-4xl">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[rgb(var(--accent-2))]">
+        {eyebrow}
+      </p>
+      <h2 className="mt-4 text-3xl font-semibold leading-tight text-[rgb(var(--primary))] sm:text-4xl">
+        {title}
+      </h2>
+      <p className="mt-4 max-w-3xl text-sm leading-8 text-[rgb(var(--muted))] sm:text-base">
+        {text}
+      </p>
+    </div>
+  );
 }
 
-function GalleryFeature({ item }: { item: GalleryItem }) {
-  const image = item.type === 'youtube' ? youtubeThumb(item.youtube_url) : item.image_path;
-
+function MetricCard({
+  label,
+  value,
+  note,
+}: {
+  label: string;
+  value: string;
+  note: string;
+}) {
   return (
-    <article className="media-frame relative min-h-[220px]">
-      {image ? (
-        <img
-          src={image}
-          alt={item.title}
-          className="h-full w-full object-cover"
-          loading="lazy"
-        />
-      ) : (
-        <div className="flex h-full min-h-[220px] items-center justify-center bg-[rgb(var(--surface-2))] text-sm text-[rgb(var(--muted))]">
-          Media preview unavailable
-        </div>
-      )}
+    <div className="card-shell card-shell-hover p-5 sm:p-6">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--muted))]">
+        {label}
+      </p>
+      <p className="mt-3 text-3xl font-semibold text-[rgb(var(--primary))] sm:text-4xl">{value}</p>
+      <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">{note}</p>
+    </div>
+  );
+}
 
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent p-5 text-white">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-white/70">
-          {item.type === 'youtube' ? 'Video highlight' : 'Field image'}
+function GrowthSignalCard({
+  label,
+  from,
+  to,
+  delta,
+  note,
+  widthClass,
+}: {
+  label: string;
+  from: string;
+  to: string;
+  delta: string;
+  note: string;
+  widthClass: string;
+}) {
+  return (
+    <div className="card-shell p-5 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
+          {label}
         </p>
-        <h3 className="mt-2 text-xl font-semibold">{item.title}</h3>
-        {item.description ? <p className="mt-2 text-sm text-white/75">{item.description}</p> : null}
+        <span className="ui-chip px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+          {delta}
+        </span>
       </div>
-    </article>
+
+      <div className="mt-5">
+        <div className="h-3 rounded-full bg-[rgba(var(--border),0.75)]">
+          <div
+            className={`h-3 rounded-full bg-[linear-gradient(90deg,rgba(var(--accent),0.96),rgba(var(--primary),0.96))] ${widthClass}`}
+          />
+        </div>
+      </div>
+
+      <div className="mt-5 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.16em] text-[rgb(var(--muted))]">From</p>
+          <p className="mt-1 text-lg font-semibold text-[rgb(var(--primary))]">{from}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs uppercase tracking-[0.16em] text-[rgb(var(--muted))]">To</p>
+          <p className="mt-1 text-lg font-semibold text-[rgb(var(--primary))]">{to}</p>
+        </div>
+      </div>
+
+      <p className="mt-4 text-sm leading-7 text-[rgb(var(--muted))]">{note}</p>
+    </div>
   );
 }
 
 export default function Home({
   announcements = [],
-  news = [],
-  leaders = [],
-  documents = [],
-  galleryItems = [],
+  associations = [],
+  adverts = {},
   homeContent = defaultHomeContent,
 }: HomePageProps) {
-  const { locale } = useSitePreferences();
-  const t = copy[locale];
-  const content = homeContent ?? defaultHomeContent;
-  const featuredNews = news[0];
-  const secondaryNews = news.slice(1, 4);
-  const leadLeader = leaders[0];
-  const leadershipTeam = leaders.slice(1, 4);
-  const leadGallery = galleryItems[0];
-  const supportingGallery = galleryItems.slice(1, 3);
-  const highlights = content.highlights ?? [];
-  const pillars = content.pillars ?? [];
-  const zones = content.zones ?? [];
-  const partners = content.partners ?? [];
+  const heroImage =
+    homeContent.hero_image ??
+    defaultHomeContent.hero_image ??
+    'https://images.unsplash.com/photo-1513828583688-c52646db42da?auto=format&fit=crop&w=1600&q=80';
+
+  const topSlotAdverts = advertsForSlot(adverts, 1);
+  const bottomSlotAdverts = advertsForSlot(adverts, 2);
+  const associationTypes = Array.from(
+    new Set(
+      associations
+        .map((association) => association.association_type?.name)
+        .filter((value): value is string => Boolean(value))
+    )
+  );
 
   return (
     <>
       <Head title="Home" />
 
       <PublicLayout announcements={announcements}>
-        <PageHero
-          eyebrow={t.hero.eyebrow}
-          title={t.hero.title}
-          text={t.hero.text}
-          image={content.hero_image ?? defaultHomeContent.hero_image ?? ''}
-        >
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--primary))]">
-              {content.hero_panel_label}
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="metric-badge">
-                <p className="text-xs uppercase tracking-[0.18em] text-[rgb(var(--muted))]">Announcements</p>
-                <p className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">{announcements.length}</p>
-              </div>
-              <div className="metric-badge">
-                <p className="text-xs uppercase tracking-[0.18em] text-[rgb(var(--muted))]">News</p>
-                <p className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">{news.length}</p>
-              </div>
-              <div className="metric-badge">
-                <p className="text-xs uppercase tracking-[0.18em] text-[rgb(var(--muted))]">Leadership</p>
-                <p className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">{leaders.length}</p>
-              </div>
-              <div className="metric-badge">
-                <p className="text-xs uppercase tracking-[0.18em] text-[rgb(var(--muted))]">Resources</p>
-                <p className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">{documents.length}</p>
-              </div>
-            </div>
-
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-              <AppLink href="/about" className="btn-primary">
-                {t.hero.primary}
-              </AppLink>
-              <AppLink href="/news" className="btn-secondary">
-                {t.hero.secondary}
-              </AppLink>
-            </div>
-          </div>
-        </PageHero>
-
-        <section className="section-shell pt-0">
+        <section className="section-shell pb-6">
           <div className="container-shell">
-            <SectionLead
-              eyebrow={content.why_eyebrow}
-              title={content.why_title}
-              text={content.why_text}
-            />
-
-            <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-              <div className="paper-panel subtle-grid">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--muted))]">
-                  {content.mandate_label}
-                </p>
-                <h3 className="mt-4 text-3xl font-semibold leading-tight text-[rgb(var(--primary))]">
-                  {content.mandate_title}
-                </h3>
-                <p className="mt-5 max-w-2xl text-sm leading-8 text-[rgb(var(--muted))] sm:text-base">
-                  {content.mandate_text}
-                </p>
-
-                <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                  {highlights.map((highlight) => (
-                    <div
-                      key={highlight.label}
-                      className="rounded-[1.25rem] border border-[rgb(var(--border))] bg-white/85 p-4"
-                    >
-                      <p className="text-xs uppercase tracking-[0.16em] text-[rgb(var(--muted))]">
-                        {highlight.label}
-                      </p>
-                      <p className="mt-2 text-sm leading-7 text-[rgb(var(--fg))]">{highlight.text}</p>
-                    </div>
-                  ))}
-                </div>
+            <div className="relative overflow-hidden rounded-[2.6rem] border border-white/10 bg-slate-950 shadow-[0_35px_110px_rgba(15,23,42,0.24)]">
+              <div className="absolute inset-0">
+                <img src={heroImage} alt="FEMATA national homepage" className="h-full w-full object-cover" />
+                <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(2,6,23,0.96),rgba(7,28,24,0.88),rgba(15,23,42,0.72))]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_22%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.16),transparent_18%)]" />
               </div>
 
-              <div className="space-y-5">
-                {pillars.map((pillar) => (
-                  <div key={pillar.title} className="paper-panel">
-                    <div className="pillar-rail">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--accent-2))]">
-                        Strategic pillar
-                      </p>
-                      <h3 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">
-                        {pillar.title}
-                      </h3>
-                      <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">
-                        {pillar.text}
-                      </p>
+              <div className="relative grid gap-8 px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[minmax(0,1.1fr)_390px] lg:px-10 lg:py-12">
+                <div className="max-w-4xl">
+                  <span className="inline-flex rounded-full border border-white/14 bg-white/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/82 backdrop-blur-md">
+                    FEMATA national federation
+                  </span>
+
+                  <h1 className="mt-6 text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-[4.1rem]">
+                    Federation of Miners&apos; Associations of Tanzania
+                  </h1>
+
+                  <p className="mt-6 max-w-3xl text-base leading-8 text-white/82 sm:text-lg">
+                    {femataHeroSummary}
+                  </p>
+
+                  <div className="mt-6 grid gap-4 lg:grid-cols-3">
+                    {femataHeroContext.map((item, index) => (
+                      <div
+                        key={item}
+                        className={[
+                          'rounded-[1.6rem] border px-5 py-5 backdrop-blur-md',
+                          index === 0
+                            ? 'border-emerald-300/18 bg-emerald-400/8'
+                            : 'border-white/12 bg-white/7',
+                        ].join(' ')}
+                      >
+                        <p className="text-sm leading-7 text-white/80">{item}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-8 flex flex-wrap gap-3">
+                    <AppLink href="/about" className="btn-primary">
+                      About FEMATA
+                    </AppLink>
+                    <AppLink
+                      href="/associations"
+                      className="btn-secondary border-white/18 bg-white/10 text-white hover:bg-white/16"
+                    >
+                      Explore the sector
+                    </AppLink>
+                    <AppLink
+                      href="/contact"
+                      className="btn-secondary border-white/16 bg-transparent text-white hover:bg-white/10"
+                    >
+                      Partner with FEMATA
+                    </AppLink>
+                  </div>
+                </div>
+
+                <div className="grid gap-4">
+                  <div className="ui-shell-strong p-6">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--primary))]">
+                      Sector snapshot
+                    </p>
+
+                    <div className="mt-5 grid grid-cols-2 gap-3">
+                      <div className="ui-soft-panel p-4">
+                        <p className="text-xs uppercase tracking-[0.16em] text-[rgb(var(--muted))]">GDP</p>
+                        <p className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">10.1%</p>
+                        <p className="mt-2 text-xs leading-6 text-[rgb(var(--muted))]">2024 contribution</p>
+                      </div>
+                      <div className="ui-soft-panel p-4">
+                        <p className="text-xs uppercase tracking-[0.16em] text-[rgb(var(--muted))]">Exports</p>
+                        <p className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">USD 4.9B</p>
+                        <p className="mt-2 text-xs leading-6 text-[rgb(var(--muted))]">Year ending Jan 2026</p>
+                      </div>
+                      <div className="ui-soft-panel p-4">
+                        <p className="text-xs uppercase tracking-[0.16em] text-[rgb(var(--muted))]">Jobs</p>
+                        <p className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">1.2M+</p>
+                        <p className="mt-2 text-xs leading-6 text-[rgb(var(--muted))]">Direct ASM employment</p>
+                      </div>
+                      <div className="ui-soft-panel p-4">
+                        <p className="text-xs uppercase tracking-[0.16em] text-[rgb(var(--muted))]">Profiles</p>
+                        <p className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">
+                          {String(associations.length).padStart(2, '0')}
+                        </p>
+                        <p className="mt-2 text-xs leading-6 text-[rgb(var(--muted))]">Public association profiles</p>
+                      </div>
                     </div>
                   </div>
-                ))}
+
+                  <div className="ui-shell p-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--muted))]">
+                      National reach
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">
+                      FEMATA connects association structures, regional leadership, and national coordination across
+                      Tanzania&apos;s diverse mining corridors.
+                    </p>
+
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {associationTypes.length > 0 ? (
+                        associationTypes.slice(0, 4).map((type) => (
+                          <span
+                            key={type}
+                            className="ui-chip px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]"
+                          >
+                            {type}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="ui-chip px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+                          National member network
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         <section className="section-shell pt-0">
-          <div className="container-shell">
-            <div className="strata-overlay overflow-hidden rounded-[2rem] px-6 py-10 text-white sm:px-8 lg:px-10">
-              <SectionLead
-                eyebrow={content.footprint_eyebrow}
-                title={content.footprint_title}
-                text={content.footprint_text}
-                align="left"
+          <div className="container-shell grid gap-8 xl:grid-cols-[minmax(0,1.05fr)_0.95fr]">
+            <div className="ui-section-layer p-6 sm:p-8 lg:p-10">
+              <SectionHeader
+                eyebrow="National overview"
+                title="Mining has become central to Tanzania's economic story"
+                text="The national homepage now focuses on the scale, momentum, and future-readiness of Tanzania's mining sector, and on the role FEMATA plays in helping that growth become more organized, productive, and visible."
               />
 
-              <div className="grid gap-4">
-                {zones.map((zone) => (
-                  <div key={zone.name} className="zone-row bg-white/10 text-white backdrop-blur-sm">
-                    <div>
-                      <p className="text-[11px] uppercase tracking-[0.2em] text-white/68">Zone</p>
-                      <h3 className="mt-2 text-2xl font-semibold">{zone.name}</h3>
+              <div className="mt-8 grid gap-5">
+                {femataIntroductoryOverview.map((paragraph) => (
+                  <div key={paragraph} className="ui-soft-panel p-5 sm:p-6">
+                    <p className="text-sm leading-8 text-[rgb(var(--foreground))] sm:text-base">{paragraph}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-6">
+              <div className="card-shell p-6 sm:p-7">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--accent-2))]">
+                  Why ASM matters
+                </p>
+                <h3 className="mt-4 text-2xl font-semibold text-[rgb(var(--primary))] sm:text-3xl">
+                  ASM is not peripheral to the economy
+                </h3>
+                <p className="mt-4 text-sm leading-8 text-[rgb(var(--muted))]">
+                  Artisanal and small-scale mining is one of Tanzania&apos;s most important production and livelihood
+                  systems. It supports miners, processors, traders, transport operators, equipment suppliers, food
+                  vendors, and household economies linked to mining activity.
+                </p>
+
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <div className="ui-soft-panel p-5">
+                    <p className="text-xs uppercase tracking-[0.16em] text-[rgb(var(--muted))]">Direct employment</p>
+                    <p className="mt-2 text-3xl font-semibold text-[rgb(var(--primary))]">1.2M+</p>
+                  </div>
+                  <div className="ui-soft-panel p-5">
+                    <p className="text-xs uppercase tracking-[0.16em] text-[rgb(var(--muted))]">
+                      Livelihood multiplier
+                    </p>
+                    <p className="mt-2 text-3xl font-semibold text-[rgb(var(--primary))]">7.2M</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card-shell p-6 sm:p-7">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--accent-2))]">
+                  FEMATA's practical role
+                </p>
+                <div className="mt-5 grid gap-4">
+                  {femataGovernanceModel.map((item) => (
+                    <div key={item.title} className="ui-soft-panel p-4">
+                      <p className="text-sm font-semibold text-[rgb(var(--primary))]">{item.title}</p>
+                      <p className="mt-2 text-sm leading-7 text-[rgb(var(--muted))]">{item.text}</p>
                     </div>
-                    <p className="text-sm leading-7 text-white/82">{zone.focus}</p>
-                    <p className="text-sm font-medium text-white/72">{zone.base}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {topSlotAdverts.length > 0 ? (
+          <section className="section-shell pt-0">
+            <div className="container-shell">
+              <AdvertCarousel adverts={topSlotAdverts} slotNumber={1} />
+            </div>
+          </section>
+        ) : null}
+
+        <section className="section-shell pt-0">
+          <div className="container-shell">
+            <SectionHeader
+              eyebrow="Sector snapshot"
+              title="A stronger sector, measured in output, exports, and livelihoods"
+              text="The numbers show a sector that is larger, more visible, and increasingly central to national growth. The opportunity is no longer theoretical. It is already material and nationally significant."
+            />
+
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {femataSectorMetrics.map((metric) => (
+                <MetricCard key={metric.label} label={metric.label} value={metric.value} note={metric.note} />
+              ))}
+            </div>
+
+            <div className="mt-8 grid gap-5 lg:grid-cols-3">
+              {femataGrowthSignals.map((signal) => (
+                <GrowthSignalCard key={signal.label} {...signal} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="section-shell pt-0">
+          <div className="container-shell grid gap-8 xl:grid-cols-[0.92fr_1.08fr]">
+            <div className="grid gap-6">
+              <div className="ui-section-layer p-6 sm:p-8">
+                <SectionHeader
+                  eyebrow="Mineral diversity"
+                  title="The opportunity base is much broader than one mineral"
+                  text="Tanzania's mining future is multi-layered. Precious metals, gemstones, strategic minerals, industrial minerals, and transition minerals all create different routes into value creation."
+                />
+
+                <div className="mt-8 grid gap-4">
+                  {femataMineralFamilies.map((family) => (
+                    <div key={family.title} className="ui-soft-panel p-5">
+                      <h3 className="text-xl font-semibold text-[rgb(var(--primary))]">{family.title}</h3>
+                      <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">{family.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="ui-section-layer p-6 sm:p-8">
+              <SectionHeader
+                eyebrow="Regional mining corridors"
+                title="Different mineral corridors call for targeted strategies"
+                text="Tanzania's mining opportunity is regional as well as national, which is why the sector needs both broad national coordination and place-specific support."
+              />
+
+              <div className="mt-8 grid gap-4">
+                {femataCorridors.map((corridor) => (
+                  <div key={corridor.title} className="card-shell p-5 sm:p-6">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="ui-chip px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+                        {corridor.minerals}
+                      </span>
+                    </div>
+                    <h3 className="mt-4 text-xl font-semibold text-[rgb(var(--primary))]">{corridor.title}</h3>
+                    <p className="mt-2 text-sm font-medium text-[rgb(var(--foreground))]">{corridor.regions}</p>
+                    <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">{corridor.opportunity}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="section-shell pt-0">
+          <div className="container-shell grid gap-8 xl:grid-cols-[1.02fr_0.98fr]">
+            <div className="ui-section-layer p-6 sm:p-8">
+              <SectionHeader
+                eyebrow="Formalization"
+                title="A more visible sector is easier to organize, support, and finance"
+                text="Formalization is not just an administrative exercise. It improves visibility, traceability, market access, and the ability of institutions and partners to engage the sector more effectively."
+              />
+
+              <div className="mt-8 grid gap-4 md:grid-cols-2">
+                {femataFormalizationStats.map((item) => (
+                  <div key={item.label} className="ui-soft-panel p-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
+                      {item.label}
+                    </p>
+                    <p className="mt-3 text-2xl font-semibold text-[rgb(var(--primary))]">{item.value}</p>
+                    <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">{item.note}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="ui-section-layer p-6 sm:p-8">
+              <SectionHeader
+                eyebrow="Modernization need"
+                title="The next stage depends on more productive licences, not just more licences"
+                text="Many mining sites still operate with low recovery efficiency, weak geological intelligence, and limited processing technology. Productivity gains require better tools, better systems, and cleaner operational practices."
+              />
+
+              <div className="mt-8 grid gap-4">
+                {femataModernizationThemes.map((item) => (
+                  <div key={item.title} className="card-shell p-5">
+                    <h3 className="text-lg font-semibold text-[rgb(var(--primary))]">{item.title}</h3>
+                    <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {bottomSlotAdverts.length > 0 ? (
+          <section className="section-shell pt-0">
+            <div className="container-shell">
+              <AdvertCarousel adverts={bottomSlotAdverts} slotNumber={2} compact />
+            </div>
+          </section>
+        ) : null}
+
+        <section className="section-shell pt-0">
+          <div className="container-shell grid gap-8 xl:grid-cols-[1fr_1fr]">
+            <div className="ui-section-layer p-6 sm:p-8">
+              <SectionHeader
+                eyebrow="Finance and long-term growth"
+                title="Bankability is improving, but stronger data and structure still matter"
+                text="Formalization helps the sector become easier to lend to, easier to insure, easier to verify, and easier to support with working capital, equipment finance, and structured partnerships."
+              />
+
+              <div className="mt-8 grid gap-4 md:grid-cols-2">
+                {femataFinanceSignals.map((signal) => (
+                  <div key={signal.label} className="card-shell p-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
+                      {signal.label}
+                    </p>
+                    <p className="mt-3 text-2xl font-semibold text-[rgb(var(--primary))]">{signal.value}</p>
+                    <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">{signal.note}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 rounded-[2rem] border border-[rgba(var(--border),0.9)] bg-[rgba(var(--surface),0.92)] p-5 sm:p-6">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--accent-2))]">
+                  Exploration precision gap
+                </p>
+                <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                  {femataExplorationSignals.map((item) => (
+                    <div key={item.label} className="ui-soft-panel p-4">
+                      <p className="text-xs uppercase tracking-[0.16em] text-[rgb(var(--muted))]">{item.label}</p>
+                      <p className="mt-3 text-2xl font-semibold text-[rgb(var(--primary))]">{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="ui-section-layer p-6 sm:p-8">
+              <SectionHeader
+                eyebrow="Responsible and inclusive growth"
+                title="Productivity, inclusion, and ESG need to move together"
+                text="Tanzania's mining future will be stronger when better environmental performance, safer operations, more inclusive participation, and improved governance rise alongside output."
+              />
+
+              <div className="mt-8 grid gap-4">
+                {femataInclusionThemes.map((theme) => (
+                  <div key={theme.title} className="card-shell p-5 sm:p-6">
+                    <h3 className="text-xl font-semibold text-[rgb(var(--primary))]">{theme.title}</h3>
+                    <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">{theme.text}</p>
                   </div>
                 ))}
               </div>
@@ -197,297 +510,39 @@ export default function Home({
 
         <section className="section-shell pt-0">
           <div className="container-shell">
-            <SectionLead
-              eyebrow={content.news_eyebrow}
-              title={content.news_title}
-              text={content.news_text}
-              actionHref="/news"
-              actionLabel={t.viewAll}
-            />
+            <div className="ui-section-layer overflow-hidden p-6 sm:p-8 lg:p-10">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.09),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(8,47,73,0.09),transparent_24%)]" />
 
-            <div className="grid gap-8 lg:grid-cols-[1.12fr_0.88fr]">
-              <div className="paper-panel">
-                {featuredNews ? (
-                  <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-                    <div className="media-frame min-h-[320px]">
-                      {featuredNews.cover_image ? (
-                        <img
-                          src={featuredNews.cover_image}
-                          alt={featuredNews.title}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : null}
-                    </div>
-
-                    <div className="flex flex-col justify-center">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--accent-2))]">
-                        Featured story
-                      </p>
-                      <h3 className="mt-3 text-3xl font-semibold leading-tight text-[rgb(var(--primary))]">
-                        {featuredNews.title}
-                      </h3>
-                      {featuredNews.excerpt ? (
-                        <p className="mt-4 text-sm leading-8 text-[rgb(var(--muted))]">
-                          {featuredNews.excerpt}
-                        </p>
-                      ) : null}
-                      <div className="mt-6 flex items-center justify-between gap-3">
-                        <p className="text-xs uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
-                          {featuredNews.published_at ?? 'Recent update'}
-                        </p>
-                        <AppLink href={`/news/${featuredNews.slug}`} className="story-link">
-                          Continue reading
-                        </AppLink>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-sm text-[rgb(var(--muted))]">
-                    Featured news will appear here once published.
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-5">
-                <div className="paper-panel">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--accent-2))]">
-                    News stream
-                  </p>
-                  <div className="mt-5 divide-y" style={{ borderColor: 'rgba(var(--border), 0.9)' }}>
-                    {secondaryNews.map((item) => (
-                      <div key={item.id} className="py-4 first:pt-0 last:pb-0">
-                        <p className="text-xs uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
-                          {item.published_at ?? 'Recent update'}
-                        </p>
-                        <h3 className="mt-2 text-xl font-semibold leading-tight text-[rgb(var(--primary))]">
-                          {item.title}
-                        </h3>
-                        {item.excerpt ? (
-                          <p className="mt-2 text-sm leading-7 text-[rgb(var(--muted))]">
-                            {item.excerpt}
-                          </p>
-                        ) : null}
-                        <AppLink href={`/news/${item.slug}`} className="story-link mt-3">
-                          Read story
-                        </AppLink>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="paper-panel">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--accent-2))]">
-                    Noticeboard
-                  </p>
-                  <div className="mt-4 space-y-3">
-                    {announcements.map((announcement) => (
-                      <div
-                        key={announcement.id}
-                        className="rounded-[1.2rem] border border-[rgb(var(--border))] bg-white/85 px-4 py-4"
-                      >
-                        <p className="text-sm font-semibold text-[rgb(var(--primary))]">
-                          {announcement.title}
-                        </p>
-                        <p className="mt-2 text-sm leading-7 text-[rgb(var(--muted))]">
-                          {announcement.body}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="section-shell pt-0">
-          <div className="container-shell">
-            <SectionLead
-              eyebrow={content.leadership_eyebrow}
-              title={content.leadership_title}
-              text={content.leadership_text}
-              actionHref="/leadership"
-              actionLabel={t.viewAll}
-            />
-
-            <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-              {leadLeader ? (
-                <div className="paper-panel">
-                  <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-                    <div className="media-frame min-h-[360px]">
-                      {leadLeader.photo_path ? (
-                        <img
-                          src={leadLeader.photo_path}
-                          alt={leadLeader.name}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : null}
-                    </div>
-
-                    <div className="flex flex-col justify-center">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--accent-2))]">
-                        Leadership spotlight
-                      </p>
-                      <h3 className="mt-3 text-3xl font-semibold text-[rgb(var(--primary))]">
-                        {leadLeader.name}
-                      </h3>
-                      <p className="mt-2 text-base font-medium text-[rgb(var(--primary-soft))]">
-                        {leadLeader.title}
-                      </p>
-                      {leadLeader.bio ? (
-                        <p className="mt-4 text-sm leading-8 text-[rgb(var(--muted))]">
-                          {leadLeader.bio}
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-              <div className="space-y-4">
-                {leadershipTeam.map((leader) => (
-                  <div key={leader.id} className="paper-panel">
-                    <div className="grid gap-4 sm:grid-cols-[110px_1fr] sm:items-center">
-                      <div className="media-frame h-[110px] w-[110px]">
-                        {leader.photo_path ? (
-                          <img
-                            src={leader.photo_path}
-                            alt={leader.name}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                          />
-                        ) : null}
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-semibold text-[rgb(var(--primary))]">{leader.name}</h3>
-                        <p className="mt-1 text-sm font-medium text-[rgb(var(--primary-soft))]">{leader.title}</p>
-                        {leader.bio ? (
-                          <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">{leader.bio}</p>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="section-shell pt-0">
-          <div className="container-shell">
-            <div className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr]">
-              <div>
-                <SectionLead
-                  eyebrow={content.media_eyebrow}
-                  title={content.media_title}
-                  text={content.media_text}
-                  actionHref="/gallery"
-                  actionLabel={t.viewAll}
-                  align="left"
+              <div className="relative z-10">
+                <SectionHeader
+                  eyebrow="What FEMATA makes possible"
+                  title="From dispersed activity to structured progress"
+                  text="FEMATA is not only a federation in name. It is a practical platform for helping Tanzania's artisanal and small-scale mining sector move from dispersed activity to structured progress."
                 />
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  {leadGallery ? (
-                    <div className="md:col-span-2">
-                      <GalleryFeature item={leadGallery} />
-                    </div>
-                  ) : null}
-
-                  {supportingGallery.map((item) => (
-                    <GalleryFeature key={item.id} item={item} />
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <SectionLead
-                  eyebrow={content.documents_eyebrow}
-                  title={content.documents_title}
-                  text={content.documents_text}
-                  actionHref="/documents"
-                  actionLabel={t.viewAll}
-                  align="left"
-                />
-
-                <div className="paper-panel">
-                  {documents.map((document) => (
-                    <div key={document.id} className="resource-row">
-                      <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--accent-2))]">
-                          {document.category ?? 'Resource'}
-                        </p>
-                      </div>
-
-                      <div>
-                        <h3 className="text-lg font-semibold text-[rgb(var(--primary))]">
-                          {document.title}
-                        </h3>
-                        {document.description ? (
-                          <p className="mt-2 text-sm leading-7 text-[rgb(var(--muted))]">
-                            {document.description}
-                          </p>
-                        ) : null}
-                      </div>
-
-                      <div className="text-sm text-[rgb(var(--muted))]">
-                        {document.published_at ?? 'Current'}
-                      </div>
-
-                      <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-                        <AppLink href={`/documents/${document.slug}`} className="story-link">
-                          Open
-                        </AppLink>
-                        <a href={document.download_url ?? document.file_path} className="story-link" download>
-                          Download
-                        </a>
-                      </div>
+                <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+                  {femataWhatMakesPossible.map((item) => (
+                    <div key={item.title} className="card-shell p-5 sm:p-6">
+                      <h3 className="text-xl font-semibold text-[rgb(var(--primary))]">{item.title}</h3>
+                      <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">{item.text}</p>
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        <section className="section-shell pt-0">
-          <div className="container-shell">
-            <div className="soft-band px-6 py-10 text-white sm:px-8 lg:px-10">
-              <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/70">
-                    {content.partnerships_eyebrow}
-                  </p>
-                  <h2 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
-                    {content.partnerships_title}
-                  </h2>
-                  <p className="mt-4 max-w-3xl text-sm leading-8 text-white/82 sm:text-base">
-                    {content.partnerships_text}
-                  </p>
+                <div className="mt-8 rounded-[2rem] border border-[rgba(var(--border),0.9)] bg-[rgba(var(--surface),0.92)] p-6 sm:p-7">
+                  <p className="text-sm leading-8 text-[rgb(var(--foreground))] sm:text-base">{femataClosingNarrative}</p>
 
                   <div className="mt-6 flex flex-wrap gap-3">
-                    {partners.map((partner) => (
-                      <span
-                        key={partner}
-                        className="rounded-full border border-white/16 bg-white/8 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/82"
-                      >
-                        {partner}
-                      </span>
-                    ))}
+                    <AppLink href="/contact" className="btn-primary">
+                      Partner with FEMATA
+                    </AppLink>
+                    <AppLink href="/about" className="btn-secondary">
+                      Learn how FEMATA works
+                    </AppLink>
+                    <AppLink href="/associations" className="btn-secondary">
+                      Browse association profiles
+                    </AppLink>
                   </div>
-                </div>
-
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <AppLink href="/contact" className="btn-primary">
-                    {t.contactBlockButton}
-                  </AppLink>
-                  <AppLink
-                    href="/about"
-                    className="btn-secondary border-white/20 bg-white/10 text-white hover:bg-white/15"
-                  >
-                    {content.secondary_cta_label}
-                  </AppLink>
                 </div>
               </div>
             </div>
