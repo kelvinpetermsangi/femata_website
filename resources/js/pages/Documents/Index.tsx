@@ -62,26 +62,26 @@ export default function DocumentsIndex({
       <Head title="Documents & Publications" />
 
       <PublicLayout announcements={announcements}>
-        <section className="section-shell pb-6">
-          <div className="container-shell grid gap-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
+        <section className="section-shell pb-3">
+          <div className="container-shell grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <div className="max-w-4xl">
               <p className="eyebrow">FEMATA Open Library</p>
-              <h1 className="mt-4 text-4xl font-semibold leading-tight text-[rgb(var(--primary))] sm:text-5xl">
+              <h1 className="mt-3 text-3xl font-semibold leading-tight text-[rgb(var(--primary))] sm:text-4xl">
                 Documents and publications arranged like a living public library
               </h1>
-              <p className="mt-5 text-sm leading-8 text-[rgb(var(--muted))] sm:text-base">
+              <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))] sm:text-base">
                 Browse FEMATA strategies, guides, briefs, forms, policy references, and public publications using library-style index numbers, cover displays, metadata filters, read-online access, downloads, and document-specific discussion.
               </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <div className="ui-chip px-4 py-3 text-sm font-semibold text-[rgb(var(--primary))]">
+              <div className="ui-chip px-4 py-2.5 text-sm font-semibold text-[rgb(var(--primary))]">
                 {documents.length} library titles
               </div>
-              <div className="ui-chip px-4 py-3 text-sm font-semibold text-[rgb(var(--primary))]">
+              <div className="ui-chip px-4 py-2.5 text-sm font-semibold text-[rgb(var(--primary))]">
                 {categories.length} categories
               </div>
-              <div className="ui-chip px-4 py-3 text-sm font-semibold text-[rgb(var(--primary))]">
+              <div className="ui-chip px-4 py-2.5 text-sm font-semibold text-[rgb(var(--primary))]">
                 {filteredDocuments.length} visible now
               </div>
             </div>
@@ -89,25 +89,19 @@ export default function DocumentsIndex({
         </section>
 
         <section className="section-shell pt-0">
-          <div className="container-shell">
-            <AdvertCarousel adverts={advertsForSlot(adverts, 1)} slotNumber={1} />
-          </div>
-        </section>
-
-        <section className="section-shell pt-0">
-          <div className="container-shell grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-            <aside className="ui-shell h-fit p-5 sm:p-6 xl:sticky xl:top-24">
+          <div className="container-shell grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
+            <aside className="ui-shell h-fit p-4 sm:p-5 xl:sticky xl:top-24">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--muted))]">
                 Library filters
               </p>
-              <h2 className="mt-3 text-2xl font-semibold text-[rgb(var(--primary))]">
+              <h2 className="mt-2 text-xl font-semibold text-[rgb(var(--primary))] sm:text-2xl">
                 Find the exact publication
               </h2>
-              <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">
+              <p className="mt-2 text-sm leading-6 text-[rgb(var(--muted))]">
                 Search across titles, summaries, index numbers, and publication metadata, then narrow the shelf by category, author, publisher, year, or document type.
               </p>
 
-              <div className="mt-6 grid gap-4">
+              <div className="mt-5 grid gap-3.5">
                 <label className="grid gap-2">
                   <span className="text-sm font-semibold text-[rgb(var(--primary))]">Search</span>
                   <input
@@ -187,7 +181,18 @@ export default function DocumentsIndex({
               </div>
             </aside>
 
-            <div className="grid gap-6">
+            <div className="grid gap-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
+                    Library shelf
+                  </p>
+                  <p className="mt-1 text-sm text-[rgb(var(--muted))]">
+                    Showing {filteredDocuments.length} of {documents.length} FEMATA titles.
+                  </p>
+                </div>
+              </div>
+
               {filteredDocuments.length === 0 ? (
                 <div className="card-shell p-8 text-center sm:p-12">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
@@ -201,12 +206,14 @@ export default function DocumentsIndex({
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
                   {filteredDocuments.map((document) => (
                     <DocumentLibraryTile key={document.id} document={document} />
                   ))}
                 </div>
               )}
+
+              <AdvertCarousel adverts={advertsForSlot(adverts, 1)} slotNumber={1} />
             </div>
           </div>
         </section>
