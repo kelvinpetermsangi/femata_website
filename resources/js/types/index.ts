@@ -92,23 +92,40 @@ export interface GalleryGroup {
 
 export interface DocumentItem {
   id: number;
+  index_number?: string | null;
   title: string;
   slug: string;
   description?: string | null;
   file_path: string;
+  thumbnail_path?: string | null;
   file_type?: string | null;
   category?: string | null;
+  author?: string | null;
+  publisher?: string | null;
+  year?: number | null;
   is_public: boolean;
   is_featured?: boolean;
   published_at?: string | null;
   download_url?: string | null;
+  read_url?: string | null;
+  share_url?: string | null;
   status?: string | null;
   status_id?: number | null;
   category_id?: number | null;
   tag_ids?: number[];
+  preview?: 'pdf' | 'image' | null;
+  comments_count?: number;
+  comments?: DocumentComment[];
 }
 
 export type DocumentFile = DocumentItem;
+
+export interface DocumentComment {
+  id: number;
+  name: string;
+  comment: string;
+  created_at?: string | null;
+}
 
 export interface Leader {
   id: number;

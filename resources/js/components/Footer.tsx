@@ -21,7 +21,6 @@ export default function Footer({
   appReleaseDate,
 }: FooterProps) {
   const t = copy[locale];
-  const footerLabel = locale === 'sw' ? 'Tovuti rasmi ya FEMATA' : 'FEMATA national portal';
   const contactLabel = locale === 'sw' ? 'Mawasiliano' : 'Contact';
   const navLabel = locale === 'sw' ? 'Urambazaji' : 'Navigation';
   const platformLabel = locale === 'sw' ? 'Muundo wa tovuti' : 'Platform';
@@ -30,37 +29,7 @@ export default function Footer({
     <footer className="relative mt-20 overflow-hidden bg-[linear-gradient(145deg,rgba(8,34,31,0.99),rgba(10,53,48,0.98),rgba(37,75,59,0.98))] text-white shadow-[0_-24px_70px_rgba(0,0,0,0.18)]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(var(--accent),0.16),transparent_28%)]" />
 
-      <div className="container-shell relative py-10 sm:py-12">
-        <div className="overflow-hidden rounded-[2rem] border border-white/12 bg-white/8 p-6 shadow-[0_22px_60px_rgba(0,0,0,0.18)] backdrop-blur-xl sm:p-8">
-          <div className="grid gap-8 lg:grid-cols-[1.1fr_auto] lg:items-end">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/58">
-                {footerLabel}
-              </p>
-              <h2 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
-                {footer.strapline}
-              </h2>
-              <p className="mt-4 max-w-3xl text-sm leading-8 text-white/76 sm:text-base">
-                {footer.description}
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <AppLink href={branding.navigation_cta_href} className="btn-primary">
-                {branding.navigation_cta_label}
-              </AppLink>
-              <AppLink
-                href="/associations"
-                className="btn-secondary border-white/18 bg-white/10 text-white hover:bg-white/15"
-              >
-                {t.nav.remas}
-              </AppLink>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container-shell relative pb-12">
+      <div className="container-shell relative py-12">
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr_0.9fr_0.9fr]">
           <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-6">
             <div className="flex items-center gap-4">
@@ -81,6 +50,10 @@ export default function Footer({
               {footer.prompt_text}
             </p>
 
+            <p className="mt-5 max-w-lg text-sm leading-7 text-white/68">
+              {footer.description}
+            </p>
+
             <div className="mt-6 flex flex-wrap gap-2">
               {footer.chips.map((item) => (
                 <span
@@ -90,6 +63,18 @@ export default function Footer({
                   {item}
                 </span>
               ))}
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <AppLink href={branding.navigation_cta_href} className="btn-primary">
+                {branding.navigation_cta_label}
+              </AppLink>
+              <AppLink
+                href="/associations"
+                className="btn-secondary border-white/18 bg-white/10 text-white hover:bg-white/15"
+              >
+                {t.nav.remas}
+              </AppLink>
             </div>
           </div>
 

@@ -7,6 +7,7 @@ use App\Models\Announcement;
 use App\Models\Advert;
 use App\Models\Association;
 use App\Models\Document;
+use App\Models\DocumentComment;
 use App\Models\DocumentDownloadLog;
 use App\Models\GalleryItem;
 use App\Models\Leader;
@@ -340,7 +341,14 @@ class PublicController extends Controller
     {
         abort_unless($document->status?->slug === 'published' && $document->is_public, 404);
 
-        $mapped = $this->mapDocument($document);
+        $document->load([
+            'status',
+            'category',
+            'comments' => fn ($query) => $query->approved()->latest(),
+        ]);
+        $document->loadCount(['comments' => fn ($query) => $query->approved()]);
+
+        $mapped = $this->mapDocument($document, true);
 
         return Inertia::render('Documents/Show', [
             'document' => $mapped,
@@ -356,6 +364,27 @@ class PublicController extends Controller
                 ->values()
                 ->all(),
         ]);
+    }
+
+    public function submitDocumentComment(Request $request, Document $document): RedirectResponse
+    {
+        abort_unless($document->status?->slug === 'published' && $document->is_public, 404);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'email' => ['required', 'email', 'max:255'],
+            'comment' => ['required', 'string', 'max:2000'],
+        ]);
+
+        DocumentComment::query()->create([
+            'document_id' => $document->id,
+            'name' => trim((string) $validated['name']),
+            'email' => trim((string) $validated['email']),
+            'comment' => trim((string) $validated['comment']),
+            'is_approved' => true,
+        ]);
+
+        return back()->with('success', 'Your contribution has been added to this document discussion.');
     }
 
     public function downloadDocument(Request $request, Document $document): RedirectResponse
@@ -639,8 +668,10 @@ class PublicController extends Controller
     {
         return Document::query()
             ->with(['status', 'category'])
+            ->withCount(['comments' => fn ($query) => $query->approved()])
             ->published()
             ->where('is_public', true)
+            ->orderByDesc('is_featured')
             ->orderByDesc('published_at')
             ->orderByDesc('created_at')
             ->get()
@@ -670,24 +701,53 @@ class PublicController extends Controller
             ->all();
     }
 
-    private function mapDocument(Document $document): array
+    private function mapDocument(Document $document, bool $withComments = false): array
     {
         $url = $this->resolveUrl($document->file_path);
         $extension = strtolower((string) ($document->file_extension ?: pathinfo($document->file_path, PATHINFO_EXTENSION)));
+        $preview = $extension === 'pdf'
+            ? 'pdf'
+            : (in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true) ? 'image' : null);
+        $cover = $this->resolveUrl($document->thumbnail_path);
+
+        if (! $cover && $preview === 'image') {
+            $cover = $url;
+        }
 
         return [
             'id' => $document->id,
+            'index_number' => $document->public_id ?: sprintf(
+                'FEM-LIB-%s-%03d',
+                $document->year ?: now()->year,
+                $document->id,
+            ),
             'title' => $document->title,
             'slug' => $document->slug,
             'description' => $document->description,
             'file_path' => $url,
             'download_url' => route('documents.download', $document),
+            'read_url' => route('documents.show', $document),
+            'share_url' => route('documents.show', $document).'#document-discussion',
             'file_type' => $document->document_type ?: $extension,
             'category' => $document->category?->name,
+            'author' => $document->author_source,
+            'publisher' => $document->source_organization,
+            'year' => $document->year,
             'published_at' => $document->published_at?->toDateString(),
-            'preview' => $extension === 'pdf'
-                ? 'pdf'
-                : (in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true) ? 'image' : null),
+            'thumbnail_path' => $cover,
+            'preview' => $preview,
+            'comments_count' => (int) ($document->comments_count ?? 0),
+            'comments' => $withComments
+                ? $document->comments
+                    ->map(fn (DocumentComment $comment) => [
+                        'id' => $comment->id,
+                        'name' => $comment->name,
+                        'comment' => $comment->comment,
+                        'created_at' => $comment->created_at?->toDateTimeString(),
+                    ])
+                    ->values()
+                    ->all()
+                : [],
         ];
     }
 

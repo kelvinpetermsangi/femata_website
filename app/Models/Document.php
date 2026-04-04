@@ -77,6 +77,11 @@ class Document extends Model
         return $this->hasMany(DocumentDownloadLog::class);
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(DocumentComment::class);
+    }
+
     public function associations(): BelongsToMany
     {
         return $this->belongsToMany(Association::class, 'association_documents')->withTimestamps();

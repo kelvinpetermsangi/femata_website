@@ -6,16 +6,28 @@ import type { SharedPageProps } from '@/types';
 
 type DocumentItem = {
   id: number;
+  public_id?: string | null;
   title: string;
   slug: string;
   description?: string | null;
   file_path: string;
+  thumbnail_path?: string | null;
   file_type?: string | null;
   category?: string | null;
+  year?: number | null;
+  author_source?: string | null;
+  source_organization?: string | null;
   status_id: number;
   status?: string | null;
   is_public: boolean;
+  is_featured?: boolean;
   published_at?: string | null;
+};
+
+type CategoryOption = {
+  id: number;
+  name: string;
+  slug: string;
 };
 
 type StatusOption = {
@@ -25,12 +37,18 @@ type StatusOption = {
 };
 
 type DocumentForm = {
+  public_id: string;
   title: string;
   slug: string;
   description: string;
   file_path: string;
+  thumbnail_path: string;
   file_type: string;
   category: string;
+  year: string;
+  author_source: string;
+  source_organization: string;
+  is_featured: boolean;
   status_id: string;
   is_public: boolean;
   published_at: string;
@@ -38,12 +56,18 @@ type DocumentForm = {
 
 function createEmptyDocument(): DocumentForm {
   return {
+    public_id: '',
     title: '',
     slug: '',
     description: '',
     file_path: '',
+    thumbnail_path: '',
     file_type: '',
     category: '',
+    year: '',
+    author_source: '',
+    source_organization: '',
+    is_featured: false,
     status_id: '',
     is_public: true,
     published_at: '',
@@ -74,9 +98,11 @@ function Field({
 export default function AdminDocuments({
   documents,
   contentStatuses,
+  documentCategories,
 }: {
   documents: DocumentItem[];
   contentStatuses: StatusOption[];
+  documentCategories: CategoryOption[];
 }) {
   const { props } = usePage<SharedPageProps>();
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -91,12 +117,18 @@ export default function AdminDocuments({
   const startEdit = (document: DocumentItem) => {
     setEditingId(document.id);
     form.setData({
+      public_id: document.public_id ?? '',
       title: document.title,
       slug: document.slug,
       description: document.description ?? '',
       file_path: document.file_path,
+      thumbnail_path: document.thumbnail_path ?? '',
       file_type: document.file_type ?? '',
       category: document.category ?? '',
+      year: document.year ? String(document.year) : '',
+      author_source: document.author_source ?? '',
+      source_organization: document.source_organization ?? '',
+      is_featured: Boolean(document.is_featured),
       status_id: String(document.status_id),
       is_public: document.is_public,
       published_at: document.published_at ?? '',
@@ -109,10 +141,15 @@ export default function AdminDocuments({
 
     form.transform((data) => ({
       ...data,
+      public_id: data.public_id.trim() || null,
       slug: data.slug.trim() || null,
       description: data.description.trim() || null,
+      thumbnail_path: data.thumbnail_path.trim() || null,
       file_type: data.file_type.trim() || null,
       category: data.category.trim() || null,
+      year: data.year ? Number(data.year) : null,
+      author_source: data.author_source.trim() || null,
+      source_organization: data.source_organization.trim() || null,
       status_id: data.status_id ? Number(data.status_id) : null,
       published_at: data.published_at || null,
     }));
@@ -204,6 +241,18 @@ export default function AdminDocuments({
             </div>
 
             <div className="mt-6 grid gap-4">
+              <Field
+                label="Library index number"
+                error={form.errors.public_id}
+                hint="Use a library-style code such as FEM-LIB-2026-001. Leave blank to generate it automatically."
+              >
+                <input
+                  value={form.data.public_id}
+                  onChange={(event) => form.setData('public_id', event.target.value)}
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                />
+              </Field>
+
               <Field label="Title" error={form.errors.title}>
                 <input
                   value={form.data.title}
@@ -245,6 +294,18 @@ export default function AdminDocuments({
                 />
               </Field>
 
+              <Field
+                label="Cover image URL"
+                error={form.errors.thumbnail_path}
+                hint="This appears as the document cover in the public library tiles and on the detail page."
+              >
+                <input
+                  value={form.data.thumbnail_path}
+                  onChange={(event) => form.setData('thumbnail_path', event.target.value)}
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                />
+              </Field>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <Field label="File type" error={form.errors.file_type}>
                   <input
@@ -261,6 +322,42 @@ export default function AdminDocuments({
                     onChange={(event) => form.setData('category', event.target.value)}
                     className="rounded-2xl border bg-white px-4 py-3 text-sm"
                     placeholder="e.g. Circular, Policy, Guide, Report"
+                    list="document-category-options"
+                  />
+                </Field>
+              </div>
+
+              <datalist id="document-category-options">
+                {documentCategories.map((category) => (
+                  <option key={category.id} value={category.name} />
+                ))}
+              </datalist>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <Field label="Year of publication" error={form.errors.year}>
+                  <input
+                    value={form.data.year}
+                    onChange={(event) => form.setData('year', event.target.value)}
+                    className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                    placeholder="2026"
+                  />
+                </Field>
+
+                <Field label="Author" error={form.errors.author_source}>
+                  <input
+                    value={form.data.author_source}
+                    onChange={(event) => form.setData('author_source', event.target.value)}
+                    className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                    placeholder="FEMATA Research Desk"
+                  />
+                </Field>
+
+                <Field label="Publisher" error={form.errors.source_organization}>
+                  <input
+                    value={form.data.source_organization}
+                    onChange={(event) => form.setData('source_organization', event.target.value)}
+                    className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                    placeholder="Federation of Miners’ Associations of Tanzania"
                   />
                 </Field>
               </div>
@@ -294,6 +391,46 @@ export default function AdminDocuments({
                   </select>
                 </Field>
               </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-[1.25rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))]/65 px-4 py-4">
+                  <label className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={form.data.is_public}
+                      onChange={(event) => form.setData('is_public', event.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-[rgb(var(--border))]"
+                    />
+                    <span>
+                      <span className="block text-sm font-semibold text-[rgb(var(--primary))]">
+                        Publicly visible
+                      </span>
+                      <span className="mt-1 block text-sm leading-6 text-[rgb(var(--muted))]">
+                        Only public and published documents appear in the open library.
+                      </span>
+                    </span>
+                  </label>
+                </div>
+
+                <div className="rounded-[1.25rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))]/65 px-4 py-4">
+                  <label className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={form.data.is_featured}
+                      onChange={(event) => form.setData('is_featured', event.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-[rgb(var(--border))]"
+                    />
+                    <span>
+                      <span className="block text-sm font-semibold text-[rgb(var(--primary))]">
+                        Feature in library highlights
+                      </span>
+                      <span className="mt-1 block text-sm leading-6 text-[rgb(var(--muted))]">
+                        Featured publications can be surfaced more prominently in the public library.
+                      </span>
+                    </span>
+                  </label>
+                </div>
+              </div>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -322,6 +459,11 @@ export default function AdminDocuments({
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
+                        {document.public_id ? (
+                          <span className="rounded-full bg-[rgb(var(--surface-2))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+                            {document.public_id}
+                          </span>
+                        ) : null}
                         <span
                           className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
                             document.status === 'published'
@@ -345,6 +487,11 @@ export default function AdminDocuments({
                         {document.title}
                       </h3>
                       <p className="mt-2 text-sm text-[rgb(var(--muted))]">{document.slug}</p>
+                      {(document.author_source || document.source_organization || document.year) ? (
+                        <p className="mt-2 text-sm text-[rgb(var(--muted))]">
+                          {[document.author_source, document.source_organization, document.year].filter(Boolean).join(' | ')}
+                        </p>
+                      ) : null}
                     </div>
 
                     <div className="flex flex-wrap gap-2">
@@ -390,6 +537,20 @@ export default function AdminDocuments({
                       >
                         {document.file_path}
                       </a>
+                    </div>
+                    <div className="rounded-[1rem] bg-[rgb(var(--surface-2))]/72 px-4 py-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+                        Cover image
+                      </p>
+                      <p className="mt-1 break-all">{document.thumbnail_path || 'Not set'}</p>
+                    </div>
+                    <div className="rounded-[1rem] bg-[rgb(var(--surface-2))]/72 px-4 py-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+                        Library profile
+                      </p>
+                      <p className="mt-1">
+                        {[document.author_source, document.source_organization, document.year].filter(Boolean).join(' | ') || 'Metadata pending'}
+                      </p>
                     </div>
                   </div>
                 </article>

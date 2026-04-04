@@ -25,13 +25,18 @@ class DocumentController extends AdminController
             ->get()
             ->map(fn (Document $document) => [
                 'id' => $document->id,
+                'public_id' => $document->public_id,
                 'title' => $document->title,
                 'slug' => $document->slug,
                 'description' => $document->description,
                 'file_path' => $document->file_path,
+                'thumbnail_path' => $document->thumbnail_path,
                 'file_type' => $document->document_type ?: $document->file_extension,
                 'category' => $document->category?->name,
                 'category_id' => $document->category_id,
+                'year' => $document->year,
+                'author_source' => $document->author_source,
+                'source_organization' => $document->source_organization,
                 'is_public' => $document->is_public,
                 'is_featured' => $document->is_featured,
                 'published_at' => $document->published_at?->format('Y-m-d\TH:i'),
@@ -92,7 +97,11 @@ class DocumentController extends AdminController
         $extension = $data['file_extension'] ?? pathinfo($data['file_path'], PATHINFO_EXTENSION);
 
         return [
-            'public_id' => $document?->public_id ?? (string) Str::ulid(),
+            'public_id' => $this->generateLibraryIndex(
+                $data['year'] ?? $document?->year,
+                $document?->id,
+                $data['public_id'] ?? $document?->public_id,
+            ),
             'title' => $data['title'],
             'slug' => $this->generateUniqueSlug($data['slug'] ?: $data['title'], $document?->id),
             'description' => $data['description'] ?? null,
@@ -140,6 +149,29 @@ class DocumentController extends AdminController
             ['slug' => $slug],
             ['name' => $category, 'description' => null, 'sort_order' => 0],
         )->id;
+    }
+
+    private function generateLibraryIndex(mixed $year = null, ?int $ignoreId = null, mixed $preferred = null): string
+    {
+        $normalized = Str::upper(trim((string) $preferred));
+
+        if ($normalized !== '') {
+            return $normalized;
+        }
+
+        $yearValue = (int) ($year ?: now()->year);
+        $sequence = 1;
+
+        do {
+            $candidate = sprintf('FEM-LIB-%d-%03d', $yearValue, $sequence);
+            $exists = Document::query()
+                ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))
+                ->where('public_id', $candidate)
+                ->exists();
+            $sequence++;
+        } while ($exists);
+
+        return $candidate;
     }
 
     private function generateUniqueSlug(string $value, ?int $ignoreId = null): string

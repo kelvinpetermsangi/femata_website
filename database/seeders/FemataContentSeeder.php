@@ -9,6 +9,7 @@ use App\Models\Association;
 use App\Models\AssociationType;
 use App\Models\ContentStatus;
 use App\Models\Document;
+use App\Models\DocumentComment;
 use App\Models\DocumentCategory;
 use App\Models\GalleryItem;
 use App\Models\Leader;
@@ -278,86 +279,114 @@ class FemataContentSeeder extends Seeder
         $documents = [
             [
                 'slug' => 'strategic-outlook-2026',
-                'public_id' => '01J0FEMATASTRATEGIC2026AB',
+                'public_id' => 'FEM-LIB-2026-001',
                 'title' => 'FEMATA Strategic Outlook 2026',
                 'description' => 'Strategic directions, institutional priorities, and key delivery themes for the 2026 operating cycle.',
                 'file_path' => '/assets/documents/strategic-outlook-2026.pdf',
+                'thumbnail_path' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',
                 'file_extension' => 'pdf',
                 'document_type' => 'strategy',
                 'category_slug' => 'strategic-plan',
                 'year' => 2026,
+                'author_source' => 'FEMATA Secretariat',
+                'source_organization' => 'Federation of Miners’ Associations of Tanzania',
+                'is_featured' => true,
                 'published_at' => Carbon::now()->subMonth(),
             ],
             [
                 'slug' => 'member-services-guide',
-                'public_id' => '01J0FEMATAMEMBERSVCGUIDE26',
+                'public_id' => 'FEM-LIB-2026-002',
                 'title' => 'Member Services Guide',
                 'description' => 'A practical guide to federation support services, coordination channels, and member engagement pathways.',
                 'file_path' => '/assets/documents/member-services-guide.pdf',
+                'thumbnail_path' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80',
                 'file_extension' => 'pdf',
                 'document_type' => 'guide',
                 'category_slug' => 'forms-and-downloads',
                 'year' => 2026,
+                'author_source' => 'Membership and Coordination Desk',
+                'source_organization' => 'FEMATA National Secretariat',
+                'is_featured' => false,
                 'published_at' => Carbon::now()->subWeeks(3),
             ],
             [
                 'slug' => 'responsible-mining-checklist',
-                'public_id' => '01J0FEMATARESPMINECHECK26',
+                'public_id' => 'FEM-LIB-2026-003',
                 'title' => 'Responsible Mining Checklist',
                 'description' => 'A short operational checklist covering safety, documentation, and responsible practice priorities.',
                 'file_path' => '/assets/documents/responsible-mining-checklist.pdf',
+                'thumbnail_path' => 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80',
                 'file_extension' => 'pdf',
                 'document_type' => 'checklist',
                 'category_slug' => 'policies',
                 'year' => 2026,
+                'author_source' => 'Environmental and Safety Working Group',
+                'source_organization' => 'FEMATA',
+                'is_featured' => true,
                 'published_at' => Carbon::now()->subWeeks(2),
             ],
             [
                 'slug' => 'investment-readiness-brief',
-                'public_id' => '01J0FEMATAINVESTREADYBRF26',
+                'public_id' => 'FEM-LIB-2026-004',
                 'title' => 'Investment Readiness Brief',
                 'description' => 'A concise briefing on documentation, visibility, and organizational readiness for partnerships and financing conversations.',
                 'file_path' => '/assets/documents/investment-readiness-brief.jpg',
+                'thumbnail_path' => 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=900&q=80',
                 'file_extension' => 'jpg',
                 'document_type' => 'brief',
                 'category_slug' => 'analytical-reports',
                 'year' => 2026,
+                'author_source' => 'Finance and Partnerships Unit',
+                'source_organization' => 'FEMATA Secretariat',
+                'is_featured' => true,
                 'published_at' => Carbon::now()->subWeeks(4),
             ],
             [
                 'slug' => 'association-governance-template',
-                'public_id' => '01J0FEMATAGOVERNANCETMP26',
+                'public_id' => 'FEM-LIB-2026-005',
                 'title' => 'Association Governance Template',
                 'description' => 'A practical reference for committee structure, reporting lines, and recurring governance routines within member associations.',
                 'file_path' => '/assets/documents/association-governance-template.pdf',
+                'thumbnail_path' => 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80',
                 'file_extension' => 'pdf',
                 'document_type' => 'template',
                 'category_slug' => 'forms-and-downloads',
                 'year' => 2026,
+                'author_source' => 'Governance and Institutional Strengthening Desk',
+                'source_organization' => 'FEMATA',
+                'is_featured' => false,
                 'published_at' => Carbon::now()->subWeeks(5),
             ],
             [
                 'slug' => 'safety-briefing-pack',
-                'public_id' => '01J0FEMATASAFETYBRIEFPA26',
+                'public_id' => 'FEM-LIB-2026-006',
                 'title' => 'Safety Briefing Pack',
                 'description' => 'Safety briefing slides and field checklist materials for use during member meetings and site visits.',
                 'file_path' => '/assets/documents/safety-briefing-pack.pdf',
+                'thumbnail_path' => 'https://images.unsplash.com/photo-1513828583688-c52646db42da?auto=format&fit=crop&w=900&q=80',
                 'file_extension' => 'pdf',
                 'document_type' => 'briefing-pack',
                 'category_slug' => 'policies',
                 'year' => 2026,
+                'author_source' => 'Safety and Compliance Unit',
+                'source_organization' => 'FEMATA Secretariat',
+                'is_featured' => false,
                 'published_at' => Carbon::now()->subWeeks(6),
             ],
             [
                 'slug' => 'membership-registry-update-form',
-                'public_id' => '01J0FEMATAMEMBERREGFORM26',
+                'public_id' => 'FEM-LIB-2026-007',
                 'title' => 'Membership Registry Update Form',
                 'description' => 'Submission form for refreshing association membership records, leadership contacts, and office details.',
                 'file_path' => '/assets/documents/membership-registry-update-form.pdf',
+                'thumbnail_path' => 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=80',
                 'file_extension' => 'pdf',
                 'document_type' => 'form',
                 'category_slug' => 'forms-and-downloads',
                 'year' => 2026,
+                'author_source' => 'Membership Registry Desk',
+                'source_organization' => 'FEMATA National Secretariat',
+                'is_featured' => false,
                 'published_at' => Carbon::now()->subWeeks(7),
             ],
         ];
@@ -370,10 +399,14 @@ class FemataContentSeeder extends Seeder
                     'title' => $document['title'],
                     'description' => $document['description'],
                     'file_path' => $document['file_path'],
+                    'thumbnail_path' => $document['thumbnail_path'] ?? null,
                     'file_extension' => $document['file_extension'],
                     'document_type' => $document['document_type'],
                     'category_id' => $documentCategoryIds[$document['category_slug']] ?? null,
                     'year' => $document['year'],
+                    'author_source' => $document['author_source'] ?? null,
+                    'source_organization' => $document['source_organization'] ?? null,
+                    'is_featured' => (bool) ($document['is_featured'] ?? false),
                     'is_public' => true,
                     'status_id' => $publishedStatusId,
                     'created_by' => $admin->id,
@@ -385,6 +418,47 @@ class FemataContentSeeder extends Seeder
         }
 
         $documentIds = Document::query()->pluck('id', 'slug');
+
+        $documentComments = [
+            [
+                'document_slug' => 'strategic-outlook-2026',
+                'name' => 'Joseph M. Bendera',
+                'email' => 'joseph.bendera@example.com',
+                'comment' => 'This outlook is useful because it links formalization and productivity instead of treating them as separate policy conversations.',
+            ],
+            [
+                'document_slug' => 'strategic-outlook-2026',
+                'name' => 'Rosemary T. Lugendo',
+                'email' => 'rosemary.lugendo@example.com',
+                'comment' => 'A future edition could include a short regional matrix showing where the biggest implementation priorities sit across the federation network.',
+            ],
+            [
+                'document_slug' => 'association-governance-template',
+                'name' => 'Edwin S. Mhando',
+                'email' => 'edwin.mhando@example.com',
+                'comment' => 'The governance template is practical for associations that need clearer committee routines and reporting discipline.',
+            ],
+        ];
+
+        foreach ($documentComments as $comment) {
+            $documentId = $documentIds[$comment['document_slug']] ?? null;
+
+            if (! $documentId) {
+                continue;
+            }
+
+            DocumentComment::query()->updateOrCreate(
+                [
+                    'document_id' => $documentId,
+                    'email' => $comment['email'],
+                ],
+                [
+                    'name' => $comment['name'],
+                    'comment' => $comment['comment'],
+                    'is_approved' => true,
+                ],
+            );
+        }
 
         $leaders = [
             [

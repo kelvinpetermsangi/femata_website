@@ -17,6 +17,7 @@ class StoreDocumentRequest extends FormRequest
         $document = $this->route('document') ?? $this->route('documentFile');
 
         return [
+            'public_id' => ['nullable', 'string', 'max:26', Rule::unique('documents', 'public_id')->ignore($document?->id)],
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('documents', 'slug')->ignore($document?->id)],
             'description' => ['nullable', 'string'],

@@ -17,6 +17,7 @@ Route::controller(PublicController::class)->group(function () {
     Route::get('/gallery/events/{eventSlug}', 'galleryEvent')->name('gallery.events.show');
     Route::get('/documents', 'documents')->name('documents.index');
     Route::get('/documents/{document:slug}', 'documentSingle')->name('documents.show');
+    Route::post('/documents/{document:slug}/comments', 'submitDocumentComment')->name('documents.comments.store');
     Route::get('/documents/{document:slug}/download', 'downloadDocument')->name('documents.download');
     Route::get('/programs', 'programs')->name('programs.index');
     Route::get('/programs/{program:slug}', 'programSingle')->name('programs.show');
