@@ -360,6 +360,9 @@ export interface Association {
   secretary_name?: string | null;
   contact_title?: string | null;
   contact_body?: string | null;
+  map_embed_url?: string | null;
+  google_map_url?: string | null;
+  apple_map_url?: string | null;
   document_ids?: number[];
   document_count?: number;
   leaders_count?: number;
@@ -447,6 +450,66 @@ export interface ContactInfo {
   address: string;
   postal_address?: string | null;
   description: string;
+  booking_email?: string | null;
+  booking_sender_name?: string | null;
+  map_embed_url?: string | null;
+  google_map_url?: string | null;
+  apple_map_url?: string | null;
+}
+
+export interface MeetingLeaderOption {
+  id: string;
+  name: string;
+  title?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  group?: string | null;
+}
+
+export interface MeetingRequestItem {
+  id: number;
+  scope_type: string;
+  request_type: string;
+  status: string;
+  status_label?: string;
+  requester_name: string;
+  requester_email: string;
+  requester_phone?: string | null;
+  organization?: string | null;
+  meeting_with_name?: string | null;
+  meeting_with_title?: string | null;
+  meeting_with_email?: string | null;
+  meeting_with_group?: string | null;
+  subject?: string | null;
+  meeting_mode?: string | null;
+  preferred_date?: string | null;
+  preferred_slot?: string | null;
+  alternate_date?: string | null;
+  alternate_slot?: string | null;
+  duration_minutes?: number | null;
+  message?: string | null;
+  agenda?: string | null;
+  recipient_email?: string | null;
+  proposed_date?: string | null;
+  proposed_slot?: string | null;
+  proposed_location?: string | null;
+  proposed_map_url?: string | null;
+  response_message?: string | null;
+  association?: Pick<Association, 'id' | 'name' | 'slug'> | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface AdministratorUser {
+  id: number;
+  name: string;
+  email: string;
+  is_admin: boolean;
+  role?: string | null;
+  roles?: string[];
+  admin_sections?: string[];
+  association_ids?: number[];
+  managed_associations?: Pick<Association, 'id' | 'name' | 'slug'>[];
 }
 
 export interface SiteFooter {
@@ -471,6 +534,7 @@ export interface SharedPageProps {
       is_admin: boolean;
       roles?: string[];
       admin_sections?: string[];
+      managed_associations?: Pick<Association, 'id' | 'name' | 'slug'>[];
     } | null;
   };
   flash?: {

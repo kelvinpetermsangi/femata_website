@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\AdministratorController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\AdvertController;
 use App\Http\Controllers\Admin\AssociationTypeController;
 use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\LeaderController;
+use App\Http\Controllers\Admin\MeetingRequestController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Admin\PageController;
@@ -18,6 +20,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('admin.dashboard'));
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/administrators', [AdministratorController::class, 'index'])->name('administrators.index');
+Route::post('/administrators', [AdministratorController::class, 'store'])->name('administrators.store');
+Route::put('/administrators/{user}', [AdministratorController::class, 'update'])->name('administrators.update');
+Route::delete('/administrators/{user}', [AdministratorController::class, 'destroy'])->name('administrators.destroy');
+Route::get('/meetings', [MeetingRequestController::class, 'index'])->name('meetings.index');
+Route::put('/meetings/{meetingRequest}', [MeetingRequestController::class, 'update'])->name('meetings.update');
 
 Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
 Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');

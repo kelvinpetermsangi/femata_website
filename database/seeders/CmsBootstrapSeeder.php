@@ -39,6 +39,8 @@ class CmsBootstrapSeeder extends Seeder
             'manage programs',
             'manage press briefings',
             'publish press briefings',
+            'manage meetings',
+            'manage administrators',
         ];
 
         foreach ($permissions as $permission) {
@@ -63,6 +65,7 @@ class CmsBootstrapSeeder extends Seeder
             'manage adverts',
             'manage programs',
             'manage press briefings',
+            'manage meetings',
         ]);
         $reviewer->syncPermissions([
             'access admin dashboard',
@@ -90,6 +93,7 @@ class CmsBootstrapSeeder extends Seeder
             [AdminSection::ADVERTS, 'Adverts'],
             [AdminSection::PROGRAMS, 'Programs'],
             [AdminSection::PRESS_BRIEFINGS, 'Press Briefings'],
+            [AdminSection::MEETINGS, 'Meetings'],
         ];
 
         foreach ($sections as [$slug, $name]) {

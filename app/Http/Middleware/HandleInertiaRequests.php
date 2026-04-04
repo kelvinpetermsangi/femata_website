@@ -44,6 +44,14 @@ class HandleInertiaRequests extends Middleware
                         'is_admin' => $request->user()->hasAdminAccess(),
                         'roles' => $request->user()->getRoleNames()->values()->all(),
                         'admin_sections' => $request->user()->adminSections()->pluck('slug')->all(),
+                        'managed_associations' => $request->user()->associations()
+                            ->get(['associations.id', 'associations.name', 'associations.slug'])
+                            ->map(fn ($association) => [
+                                'id' => $association->id,
+                                'name' => $association->name,
+                                'slug' => $association->slug,
+                            ])
+                            ->all(),
                     ]
                     : null,
             ],

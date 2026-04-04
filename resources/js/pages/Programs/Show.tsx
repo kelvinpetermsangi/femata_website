@@ -13,7 +13,7 @@ function ProgramNavigation({
   return (
     <section className="section-shell pt-0">
       <div className="container-shell">
-        <div className="ui-shell p-3 sm:p-4">
+        <div className="ui-shell p-2.5 sm:p-3">
           <div className="flex flex-wrap gap-2">
             {pages.map((page) => (
               <AppLink
@@ -61,28 +61,28 @@ function ProgramMetricGrid({ metrics = [] }: { metrics?: Program['metrics'] }) {
 function HomeContent({ program }: { program: Program }) {
   return (
     <section className="section-shell pt-0">
-      <div className="container-shell grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
-        <div className="ui-section-layer p-6 sm:p-8">
+      <div className="container-shell grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+        <div className="ui-section-layer p-4 sm:p-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--accent-2))]">
             Program homepage
           </p>
-          <h2 className="mt-3 text-3xl font-semibold text-[rgb(var(--primary))]">
+          <h2 className="mt-3 text-xl font-semibold text-[rgb(var(--primary))] sm:text-2xl">
             {program.home_title}
           </h2>
           <p className="mt-4 text-sm leading-8 text-[rgb(var(--muted))]">
             {program.home_intro}
           </p>
-          <div className="mt-6 rounded-[1.8rem] border border-[rgb(var(--border))] bg-[rgba(var(--surface),0.92)] p-5 sm:p-6">
+          <div className="mt-5 rounded-[1.4rem] border border-[rgb(var(--border))] bg-[rgba(var(--surface),0.92)] p-4">
             <p className="text-sm leading-8 text-[rgb(var(--foreground))]">{program.home_body}</p>
           </div>
         </div>
 
-        <div className="grid gap-6">
-          <div className="card-shell p-6">
+        <div className="grid gap-4">
+          <div className="card-shell p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--muted))]">
               Current edition
             </p>
-            <p className="mt-3 text-2xl font-semibold text-[rgb(var(--primary))]">
+            <p className="mt-3 text-xl font-semibold text-[rgb(var(--primary))]">
               {program.current_year?.edition_label || program.current_year_value || 'Live'}
             </p>
             <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">
@@ -99,7 +99,7 @@ function HomeContent({ program }: { program: Program }) {
           </div>
 
           {(program.highlights ?? []).length > 0 ? (
-            <div className="card-shell p-6">
+            <div className="card-shell p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--muted))]">
                 Strategic highlights
               </p>
@@ -116,7 +116,7 @@ function HomeContent({ program }: { program: Program }) {
         </div>
       </div>
 
-      <div className="container-shell mt-8">
+      <div className="container-shell mt-5">
         <ProgramMetricGrid metrics={program.metrics} />
       </div>
     </section>
@@ -126,21 +126,21 @@ function HomeContent({ program }: { program: Program }) {
 function AboutContent({ program }: { program: Program }) {
   return (
     <section className="section-shell pt-0">
-      <div className="container-shell grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
-        <div className="ui-section-layer p-6 sm:p-8">
+      <div className="container-shell grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
+        <div className="ui-section-layer p-4 sm:p-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--accent-2))]">
             About the program
           </p>
-          <h2 className="mt-3 text-3xl font-semibold text-[rgb(var(--primary))]">
+          <h2 className="mt-3 text-xl font-semibold text-[rgb(var(--primary))] sm:text-2xl">
             {program.about_title}
           </h2>
-          <div className="mt-6 rounded-[1.8rem] border border-[rgb(var(--border))] bg-[rgba(var(--surface),0.92)] p-5 sm:p-6">
+          <div className="mt-5 rounded-[1.4rem] border border-[rgb(var(--border))] bg-[rgba(var(--surface),0.92)] p-4">
             <p className="text-sm leading-8 text-[rgb(var(--foreground))]">{program.about_body}</p>
           </div>
         </div>
 
-        <div className="grid gap-6">
-          <div className="card-shell p-6">
+        <div className="grid gap-4">
+          <div className="card-shell p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--muted))]">
               Program summary
             </p>
@@ -159,11 +159,11 @@ function TeamContent({ program }: { program: Program }) {
   return (
     <section className="section-shell pt-0">
       <div className="container-shell">
-        <div className="ui-section-layer p-6 sm:p-8">
+        <div className="ui-section-layer p-4 sm:p-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--accent-2))]">
             Program team
           </p>
-          <h2 className="mt-3 text-3xl font-semibold text-[rgb(var(--primary))]">
+          <h2 className="mt-3 text-xl font-semibold text-[rgb(var(--primary))] sm:text-2xl">
             Delivery team and focal points
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-8 text-[rgb(var(--muted))]">
@@ -175,7 +175,7 @@ function TeamContent({ program }: { program: Program }) {
               Team profiles will appear here when the program builder publishes named focal points.
             </div>
           ) : (
-            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {team.map((member, index) => (
                 <article key={`${member.name}-${index}`} className="card-shell overflow-hidden">
                   <div className="aspect-[4/3] bg-[rgb(var(--surface-2))]">
@@ -183,7 +183,7 @@ function TeamContent({ program }: { program: Program }) {
                       <img src={member.photo_path} alt={member.name} className="h-full w-full object-cover" loading="lazy" />
                     ) : null}
                   </div>
-                  <div className="p-5">
+                  <div className="p-4">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
                       {member.title}
                     </p>
@@ -214,11 +214,11 @@ function YearsContent({ program }: { program: Program }) {
   return (
     <section className="section-shell pt-0">
       <div className="container-shell">
-        <div className="ui-section-layer p-6 sm:p-8">
+        <div className="ui-section-layer p-4 sm:p-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--accent-2))]">
             Program editions
           </p>
-          <h2 className="mt-3 text-3xl font-semibold text-[rgb(var(--primary))]">
+          <h2 className="mt-3 text-xl font-semibold text-[rgb(var(--primary))] sm:text-2xl">
             Annual cycle, host regions, and edition themes
           </h2>
           <p className="mt-4 max-w-3xl text-sm leading-8 text-[rgb(var(--muted))]">
@@ -230,9 +230,9 @@ function YearsContent({ program }: { program: Program }) {
               Edition history will appear here once the program builder publishes it.
             </div>
           ) : (
-            <div className="mt-8 grid gap-5">
+            <div className="mt-5 grid gap-4">
               {years.map((year, index) => (
-                <article key={`${year.year}-${index}`} className="card-shell p-5 sm:p-6">
+                <article key={`${year.year}-${index}`} className="card-shell p-4 sm:p-5">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <div className="flex flex-wrap gap-2">
@@ -245,7 +245,7 @@ function YearsContent({ program }: { program: Program }) {
                           </span>
                         ) : null}
                       </div>
-                      <h3 className="mt-3 text-2xl font-semibold text-[rgb(var(--primary))]">
+                      <h3 className="mt-3 text-xl font-semibold text-[rgb(var(--primary))]">
                         {year.edition_label || `${year.year} edition`}
                       </h3>
                     </div>
@@ -265,7 +265,7 @@ function YearsContent({ program }: { program: Program }) {
                   ) : null}
 
                   {(year.highlights ?? []).length > 0 ? (
-                    <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                       {(year.highlights ?? []).map((highlight, highlightIndex) => (
                         <div key={`${highlight}-${highlightIndex}`} className="ui-soft-panel px-4 py-4 text-sm font-medium text-[rgb(var(--primary))]">
                           {highlight}
@@ -308,26 +308,26 @@ function CurrentYearContent({ program }: { program: Program }) {
 
   return (
     <section className="section-shell pt-0">
-      <div className="container-shell grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
-        <div className="ui-section-layer p-6 sm:p-8">
+      <div className="container-shell grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
+        <div className="ui-section-layer p-4 sm:p-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--accent-2))]">
             Current year program
           </p>
-          <h2 className="mt-3 text-3xl font-semibold text-[rgb(var(--primary))]">
+          <h2 className="mt-3 text-xl font-semibold text-[rgb(var(--primary))] sm:text-2xl">
             {year.edition_label || `${year.year} edition`}
           </h2>
           <p className="mt-4 text-sm leading-8 text-[rgb(var(--muted))]">
             {program.current_year_intro}
           </p>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <div className="ui-soft-panel p-5">
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <div className="ui-soft-panel p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
                 Theme
               </p>
               <p className="mt-3 text-lg font-semibold text-[rgb(var(--primary))]">{year.theme || 'To be announced'}</p>
             </div>
-            <div className="ui-soft-panel p-5">
+            <div className="ui-soft-panel p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
                 Venue
               </p>
@@ -335,13 +335,13 @@ function CurrentYearContent({ program }: { program: Program }) {
                 {[year.venue, year.region].filter(Boolean).join(', ') || 'To be announced'}
               </p>
             </div>
-            <div className="ui-soft-panel p-5">
+            <div className="ui-soft-panel p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
                 Date window
               </p>
               <p className="mt-3 text-lg font-semibold text-[rgb(var(--primary))]">{year.date_summary || 'To be announced'}</p>
             </div>
-            <div className="ui-soft-panel p-5">
+            <div className="ui-soft-panel p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
                 Edition
               </p>
@@ -350,15 +350,15 @@ function CurrentYearContent({ program }: { program: Program }) {
           </div>
 
           {year.overview ? (
-            <div className="mt-6 rounded-[1.8rem] border border-[rgb(var(--border))] bg-[rgba(var(--surface),0.92)] p-5 sm:p-6">
+            <div className="mt-5 rounded-[1.4rem] border border-[rgb(var(--border))] bg-[rgba(var(--surface),0.92)] p-4">
               <p className="text-sm leading-8 text-[rgb(var(--foreground))]">{year.overview}</p>
             </div>
           ) : null}
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid gap-4">
           {actionCards.length > 0 ? (
-            <div className="card-shell p-6">
+            <div className="card-shell p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--muted))]">
                 Registration and planning
               </p>
@@ -379,7 +379,7 @@ function CurrentYearContent({ program }: { program: Program }) {
           ) : null}
 
           {(year.highlights ?? []).length > 0 ? (
-            <div className="card-shell p-6">
+            <div className="card-shell p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--muted))]">
                 Delivery focus
               </p>
@@ -423,66 +423,41 @@ export default function ProgramShow({
       <Head title={currentPage?.key === 'home' ? program.name : `${program.name} | ${currentPage?.label}`} />
 
       <PublicLayout announcements={announcements}>
-        <section className="section-shell pb-6">
-          <div className="container-shell">
-            <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-slate-950 shadow-[0_35px_100px_rgba(15,23,42,0.18)]">
-              <div className="absolute inset-0">
-                {program.hero_image ? <img src={program.hero_image} alt={program.name} className="h-full w-full object-cover" /> : null}
-                <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(2,6,23,0.95),rgba(7,28,24,0.84),rgba(14,31,52,0.72))]" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_22%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.14),transparent_18%)]" />
+        <section className="section-shell pb-2">
+          <div className="container-shell grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="max-w-4xl">
+              <p className="eyebrow">FEMATA Program</p>
+              <h1 className="mt-3 text-3xl font-semibold leading-tight text-[rgb(var(--primary))] sm:text-[2.6rem]">
+                {program.name}
+              </h1>
+              {program.tagline ? (
+                <p className="mt-3 text-base font-semibold text-[rgb(var(--accent-2))]">{program.tagline}</p>
+              ) : null}
+              <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))] sm:text-base">
+                {heroText}
+              </p>
+            </div>
+
+            <div className="grid gap-3">
+              <div className="ui-soft-panel p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
+                  Current edition
+                </p>
+                <p className="mt-2 text-lg font-semibold text-[rgb(var(--primary))]">
+                  {program.current_year?.edition_label || program.current_year_value || 'Live'}
+                </p>
+                {program.current_year?.theme ? (
+                  <p className="mt-2 text-sm leading-7 text-[rgb(var(--muted))]">{program.current_year.theme}</p>
+                ) : null}
               </div>
 
-              <div className="relative grid gap-8 px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[minmax(0,1.08fr)_340px] lg:px-10 lg:py-12">
-                <div className="max-w-4xl">
-                  <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full border border-white/14 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/82">
-                      FEMATA program
-                    </span>
-                    {program.current_year_value ? (
-                      <span className="rounded-full border border-white/14 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/82">
-                        {program.current_year_value} edition
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <h1 className="mt-6 text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-                    {program.name}
-                  </h1>
-                  {program.tagline ? (
-                    <p className="mt-4 text-lg font-semibold text-emerald-200">{program.tagline}</p>
-                  ) : null}
-                  <p className="mt-5 max-w-3xl text-sm leading-8 text-white/82 sm:text-base">
-                    {heroText}
-                  </p>
-                </div>
-
-                <div className="grid gap-4">
-                  <div className="ui-shell-strong p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
-                      Current edition
-                    </p>
-                    <p className="mt-3 text-xl font-semibold text-[rgb(var(--primary))]">
-                      {program.current_year?.edition_label || program.current_year_value || 'Live'}
-                    </p>
-                    {program.current_year?.theme ? (
-                      <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">{program.current_year.theme}</p>
-                    ) : null}
-                  </div>
-
-                  <div className="card-shell p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
-                      Quick links
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      <AppLink href="/programs" className="btn-secondary justify-center">
-                        All programs
-                      </AppLink>
-                      <AppLink href={`/programs/${program.slug}/current-year`} className="btn-primary justify-center">
-                        Current year
-                      </AppLink>
-                    </div>
-                  </div>
-                </div>
+              <div className="flex flex-wrap gap-3">
+                <AppLink href="/programs" className="btn-secondary">
+                  All programs
+                </AppLink>
+                <AppLink href={`/programs/${program.slug}/current-year`} className="btn-primary">
+                  Current year
+                </AppLink>
               </div>
             </div>
           </div>

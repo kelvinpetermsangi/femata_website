@@ -10,6 +10,7 @@ Route::controller(PublicController::class)->group(function () {
     Route::get('/associations', 'associations')->name('associations.index');
     Route::get('/associations/{association:slug}', 'associationSingle')->name('associations.show');
     Route::get('/associations/{association:slug}/{page}', 'associationPage')->name('associations.page');
+    Route::post('/associations/{association:slug}/contact', 'submitAssociationContact')->name('associations.contact.submit');
     Route::get('/news', 'news')->name('news.index');
     Route::get('/news/{newsPost:slug}', 'newsSingle')->name('news.show');
     Route::get('/announcements', 'announcements')->name('announcements');

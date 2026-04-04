@@ -26,6 +26,16 @@ class UpdateSiteSettingsRequest extends FormRequest
             'home' => ['required', 'array'],
             'about' => ['required', 'array'],
             'contact' => ['required', 'array'],
+            'contact.phone' => ['required', 'string', 'max:80'],
+            'contact.email' => ['required', 'email', 'max:255'],
+            'contact.address' => ['required', 'string', 'max:255'],
+            'contact.postal_address' => ['nullable', 'string', 'max:255'],
+            'contact.description' => ['required', 'string'],
+            'contact.booking_email' => ['nullable', 'email', 'max:255'],
+            'contact.booking_sender_name' => ['nullable', 'string', 'max:255'],
+            'contact.map_embed_url' => ['nullable', 'url', 'max:2048'],
+            'contact.google_map_url' => ['nullable', 'url', 'max:2048'],
+            'contact.apple_map_url' => ['nullable', 'url', 'max:2048'],
             'footer' => ['required', 'array'],
         ];
     }

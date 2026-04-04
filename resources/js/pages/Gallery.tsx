@@ -17,69 +17,79 @@ function formatDate(date?: string | null) {
 
   return parsed.toLocaleDateString('en-GB', {
     day: 'numeric',
-    month: 'long',
+    month: 'short',
     year: 'numeric',
   });
 }
 
-function MediaTile({
-  item,
-  featured = false,
+function excerpt(value?: string | null) {
+  const text = value?.trim();
+
+  if (!text) {
+    return 'Photos and short clips from a FEMATA event, field mission, or public-facing sector activity.';
+  }
+
+  return text.length > 120 ? `${text.slice(0, 120).trim()}...` : text;
+}
+
+function EventShelfCard({
+  group,
 }: {
-  item: GalleryItem;
-  featured?: boolean;
+  group: GalleryGroup;
 }) {
+  const cover = group.cover_item;
+  const previewItems = group.items.slice(0, 3);
+
   return (
-    <article className="card-shell overflow-hidden">
-      <div className={featured ? 'aspect-[16/10] bg-[rgb(var(--surface-2))]' : 'aspect-[4/3] bg-[rgb(var(--surface-2))]'}>
-        {item.type === 'image' && item.image_path ? (
-          <img
-            src={item.image_path}
-            alt={item.title}
-            className="h-full w-full object-cover"
-            loading="lazy"
-          />
+    <article className="card-shell card-shell-hover flex h-full flex-col overflow-hidden">
+      <div className="aspect-[4/3] border-b border-[rgb(var(--border))] bg-[rgb(var(--surface-2))]">
+        {cover?.image_path ? (
+          <img src={cover.image_path} alt={group.title} className="h-full w-full object-cover" loading="lazy" />
         ) : (
-          <div className="relative flex h-full items-center justify-center overflow-hidden bg-slate-950">
-            {item.image_path ? (
-              <img
-                src={item.image_path}
-                alt={item.title}
-                className="absolute inset-0 h-full w-full object-cover opacity-45"
-                loading="lazy"
-              />
-            ) : null}
-            <div className="absolute inset-0 bg-linear-to-br from-slate-950/88 to-slate-900/72" />
-            <div className="relative px-5 text-center text-sm font-semibold text-white">
-              FEMATA video highlight
-            </div>
+          <div className="flex h-full items-center justify-center bg-linear-to-br from-[rgb(var(--surface-2))] to-[rgba(var(--surface),0.82)] text-sm font-semibold text-[rgb(var(--primary))]">
+            FEMATA event media
           </div>
         )}
       </div>
 
-      <div className="p-5 sm:p-6">
-        <div className="ui-chip mb-3 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
-          {item.type === 'youtube' ? 'Video' : 'Image'}
+      <div className="flex flex-1 flex-col p-4">
+        <div className="flex flex-wrap gap-2">
+          {group.date ? (
+            <span className="ui-chip px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--primary))]">
+              {formatDate(group.date)}
+            </span>
+          ) : null}
+          <span className="ui-chip px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--primary))]">
+            {group.item_count} items
+          </span>
         </div>
 
-        <h3 className={`${featured ? 'text-2xl' : 'text-lg'} font-semibold text-[rgb(var(--primary))]`}>
-          {item.title}
-        </h3>
+        <h2 className="mt-3 text-lg font-semibold text-[rgb(var(--primary))]">
+          {group.title}
+        </h2>
+        <p className="mt-2 text-sm leading-7 text-[rgb(var(--muted))]">
+          {excerpt(group.note)}
+        </p>
 
-        {item.description ? (
-          <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">{item.description}</p>
-        ) : null}
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          {previewItems.map((item) => (
+            <div key={item.id} className="aspect-square overflow-hidden rounded-[0.95rem] border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))]">
+              {item.image_path ? (
+                <img src={item.image_path} alt={item.title} className="h-full w-full object-cover" loading="lazy" />
+              ) : (
+                <div className="flex h-full items-center justify-center text-[10px] font-semibold uppercase tracking-[0.12em] text-[rgb(var(--muted))]">
+                  Video
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
 
-        {item.youtube_url ? (
-          <a
-            href={item.youtube_url}
-            className="mt-4 inline-flex text-sm font-semibold text-[rgb(var(--primary))]"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Watch video
-          </a>
-        ) : null}
+        <div className="mt-auto pt-4">
+          <AppLink href={group.href} className="btn-primary justify-center">
+            Open event story
+          </AppLink>
+        </div>
       </div>
     </article>
   );
@@ -96,7 +106,6 @@ export default function Gallery({
   adverts?: AdvertSlots;
   announcements?: [];
 }) {
-  const groups = galleryGroups;
   const heroAdverts = advertsForSlot(adverts, 1);
   const inlineAdverts = advertsForSlot(adverts, 2);
   const closingAdverts = advertsForSlot(adverts, 3);
@@ -106,13 +115,25 @@ export default function Gallery({
       <Head title="Gallery" />
 
       <PublicLayout announcements={announcements}>
-        <section className="section-shell">
-          <div className="container-shell">
-            <div className="glass-shell p-6 sm:p-10">
-              <h1 className="section-title">Gallery &amp; Media</h1>
-              <p className="section-copy">
-                Event-based visual coverage from FEMATA meetings, field visits, stakeholder sessions, and public-facing sector activity.
+        <section className="section-shell pb-2">
+          <div className="container-shell flex flex-wrap items-end justify-between gap-4">
+            <div className="max-w-4xl">
+              <p className="eyebrow">FEMATA Gallery</p>
+              <h1 className="mt-3 text-3xl font-semibold leading-tight text-[rgb(var(--primary))] sm:text-[2.6rem]">
+                Event galleries arranged like a modern media shelf
+              </h1>
+              <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))] sm:text-base">
+                Browse event albums, then open each story to see the full photo and video set with captions and context notes.
               </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <span className="ui-chip px-4 py-2 text-sm font-semibold text-[rgb(var(--primary))]">
+                {galleryGroups.length} event groups
+              </span>
+              <span className="ui-chip px-4 py-2 text-sm font-semibold text-[rgb(var(--primary))]">
+                {galleryItems.length} media items
+              </span>
             </div>
           </div>
         </section>
@@ -127,90 +148,35 @@ export default function Gallery({
 
         <section className="section-shell pt-0">
           <div className="container-shell">
-            {groups.length === 0 ? (
-              <div className="card-shell p-8 text-center sm:p-12">
+            {galleryGroups.length === 0 ? (
+              <div className="card-shell p-8 text-center sm:p-10">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
                   Media archive
                 </p>
                 <h2 className="mt-3 text-2xl font-semibold text-[rgb(var(--primary))]">
-                  FEMATA field media will be published here
+                  FEMATA field media will appear here
                 </h2>
                 <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[rgb(var(--muted))]">
-                  This archive is reserved for FEMATA events, field visits, stakeholder meetings, member activities,
-                  and approved video highlights from across the federation network.
+                  Event albums, public highlights, and field visuals will populate this media shelf once they are published.
                 </p>
               </div>
             ) : (
-              <div className="grid gap-8">
-                {groups.map((group, index) => {
-                  const leadItem = group.cover_item ?? group.items[0];
-                  const remainingItems = group.items.slice(1, 3);
-
-                  return (
-                    <div key={group.slug} className="grid gap-8">
-                      <section className="ui-section-layer p-5 sm:p-7">
-                        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-                          <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--muted))]">
-                              Event gallery
-                            </p>
-                            <h2 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))] sm:text-3xl">
-                              {group.title}
-                            </h2>
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-2">
-                            {group.date ? (
-                              <span className="ui-chip px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
-                                {formatDate(group.date)}
-                              </span>
-                            ) : null}
-                            <span className="ui-chip px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
-                              {group.item_count} items
-                            </span>
-                          </div>
-                        </div>
-
-                        <p className="mb-6 max-w-3xl text-sm leading-8 text-[rgb(var(--muted))]">
-                          {group.note}
-                        </p>
-
-                        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.06fr)_minmax(340px,0.94fr)]">
-                          {leadItem ? <MediaTile item={leadItem} featured /> : null}
-
-                          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
-                            {remainingItems.length > 0 ? (
-                              remainingItems.map((item) => (
-                                <MediaTile key={item.id} item={item} />
-                              ))
-                            ) : leadItem ? (
-                              <div className="card-shell flex items-center justify-center p-6 text-center text-sm leading-7 text-[rgb(var(--muted))]">
-                                This event currently has one lead visual published on the FEMATA gallery.
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-
-                        <div className="mt-6 flex flex-wrap gap-3">
-                          <AppLink href={group.href} className="btn-primary">
-                            Open event story
-                          </AppLink>
-                          <span className="inline-flex min-h-[48px] items-center rounded-full border border-[rgb(var(--border))] bg-[rgba(var(--surface),0.9)] px-5 text-sm font-semibold text-[rgb(var(--primary))]">
-                            Photos and videos with context notes
-                          </span>
-                        </div>
-                      </section>
-
-                      {index === 0 && inlineAdverts.length > 0 ? (
-                        <AdvertCarousel adverts={inlineAdverts} slotNumber={2} compact />
-                      ) : null}
-                    </div>
-                  );
-                })}
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+                {galleryGroups.map((group) => (
+                  <EventShelfCard key={group.slug} group={group} />
+                ))}
               </div>
             )}
           </div>
         </section>
+
+        {inlineAdverts.length > 0 ? (
+          <section className="section-shell pt-0">
+            <div className="container-shell">
+              <AdvertCarousel adverts={inlineAdverts} slotNumber={2} compact />
+            </div>
+          </section>
+        ) : null}
 
         {closingAdverts.length > 0 ? (
           <section className="section-shell pt-0">

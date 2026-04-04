@@ -4,6 +4,7 @@ import AdvertCarousel from '@/components/AdvertCarousel';
 import AssociationLeaderFlipCard from '@/components/association/AssociationLeaderFlipCard';
 import AssociationSocialLinks from '@/components/association/AssociationSocialLinks';
 import AppLink from '@/components/AppLink';
+import MeetingRequestWizard from '@/components/contact/MeetingRequestWizard';
 import SectionLead from '@/components/SectionLead';
 import { advertsForSlot } from '@/lib/adverts';
 import PublicLayout from '@/layouts/PublicLayout';
@@ -518,6 +519,22 @@ function buildAssociationGalleryGroups(association: Association) {
     });
 }
 
+function associationMapLinks(association: Association) {
+  const query = encodeURIComponent(
+    association.address
+      || association.district
+      || (association.regions ?? []).join(', ')
+      || association.region
+      || association.name,
+  );
+
+  return {
+    embed: association.map_embed_url || `https://www.google.com/maps?q=${query}&output=embed`,
+    google: association.google_map_url || `https://maps.google.com/?q=${query}`,
+    apple: association.apple_map_url || `http://maps.apple.com/?q=${query}`,
+  };
+}
+
 function LeadershipContent({ association }: { association: Association }) {
   const leaders = association.leaders ?? [];
   const groupedLeaders = {
@@ -735,86 +752,122 @@ function GalleryContent({ association }: { association: Association }) {
   );
 }
 
-function ContactContent({ association }: { association: Association }) {
+function ContactContent({
+  association,
+  contactLeaders,
+  meetingOptions,
+}: {
+  association: Association;
+  contactLeaders: Array<{
+    id: string;
+    name: string;
+    title?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    group?: string | null;
+  }>;
+  meetingOptions: {
+    modes: Record<string, string>;
+    slots: string[];
+  };
+}) {
+  const maps = associationMapLinks(association);
+
   return (
     <section className="section-shell pt-0">
-      <div className="container-shell grid gap-8 xl:grid-cols-[1fr_0.92fr]">
-        <div className="card-shell p-6 sm:p-7">
-          <SectionLead
-            eyebrow="Contact"
-            title={association.contact_title || `Contact ${association.name}`}
-            text={
-              association.contact_body ||
-              'Reach the association using the approved addresses, phone numbers, email channels, and public digital links.'
-            }
-            align="left"
-          />
+      <div className="container-shell grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_360px]">
+        <MeetingRequestWizard
+          action={`/associations/${association.slug}/contact`}
+          contact={{
+            booking_sender_name: association.name,
+            booking_email: association.email,
+          }}
+          leaders={contactLeaders}
+          meetingOptions={meetingOptions}
+          scopeLabel={association.name}
+          scopeNote={
+            association.contact_body
+            || `Use the guided form to send an inquiry or request a meeting with ${association.name}'s published leadership contacts.`
+          }
+          submitLabel={`Send to ${association.name}`}
+        />
 
-          <div className="mt-6 grid gap-5 md:grid-cols-2">
-            {association.address ? (
-              <div className="ui-soft-panel p-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
-                  Office address
-                </p>
-                <p className="mt-3 text-sm leading-7 text-[rgb(var(--primary))]">{association.address}</p>
-              </div>
-            ) : null}
-
-            {association.postal_address ? (
-              <div className="ui-soft-panel p-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
-                  Postal address
-                </p>
-                <p className="mt-3 text-sm leading-7 text-[rgb(var(--primary))]">{association.postal_address}</p>
-              </div>
-            ) : null}
-
-            {association.phone ? (
-              <div className="ui-soft-panel p-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
-                  Phone
-                </p>
-                <a href={`tel:${association.phone}`} className="mt-3 block text-sm font-semibold text-[rgb(var(--primary))]">
-                  {association.phone}
-                </a>
-              </div>
-            ) : null}
-
-            {association.email ? (
-              <div className="ui-soft-panel p-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
-                  Email
-                </p>
-                <a href={`mailto:${association.email}`} className="mt-3 block text-sm font-semibold text-[rgb(var(--primary))]">
-                  {association.email}
-                </a>
-              </div>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="grid gap-6">
-          <div className="card-shell p-6">
+        <div className="grid gap-4">
+          <div className="ui-soft-panel p-4 sm:p-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
-              Public links
+              Association office
             </p>
-            <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">
-              Icons only appear for links the association has explicitly enabled in the admin dashboard.
-            </p>
-            <div className="mt-5">
-              <AssociationSocialLinks links={association.social_links} />
+            <div className="mt-4 grid gap-4 text-sm text-[rgb(var(--muted))]">
+              {association.address ? (
+                <div>
+                  <p className="font-semibold text-[rgb(var(--primary))]">Address</p>
+                  <p className="mt-1 leading-7">{association.address}</p>
+                </div>
+              ) : null}
+              {association.postal_address ? (
+                <div>
+                  <p className="font-semibold text-[rgb(var(--primary))]">Postal address</p>
+                  <p className="mt-1 leading-7">{association.postal_address}</p>
+                </div>
+              ) : null}
+              {association.phone ? (
+                <div>
+                  <p className="font-semibold text-[rgb(var(--primary))]">Phone</p>
+                  <a href={`tel:${association.phone}`} className="mt-1 block leading-7 text-[rgb(var(--primary))]">
+                    {association.phone}
+                  </a>
+                </div>
+              ) : null}
+              {association.email ? (
+                <div>
+                  <p className="font-semibold text-[rgb(var(--primary))]">Email</p>
+                  <a href={`mailto:${association.email}`} className="mt-1 block leading-7 text-[rgb(var(--primary))]">
+                    {association.email}
+                  </a>
+                </div>
+              ) : null}
             </div>
           </div>
 
-          <div className="card-shell p-6">
+          <div className="ui-soft-panel overflow-hidden p-0">
+            <div className="border-b border-[rgb(var(--border))] px-4 py-4 sm:px-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
+                Directions
+              </p>
+              <h3 className="mt-2 text-xl font-semibold text-[rgb(var(--primary))]">
+                Navigate to the association office
+              </h3>
+            </div>
+
+            <div className="aspect-[4/3] border-b border-[rgb(var(--border))] bg-[rgb(var(--surface-2))]">
+              <iframe
+                src={maps.embed}
+                title={`${association.name} office map`}
+                loading="lazy"
+                className="h-full w-full border-0"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+
+            <div className="grid gap-3 px-4 py-4 sm:px-5">
+              <a href={maps.google} target="_blank" rel="noreferrer" className="btn-primary justify-center">
+                Open in Google Maps
+              </a>
+              <a href={maps.apple} target="_blank" rel="noreferrer" className="btn-secondary justify-center">
+                Open in Apple Maps
+              </a>
+            </div>
+          </div>
+
+          <div className="ui-soft-panel p-4 sm:p-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
-              Need FEMATA support?
+              Public links
             </p>
-            <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">
-              Visitors can still move from the association mini-site into the main FEMATA contact channel for federation-wide inquiries, partnership requests, or advert placement.
-            </p>
+            <div className="mt-4">
+              <AssociationSocialLinks links={association.social_links} />
+            </div>
             <div className="mt-5 flex flex-wrap gap-3">
-              <AppLink href="/contact" className="btn-primary">
+              <AppLink href="/contact" className="btn-secondary">
                 Contact FEMATA Secretariat
               </AppLink>
               <AppLink href="/associations" className="btn-secondary">
@@ -830,10 +883,24 @@ function ContactContent({ association }: { association: Association }) {
 
 export default function AssociationShow({
   association,
+  contactLeaders,
+  meetingOptions,
   adverts,
   announcements,
 }: {
   association: Association;
+  contactLeaders: Array<{
+    id: string;
+    name: string;
+    title?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    group?: string | null;
+  }>;
+  meetingOptions: {
+    modes: Record<string, string>;
+    slots: string[];
+  };
   adverts?: AdvertSlots;
   announcements?: Announcement[];
 }) {
@@ -946,7 +1013,7 @@ export default function AssociationShow({
         {currentPage?.key === 'leadership' ? <LeadershipContent association={association} /> : null}
         {currentPage?.key === 'documents' ? <DocumentsContent association={association} /> : null}
         {currentPage?.key === 'gallery' ? <GalleryContent association={association} /> : null}
-        {currentPage?.key === 'contact' ? <ContactContent association={association} /> : null}
+        {currentPage?.key === 'contact' ? <ContactContent association={association} contactLeaders={contactLeaders} meetingOptions={meetingOptions} /> : null}
 
         {bottomSlotAdverts.length > 0 ? (
           <section className="section-shell pt-0">

@@ -64,6 +64,9 @@ type AssociationProfile = {
   postal_address?: string | null;
   phone?: string | null;
   email?: string | null;
+  map_embed_url?: string | null;
+  google_map_url?: string | null;
+  apple_map_url?: string | null;
   logo_path?: string | null;
   hero_image?: string | null;
   description?: string | null;
@@ -99,6 +102,9 @@ type AssociationForm = {
   postal_address: string;
   phone: string;
   email: string;
+  map_embed_url: string;
+  google_map_url: string;
+  apple_map_url: string;
   logo_path: string;
   hero_image: string;
   description: string;
@@ -220,6 +226,9 @@ export default function AdminAssociationProfile({
     postal_address: association.postal_address ?? '',
     phone: association.phone ?? '',
     email: association.email ?? '',
+    map_embed_url: association.map_embed_url ?? '',
+    google_map_url: association.google_map_url ?? '',
+    apple_map_url: association.apple_map_url ?? '',
     logo_path: association.logo_path ?? '',
     hero_image: association.hero_image ?? '',
     description: association.description ?? '',
@@ -319,6 +328,9 @@ export default function AdminAssociationProfile({
       postal_address: data.postal_address.trim() || null,
       phone: data.phone.trim() || null,
       email: data.email.trim() || null,
+      map_embed_url: data.map_embed_url.trim() || null,
+      google_map_url: data.google_map_url.trim() || null,
+      apple_map_url: data.apple_map_url.trim() || null,
       logo_path: data.logo_path.trim() || null,
       hero_image: data.hero_image.trim() || null,
       description: data.description.trim() || null,
@@ -861,6 +873,20 @@ export default function AdminAssociationProfile({
 
                   <Field label="Contact page intro" error={fieldError('contact_body')} hint="Use this to explain how visitors should reach the association.">
                     <textarea value={form.data.contact_body} onChange={(event) => form.setData('contact_body', event.target.value)} rows={5} className="field-shell px-4 py-3 text-sm leading-7 text-[rgb(var(--foreground))]" />
+                  </Field>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field label="Map embed URL" error={fieldError('map_embed_url')} hint="Used for the embedded directions panel on the public contact page.">
+                      <input value={form.data.map_embed_url} onChange={(event) => form.setData('map_embed_url', event.target.value)} className="field-shell px-4 py-3 text-sm text-[rgb(var(--foreground))]" />
+                    </Field>
+
+                    <Field label="Google Maps URL" error={fieldError('google_map_url')}>
+                      <input value={form.data.google_map_url} onChange={(event) => form.setData('google_map_url', event.target.value)} className="field-shell px-4 py-3 text-sm text-[rgb(var(--foreground))]" />
+                    </Field>
+                  </div>
+
+                  <Field label="Apple Maps URL" error={fieldError('apple_map_url')}>
+                    <input value={form.data.apple_map_url} onChange={(event) => form.setData('apple_map_url', event.target.value)} className="field-shell px-4 py-3 text-sm text-[rgb(var(--foreground))]" />
                   </Field>
                 </div>
               </section>

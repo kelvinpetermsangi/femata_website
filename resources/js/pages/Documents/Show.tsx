@@ -163,63 +163,70 @@ export default function DocumentShow({
       <Head title={document.title} />
 
       <PublicLayout announcements={announcements}>
-        <section className="section-shell pb-3">
-          <div className="container-shell grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]">
+        <section className="section-shell pb-2">
+          <div className="container-shell">
+            <div className="max-w-4xl">
+              <p className="eyebrow">FEMATA Library Record</p>
+              <h1 className="mt-3 text-3xl font-semibold leading-tight text-[rgb(var(--primary))] sm:text-[2.6rem]">
+                {document.title}
+              </h1>
+              <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))] sm:text-base">
+                {document.description || 'A FEMATA publication made available through the public library.'}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="section-shell pt-0">
+          <div className="container-shell grid gap-5 xl:grid-cols-[260px_minmax(0,1fr)]">
             <div className="card-shell overflow-hidden">
-              <div className="aspect-[16/10] sm:aspect-[4/5]" style={{ background: 'linear-gradient(160deg, rgba(var(--primary),0.12), rgba(var(--accent),0.16), rgba(var(--surface-2),0.96))' }}>
+              <div className="aspect-[4/5] border-b border-[rgb(var(--border))]" style={{ background: 'linear-gradient(160deg, rgba(var(--primary),0.12), rgba(var(--accent),0.16), rgba(var(--surface-2),0.96))' }}>
                 {document.thumbnail_path ? (
                   <img src={document.thumbnail_path} alt={document.title} className="h-full w-full object-cover" loading="lazy" />
                 ) : (
-                  <div className="flex h-full flex-col justify-between p-4 sm:p-6 text-[rgb(var(--primary))]">
-                    <span className="rounded-full border border-[rgb(var(--primary))]/18 bg-white/75 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]">
+                  <div className="flex h-full flex-col justify-between p-4 text-[rgb(var(--primary))]">
+                    <span className="ui-chip w-fit px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--primary))]">
                       {document.category || 'Publication'}
                     </span>
-                    <div className="rounded-[1.4rem] border border-white/60 bg-white/78 p-4 shadow-[0_10px_30px_rgba(15,23,42,0.08)] sm:p-5">
+                    <div className="rounded-[1.25rem] border border-white/60 bg-white/78 p-4 shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgb(var(--accent-2))]">
                         {document.index_number || 'Library record'}
                       </p>
-                      <h1 className="mt-2 text-xl font-semibold leading-tight text-[rgb(var(--primary))] sm:text-2xl">
+                      <h2 className="mt-2 text-xl font-semibold leading-tight text-[rgb(var(--primary))]">
                         {document.title}
-                      </h1>
+                      </h2>
                     </div>
                   </div>
                 )}
               </div>
+
+              <div className="grid gap-3 p-4 text-sm text-[rgb(var(--muted))]">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--muted))]">Index number</p>
+                  <p className="mt-1 font-semibold text-[rgb(var(--primary))]">{document.index_number || 'Library record'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--muted))]">Year</p>
+                  <p className="mt-1 font-semibold text-[rgb(var(--primary))]">{document.year || 'Not stated'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--muted))]">Type</p>
+                  <p className="mt-1 font-semibold text-[rgb(var(--primary))]">{document.file_type || 'Publication'}</p>
+                </div>
+              </div>
             </div>
 
             <div className="grid gap-5">
-              <div>
-                <p className="eyebrow">FEMATA Library Record</p>
-                <h1 className="mt-3 text-3xl font-semibold leading-tight text-[rgb(var(--primary))] sm:text-4xl">
-                  {document.title}
-                </h1>
-                <p className="mt-3 max-w-4xl text-sm leading-7 text-[rgb(var(--muted))] sm:text-base">
-                  {document.description || 'A FEMATA publication made available through the public library.'}
-                </p>
-              </div>
-
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                <div className="ui-soft-panel p-4 sm:p-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">Index number</p>
-                  <p className="mt-2 text-base font-semibold text-[rgb(var(--primary))]">{document.index_number || 'Library record'}</p>
-                </div>
-                <div className="ui-soft-panel p-4 sm:p-5">
+                <div className="ui-soft-panel p-4">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">Author</p>
                   <p className="mt-2 text-base font-semibold text-[rgb(var(--primary))]">{document.author || 'FEMATA Secretariat'}</p>
                 </div>
-                <div className="ui-soft-panel p-4 sm:p-5">
+                <div className="ui-soft-panel p-4">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">Publisher</p>
                   <p className="mt-2 text-base font-semibold text-[rgb(var(--primary))]">{document.publisher || "Federation of Miners' Associations of Tanzania"}</p>
                 </div>
-                <div className="ui-soft-panel p-4 sm:p-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">Year</p>
-                  <p className="mt-2 text-base font-semibold text-[rgb(var(--primary))]">{document.year || 'Not stated'}</p>
-                </div>
-                <div className="ui-soft-panel p-4 sm:p-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">Category</p>
-                  <p className="mt-2 text-base font-semibold text-[rgb(var(--primary))]">{document.category || 'Publication'}</p>
-                </div>
-                <div className="ui-soft-panel p-4 sm:p-5">
+                <div className="ui-soft-panel p-4">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">Discussion</p>
                   <p className="mt-2 text-base font-semibold text-[rgb(var(--primary))]">{document.comments_count ?? 0} public comments</p>
                 </div>
@@ -227,16 +234,16 @@ export default function DocumentShow({
 
               <div className="flex flex-wrap gap-2.5">
                 {document.preview ? (
-                  <a href={readHref} className="btn-secondary">
+                  <a href={readHref} className="btn-primary">
                     Read online
                   </a>
                 ) : document.file_path ? (
-                  <a href={document.file_path} target="_blank" rel="noreferrer" className="btn-secondary">
+                  <a href={document.file_path} target="_blank" rel="noreferrer" className="btn-primary">
                     Read online
                   </a>
                 ) : null}
                 {document.download_url ? (
-                  <a href={document.download_url} target="_blank" rel="noreferrer" className="btn-primary">
+                  <a href={document.download_url} target="_blank" rel="noreferrer" className="btn-secondary">
                     Download
                   </a>
                 ) : null}
@@ -247,6 +254,15 @@ export default function DocumentShow({
                   Back to library
                 </AppLink>
               </div>
+
+              <div className="ui-section-layer p-4 sm:p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--accent-2))]">
+                  Short profile
+                </p>
+                <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))]">
+                  {document.description || 'This title is published as part of the FEMATA open library for public reference, reading, and download.'}
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -254,15 +270,15 @@ export default function DocumentShow({
         {(document.preview || document.file_path) ? (
           <section id="document-reader" className="section-shell pt-0">
             <div className="container-shell">
-              <div className="ui-section-layer p-5 sm:p-6">
+              <div className="ui-section-layer p-4 sm:p-5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--accent-2))]">
                   Read online
                 </p>
-                <h2 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))] sm:text-3xl">
-                  Open the publication inside the FEMATA library
+                <h2 className="mt-2 text-xl font-semibold text-[rgb(var(--primary))] sm:text-2xl">
+                  Read inside the library frame
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-[rgb(var(--muted))]">
-                  The embedded viewer stays inside the library frame on larger screens, while phones can open the document in a full native viewer for easier reading.
+                  The reader stays contained inside this panel on larger screens, while phones can still open the file in a native viewer for easier reading.
                 </p>
 
                 <div className="mt-5 overflow-hidden rounded-[1.45rem] border border-[rgb(var(--border))] bg-[rgba(var(--surface),0.95)]">
@@ -285,7 +301,7 @@ export default function DocumentShow({
                       </div>
                       <iframe
                         src={embeddedFilePath}
-                        className="hidden h-[62vh] min-h-[440px] w-full border-0 md:block xl:h-[68vh]"
+                        className="hidden h-[60vh] min-h-[420px] w-full max-w-full border-0 md:block xl:h-[64vh]"
                         title={document.title}
                         loading="lazy"
                       />
@@ -310,15 +326,15 @@ export default function DocumentShow({
         {relatedDocuments.length > 0 ? (
           <section className="section-shell pt-0">
             <div className="container-shell">
-              <div className="ui-section-layer p-5 sm:p-6">
+              <div className="ui-section-layer p-4 sm:p-5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--accent-2))]">
                   Related titles
                 </p>
-                <h2 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))] sm:text-3xl">
+                <h2 className="mt-2 text-xl font-semibold text-[rgb(var(--primary))] sm:text-2xl">
                   Continue browsing the FEMATA library
                 </h2>
 
-                <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {relatedDocuments.map((item) => (
                     <DocumentLibraryTile key={item.id} document={item} compact />
                   ))}

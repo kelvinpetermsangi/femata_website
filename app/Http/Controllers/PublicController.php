@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\ContactFormMessage;
+use App\Mail\MeetingRequestMessage;
 use App\Models\Announcement;
 use App\Models\Advert;
 use App\Models\Association;
@@ -11,6 +12,7 @@ use App\Models\DocumentComment;
 use App\Models\DocumentDownloadLog;
 use App\Models\GalleryItem;
 use App\Models\Leader;
+use App\Models\MeetingRequest;
 use App\Models\NewsPost;
 use App\Models\Page;
 use App\Models\Program;
@@ -201,6 +203,11 @@ class PublicController extends Controller
 
         return Inertia::render('Associations/Show', [
             'association' => $mapped,
+            'contactLeaders' => $this->meetingLeaderOptions($association),
+            'meetingOptions' => [
+                'modes' => MeetingRequest::meetingModes(),
+                'slots' => MeetingRequest::slotOptions(),
+            ],
             'adverts' => $this->buildAdvertSlots($this->associationAdvertPageKey($currentPage['key']), $association),
             'announcements' => $this->buildAnnouncements(),
             'pageMeta' => $this->buildPageMeta(
@@ -409,6 +416,11 @@ class PublicController extends Controller
 
         return Inertia::render('Contact', [
             'contact' => $contact,
+            'leaders' => $this->meetingLeaderOptions(),
+            'meetingOptions' => [
+                'modes' => MeetingRequest::meetingModes(),
+                'slots' => MeetingRequest::slotOptions(),
+            ],
             'adverts' => $this->buildAdvertSlots(Advert::PAGE_CONTACT),
             'announcements' => $this->buildAnnouncements(),
             'pageMeta' => $this->buildPageMeta(
@@ -453,17 +465,191 @@ class PublicController extends Controller
 
     public function submitContact(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
-            'message' => ['required', 'string', 'max:5000'],
+        return $this->handleContactSubmission($request);
+    }
+
+    public function submitAssociationContact(Request $request, Association $association): RedirectResponse
+    {
+        abort_unless($association->is_active, 404);
+
+        return $this->handleContactSubmission($request, $association);
+    }
+
+    private function handleContactSubmission(Request $request, ?Association $association = null): RedirectResponse
+    {
+        $request->merge([
+            'request_type' => $request->input('request_type', MeetingRequest::TYPE_GENERAL),
         ]);
 
-        $contact = SiteSettings::contact();
-        $recipient = data_get($contact, 'email', config('mail.from.address'));
-        Mail::to($recipient)->send(new ContactFormMessage($validated));
+        $validated = $request->validate([
+            'request_type' => ['required', 'string', 'in:general,meeting'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:60'],
+            'organization' => ['nullable', 'string', 'max:255'],
+            'subject' => ['nullable', 'string', 'max:255'],
+            'message' => ['nullable', 'string', 'max:5000', 'required_if:request_type,general'],
+            'meeting_mode' => ['nullable', 'string', 'in:in-person,virtual,phone', 'required_if:request_type,meeting'],
+            'meeting_with_key' => ['nullable', 'string', 'max:255', 'required_if:request_type,meeting'],
+            'preferred_date' => ['nullable', 'date', 'required_if:request_type,meeting'],
+            'preferred_slot' => ['nullable', 'string', 'max:80', 'required_if:request_type,meeting'],
+            'alternate_date' => ['nullable', 'date'],
+            'alternate_slot' => ['nullable', 'string', 'max:80'],
+            'duration_minutes' => ['nullable', 'integer', 'min:15', 'max:180', 'required_if:request_type,meeting'],
+            'agenda' => ['nullable', 'string', 'max:5000', 'required_if:request_type,meeting'],
+        ]);
 
-        return back()->with('success', 'Thanks for reaching out. We will respond shortly.');
+        $requestType = (string) $validated['request_type'];
+        $contact = SiteSettings::contact();
+
+        if ($requestType === MeetingRequest::TYPE_MEETING) {
+            $leader = $this->resolveMeetingLeader(
+                $association,
+                (string) ($validated['meeting_with_key'] ?? ''),
+            );
+
+            if (($validated['meeting_with_key'] ?? '') !== '' && $leader === null && $validated['meeting_with_key'] !== 'office') {
+                return back()->withErrors([
+                    'meeting_with_key' => 'Select a valid leader or scheduling desk for this booking.',
+                ]);
+            }
+
+            $meetingRequest = MeetingRequest::query()->create([
+                'association_id' => $association?->id,
+                'scope_type' => $association ? 'association' : 'national',
+                'request_type' => MeetingRequest::TYPE_MEETING,
+                'status' => MeetingRequest::STATUS_PENDING,
+                'requester_name' => trim((string) $validated['name']),
+                'requester_email' => trim((string) $validated['email']),
+                'requester_phone' => trim((string) ($validated['phone'] ?? '')) ?: null,
+                'organization' => trim((string) ($validated['organization'] ?? '')) ?: null,
+                'meeting_with_name' => data_get($leader, 'name'),
+                'meeting_with_title' => data_get($leader, 'title'),
+                'meeting_with_email' => data_get($leader, 'email'),
+                'meeting_with_group' => data_get($leader, 'group'),
+                'subject' => trim((string) ($validated['subject'] ?? '')) ?: null,
+                'meeting_mode' => $validated['meeting_mode'] ?? null,
+                'preferred_date' => $validated['preferred_date'] ?? null,
+                'preferred_slot' => trim((string) ($validated['preferred_slot'] ?? '')) ?: null,
+                'alternate_date' => $validated['alternate_date'] ?? null,
+                'alternate_slot' => trim((string) ($validated['alternate_slot'] ?? '')) ?: null,
+                'duration_minutes' => $validated['duration_minutes'] ?? null,
+                'message' => trim((string) ($validated['message'] ?? '')) ?: null,
+                'agenda' => trim((string) ($validated['agenda'] ?? '')) ?: null,
+                'recipient_email' => $this->resolveMeetingRecipient($contact, $association, $leader),
+            ]);
+
+            $recipient = $meetingRequest->recipient_email ?: data_get($contact, 'booking_email', data_get($contact, 'email', config('mail.from.address')));
+
+            Mail::to($recipient)->send(new MeetingRequestMessage($meetingRequest->fresh('association'), $contact));
+
+            return back()->with('success', 'Your meeting request has been submitted to FEMATA for review. We will respond by email.');
+        }
+
+        $message = trim((string) ($validated['message'] ?? ''));
+        if ($message === '') {
+            return back()->withErrors([
+                'message' => 'Please include the details of your inquiry.',
+            ]);
+        }
+
+        $payload = [
+            'name' => trim((string) $validated['name']),
+            'email' => trim((string) $validated['email']),
+            'phone' => trim((string) ($validated['phone'] ?? '')) ?: null,
+            'organization' => trim((string) ($validated['organization'] ?? '')) ?: null,
+            'subject' => trim((string) ($validated['subject'] ?? '')) ?: null,
+            'message' => $message,
+        ];
+
+        $recipient = $association?->email
+            ?: data_get($contact, 'email', config('mail.from.address'));
+
+        Mail::to($recipient)->send(new ContactFormMessage($payload));
+
+        return back()->with('success', 'Thanks for reaching out. Your inquiry has been sent successfully.');
+    }
+
+    private function meetingLeaderOptions(?Association $association = null): array
+    {
+        if ($association) {
+            $leaders = collect($association->leaders ?? [])
+                ->filter(fn ($item) => filled(data_get($item, 'name')))
+                ->map(function ($item, int $index): array {
+                    $name = trim((string) data_get($item, 'name'));
+                    $email = trim((string) data_get($item, 'email'));
+                    $title = trim((string) data_get($item, 'title'));
+
+                    return [
+                        'id' => $name !== '' ? md5($name.'|'.$title.'|'.$email.'|'.$index) : 'association-'.$index,
+                        'name' => $name,
+                        'title' => $title !== '' ? $title : null,
+                        'email' => $email !== '' ? $email : null,
+                        'phone' => trim((string) data_get($item, 'phone')) ?: null,
+                        'group' => Association::normalizeLeaderGroup(
+                            data_get($item, 'group'),
+                            data_get($item, 'title'),
+                        ),
+                    ];
+                })
+                ->values();
+
+            if ($leaders->isEmpty()) {
+                $leaders = collect([
+                    $association->chairperson_name ? [
+                        'id' => 'chairperson',
+                        'name' => $association->chairperson_name,
+                        'title' => 'Chairperson',
+                        'email' => $association->email,
+                        'phone' => $association->phone,
+                        'group' => 'management',
+                    ] : null,
+                    $association->secretary_name ? [
+                        'id' => 'secretary',
+                        'name' => $association->secretary_name,
+                        'title' => 'Secretary',
+                        'email' => $association->email,
+                        'phone' => $association->phone,
+                        'group' => 'secretariat',
+                    ] : null,
+                ])->filter();
+            }
+
+            return $leaders->values()->all();
+        }
+
+        return collect($this->buildLeaders())
+            ->map(fn (array $leader) => [
+                'id' => 'leader-'.$leader['id'],
+                'name' => $leader['name'],
+                'title' => $leader['title'] ?? null,
+                'email' => $leader['email'] ?? null,
+                'phone' => $leader['phone'] ?? null,
+                'group' => $leader['administration_level'] ?? 'management',
+            ])
+            ->values()
+            ->all();
+    }
+
+    private function resolveMeetingLeader(?Association $association, string $meetingWithKey): ?array
+    {
+        if ($meetingWithKey === '') {
+            return null;
+        }
+
+        return collect($this->meetingLeaderOptions($association))
+            ->firstWhere('id', $meetingWithKey);
+    }
+
+    private function resolveMeetingRecipient(array $contact, ?Association $association = null, ?array $leader = null): string
+    {
+        return (string) (
+            data_get($leader, 'email')
+            ?: $association?->email
+            ?: data_get($contact, 'booking_email')
+            ?: data_get($contact, 'email')
+            ?: config('mail.from.address')
+        );
     }
 
     public function announcements(): Response
@@ -555,6 +741,8 @@ class PublicController extends Controller
                     'administration_level' => $leader->administration_level,
                     'department' => $leader->department,
                     'bio' => $leader->bio,
+                    'email' => $leader->email,
+                    'phone' => $leader->phone,
                     'photo_path' => $this->resolveUrl($leader->image_path),
                     'image_path' => $this->resolveUrl($leader->image_path),
                     'contact_qr_path' => $this->resolveUrl($leader->contact_qr_path),
@@ -888,6 +1076,9 @@ class PublicController extends Controller
             'secretary_name' => $association->secretary_name,
             'contact_title' => $association->contact_title ?: "Contact {$association->name}",
             'contact_body' => $association->contact_body ?: 'Reach the association through its official address, phone, email, and approved digital channels.',
+            'map_embed_url' => $association->map_embed_url,
+            'google_map_url' => $association->google_map_url,
+            'apple_map_url' => $association->apple_map_url,
             'profile_pages' => collect($profilePages)
                 ->map(fn ($page) => [
                     ...$page,

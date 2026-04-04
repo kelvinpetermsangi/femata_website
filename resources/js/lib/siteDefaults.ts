@@ -137,6 +137,14 @@ export const defaultContactInfo: ContactInfo = {
   postal_address: 'P.O. Box 4958, Dar es Salaam',
   description:
     'For partnerships, media engagement, membership matters, or institutional collaboration, contact the FEMATA secretariat.',
+  booking_email: 'meetings@femata.or.tz',
+  booking_sender_name: 'FEMATA Secretariat',
+  map_embed_url:
+    'https://www.google.com/maps?q=Upanga%20Dar%20es%20Salaam&output=embed',
+  google_map_url:
+    'https://maps.google.com/?q=Upanga%20Dar%20es%20Salaam',
+  apple_map_url:
+    'http://maps.apple.com/?q=Upanga%20Dar%20es%20Salaam',
 };
 
 export const defaultSiteFooter: SiteFooter = {

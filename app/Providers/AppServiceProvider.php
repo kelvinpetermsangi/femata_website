@@ -8,6 +8,7 @@ use App\Models\Document;
 use App\Models\GalleryItem;
 use App\Models\Leader;
 use App\Models\MediaLibrary;
+use App\Models\MeetingRequest;
 use App\Models\NewsPost;
 use App\Models\Page;
 use App\Models\Program;
@@ -20,6 +21,7 @@ use App\Policies\AssociationPolicy;
 use App\Policies\DocumentPolicy;
 use App\Policies\GalleryItemPolicy;
 use App\Policies\LeaderPolicy;
+use App\Policies\MeetingRequestPolicy;
 use App\Policies\NewsPostPolicy;
 use App\Policies\PagePolicy;
 use App\Policies\ProgramPolicy;
@@ -51,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
             'gallery_item' => GalleryItem::class,
             'leader' => Leader::class,
             'media_library' => MediaLibrary::class,
+            'meeting_request' => MeetingRequest::class,
             'news_post' => NewsPost::class,
             'document' => Document::class,
             'page' => Page::class,
@@ -66,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Document::class, DocumentPolicy::class);
         Gate::policy(GalleryItem::class, GalleryItemPolicy::class);
         Gate::policy(Leader::class, LeaderPolicy::class);
+        Gate::policy(MeetingRequest::class, MeetingRequestPolicy::class);
         Gate::policy(NewsPost::class, NewsPostPolicy::class);
         Gate::policy(Page::class, PagePolicy::class);
         Gate::policy(Program::class, ProgramPolicy::class);

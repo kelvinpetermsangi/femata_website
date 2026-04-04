@@ -49,6 +49,9 @@ class Association extends Model
         'secretary_name',
         'contact_title',
         'contact_body',
+        'map_embed_url',
+        'google_map_url',
+        'apple_map_url',
         'is_active',
     ];
 
@@ -258,6 +261,11 @@ class Association extends Model
     public function adverts(): HasMany
     {
         return $this->hasMany(Advert::class);
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
     }
 
     public function getRouteKeyName(): string

@@ -62,15 +62,15 @@ export default function DocumentsIndex({
       <Head title="Documents & Publications" />
 
       <PublicLayout announcements={announcements}>
-        <section className="section-shell pb-3">
+        <section className="section-shell pb-1">
           <div className="container-shell grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <div className="max-w-4xl">
               <p className="eyebrow">FEMATA Open Library</p>
-              <h1 className="mt-3 text-3xl font-semibold leading-tight text-[rgb(var(--primary))] sm:text-4xl">
-                Documents and publications arranged like a living public library
+              <h1 className="mt-3 text-3xl font-semibold leading-tight text-[rgb(var(--primary))] sm:text-[2.6rem]">
+                Browse FEMATA documents like a public research shelf
               </h1>
               <p className="mt-3 text-sm leading-7 text-[rgb(var(--muted))] sm:text-base">
-                Browse FEMATA strategies, guides, briefs, forms, policy references, and public publications using library-style index numbers, cover displays, metadata filters, read-online access, downloads, and document-specific discussion.
+                Search by category, author, publisher, year, index number, or file type, then flip each title for metadata or reading actions without opening an oversized card.
               </p>
             </div>
 
@@ -89,16 +89,16 @@ export default function DocumentsIndex({
         </section>
 
         <section className="section-shell pt-0">
-          <div className="container-shell grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
-            <aside className="ui-shell h-fit p-4 sm:p-5 xl:sticky xl:top-24">
+          <div className="container-shell grid gap-5 xl:grid-cols-[250px_minmax(0,1fr)]">
+            <aside className="ui-shell h-fit p-4 xl:sticky xl:top-24">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[rgb(var(--muted))]">
                 Library filters
               </p>
-              <h2 className="mt-2 text-xl font-semibold text-[rgb(var(--primary))] sm:text-2xl">
-                Find the exact publication
+              <h2 className="mt-2 text-lg font-semibold text-[rgb(var(--primary))] sm:text-xl">
+                Narrow the shelf
               </h2>
               <p className="mt-2 text-sm leading-6 text-[rgb(var(--muted))]">
-                Search across titles, summaries, index numbers, and publication metadata, then narrow the shelf by category, author, publisher, year, or document type.
+                Filter titles by subject, author, publisher, year, and document format.
               </p>
 
               <div className="mt-5 grid gap-3.5">
@@ -206,7 +206,7 @@ export default function DocumentsIndex({
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                   {filteredDocuments.map((document) => (
                     <DocumentLibraryTile key={document.id} document={document} />
                   ))}

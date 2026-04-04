@@ -645,6 +645,56 @@ export default function AdminSettings({
                   className="rounded-2xl border bg-white px-4 py-3 text-sm"
                 />
               </Field>
+
+              <Field label="Booking email" error={errors['contact.booking_email']}>
+                <input
+                  value={data.contact.booking_email ?? ''}
+                  onChange={(event) =>
+                    setData('contact', { ...data.contact, booking_email: event.target.value })
+                  }
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                />
+              </Field>
+
+              <Field label="Booking sender name" error={errors['contact.booking_sender_name']}>
+                <input
+                  value={data.contact.booking_sender_name ?? ''}
+                  onChange={(event) =>
+                    setData('contact', { ...data.contact, booking_sender_name: event.target.value })
+                  }
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                />
+              </Field>
+
+              <Field label="Map embed URL" error={errors['contact.map_embed_url']}>
+                <input
+                  value={data.contact.map_embed_url ?? ''}
+                  onChange={(event) =>
+                    setData('contact', { ...data.contact, map_embed_url: event.target.value })
+                  }
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                />
+              </Field>
+
+              <Field label="Google Maps URL" error={errors['contact.google_map_url']}>
+                <input
+                  value={data.contact.google_map_url ?? ''}
+                  onChange={(event) =>
+                    setData('contact', { ...data.contact, google_map_url: event.target.value })
+                  }
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                />
+              </Field>
+
+              <Field label="Apple Maps URL" error={errors['contact.apple_map_url']}>
+                <input
+                  value={data.contact.apple_map_url ?? ''}
+                  onChange={(event) =>
+                    setData('contact', { ...data.contact, apple_map_url: event.target.value })
+                  }
+                  className="rounded-2xl border bg-white px-4 py-3 text-sm"
+                />
+              </Field>
             </div>
           </section>
 

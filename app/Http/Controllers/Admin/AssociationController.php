@@ -18,11 +18,18 @@ class AssociationController extends AdminController
     public function index(Request $request): Response
     {
         $this->authorize('viewAny', Association::class);
+        $user = $request->user();
+
+        $query = Association::query()
+            ->with(['documents', 'associationType'])
+            ->orderBy('name');
+
+        if ($user && ! $user->hasRole('super-admin') && $user->associations()->exists()) {
+            $query->whereIn('id', $user->associations()->pluck('associations.id'));
+        }
 
         return Inertia::render('Admin/Associations', [
-            'associations' => Association::query()
-                ->with(['documents', 'associationType'])
-                ->orderBy('name')
+            'associations' => $query
                 ->get()
                 ->map(fn (Association $association) => $this->mapAssociation($association))
                 ->all(),
@@ -40,6 +47,7 @@ class AssociationController extends AdminController
     public function show(Request $request, Association $association): Response
     {
         $this->authorize('update', $association);
+        abort_unless($request->user()?->canAccessAssociation($association), 403);
 
         $association->load(['documents', 'associationType']);
 
@@ -71,6 +79,7 @@ class AssociationController extends AdminController
     public function update(StoreAssociationRequest $request, Association $association): RedirectResponse
     {
         $this->authorize('update', $association);
+        abort_unless($request->user()?->canAccessAssociation($association), 403);
         $data = $request->validated();
         $association->update($this->payload($data, $association));
         $association->documents()->sync($data['document_ids'] ?? []);
@@ -83,6 +92,7 @@ class AssociationController extends AdminController
     public function destroy(Request $request, Association $association): RedirectResponse
     {
         $this->authorize('delete', $association);
+        abort_unless($request->user()?->canAccessAssociation($association), 403);
         $association->delete();
 
         return redirect()->route('admin.associations.index')->with('success', 'Association deleted successfully.');
@@ -144,6 +154,9 @@ class AssociationController extends AdminController
             'secretary_name' => $data['secretary_name'] ?? null,
             'contact_title' => $data['contact_title'] ?? null,
             'contact_body' => $data['contact_body'] ?? null,
+            'map_embed_url' => $data['map_embed_url'] ?? null,
+            'google_map_url' => $data['google_map_url'] ?? null,
+            'apple_map_url' => $data['apple_map_url'] ?? null,
             'is_active' => (bool) $data['is_active'],
         ];
     }
@@ -196,6 +209,9 @@ class AssociationController extends AdminController
             'secretary_name' => $association->secretary_name,
             'contact_title' => $association->contact_title,
             'contact_body' => $association->contact_body,
+            'map_embed_url' => $association->map_embed_url,
+            'google_map_url' => $association->google_map_url,
+            'apple_map_url' => $association->apple_map_url,
             'is_active' => $association->is_active,
             'document_ids' => $association->documents->pluck('id')->all(),
             'document_count' => $association->documents->count(),

@@ -23,6 +23,7 @@ class AdminSection extends Model
     public const ADVERTS = 'adverts';
     public const PROGRAMS = 'programs';
     public const PRESS_BRIEFINGS = 'press-briefings';
+    public const MEETINGS = 'meetings';
 
     protected $fillable = [
         'name',

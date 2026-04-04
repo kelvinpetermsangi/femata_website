@@ -1,8 +1,9 @@
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { useMemo, useState, type ReactNode } from 'react';
 import AppLink from '@/components/AppLink';
 import BrandMark from '@/components/BrandMark';
 import { getPreviewPath } from '@/lib/previewRouting';
+import type { SharedPageProps } from '@/types';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -14,12 +15,17 @@ type NavItem = {
   href: string;
   note: string;
   badge: string;
+  section?: string;
+  superAdminOnly?: boolean;
 };
 
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
   const { post, processing } = useForm();
+  const { props } = usePage<SharedPageProps>();
   const [open, setOpen] = useState(false);
   const pathname = typeof window !== 'undefined' ? getPreviewPath() : '/admin/dashboard';
+  const adminSections = props.auth?.user?.admin_sections ?? [];
+  const isSuperAdmin = props.auth?.user?.roles?.includes('super-admin') ?? false;
 
   const navItems = useMemo<NavItem[]>(
     () => [
@@ -34,81 +40,124 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         href: '/admin/announcements',
         note: 'Official notices and priority public messages',
         badge: 'AN',
+        section: 'announcements',
       },
       {
         label: 'News',
         href: '/admin/news',
         note: 'Editorial stories, updates, and publishing queue',
         badge: 'NW',
+        section: 'newswire',
       },
       {
         label: 'Videos',
         href: '/admin/videos',
         note: 'YouTube highlights, clips, and featured media',
         badge: 'VD',
+        section: 'online-tv',
       },
       {
         label: 'Pages',
         href: '/admin/pages',
         note: 'Static page content and supporting information',
         badge: 'PG',
+        section: 'pages',
       },
       {
         label: 'Press Briefings',
         href: '/admin/press-briefings',
         note: 'Statements, briefings, and press-facing releases',
         badge: 'PB',
+        section: 'press-briefings',
       },
       {
         label: 'Leaders',
         href: '/admin/leaders',
         note: 'Profiles, roles, and leadership presentation',
         badge: 'LD',
+        section: 'leadership',
       },
       {
         label: 'Associations',
         href: '/admin/associations',
         note: 'Member associations, directories, and public profile builder',
         badge: 'AS',
+        section: 'associations',
       },
       {
         label: 'Association Types',
         href: '/admin/association-types',
         note: 'Pre-register directory categories such as regional associations and sector networks',
         badge: 'AT',
+        section: 'association-types',
       },
       {
         label: 'Programs',
         href: '/admin/programs',
         note: 'Flagship projects, annual exhibitions, and program mini-sites',
         badge: 'PR',
+        section: 'programs',
       },
       {
         label: 'Adverts',
         href: '/admin/adverts',
         note: 'Image and video campaigns by slot, page, region, and association',
         badge: 'AD',
+        section: 'adverts',
       },
       {
         label: 'Gallery',
         href: '/admin/gallery',
         note: 'Images, highlights, and featured visual content',
         badge: 'GL',
+        section: 'media',
       },
       {
         label: 'Documents',
         href: '/admin/documents',
         note: 'Resource library, downloads, and public files',
         badge: 'DC',
+        section: 'library',
+      },
+      {
+        label: 'Meetings',
+        href: '/admin/meetings',
+        note: 'Meeting bookings, secretariat approvals, and response updates',
+        badge: 'MT',
+        section: 'meetings',
       },
       {
         label: 'Settings',
         href: '/admin/settings',
         note: 'Branding, homepage content, and site preferences',
         badge: 'ST',
+        section: 'settings',
+      },
+      {
+        label: 'Administrators',
+        href: '/admin/administrators',
+        note: 'Create scoped admins for national modules and association workspaces',
+        badge: 'AU',
+        superAdminOnly: true,
       },
     ],
     [],
+  );
+
+  const visibleNavItems = useMemo(
+    () =>
+      navItems.filter((item) => {
+        if (item.superAdminOnly) {
+          return isSuperAdmin;
+        }
+
+        if (!item.section) {
+          return true;
+        }
+
+        return isSuperAdmin || adminSections.includes(item.section);
+      }),
+    [adminSections, isSuperAdmin, navItems],
   );
 
   const isActive = (href: string) => {
@@ -190,7 +239,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       </div>
 
       <nav className="mt-3 flex flex-1 flex-col gap-2">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const active = isActive(item.href);
 
           return (
@@ -328,39 +377,30 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
           <main className="flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
             <div className="mx-auto max-w-[1540px]">
-              <div className="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-                <div className="rounded-[1.75rem] border border-slate-200 bg-white px-6 py-5 shadow-[0_16px_36px_rgba(15,23,42,0.06)]">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    Administrative workspace
-                  </p>
-                  <h2 className="mt-2 text-xl font-semibold text-slate-950">
-                    Manage FEMATA public communication, national branding, and association profiles with a clearer operating surface.
-                  </h2>
-                  <p className="mt-3 text-sm leading-7 text-slate-600">
-                    Work across announcements, newsroom updates, leadership, documents, adverts,
-                    site settings, programs, and association mini-sites through one organized secretariat dashboard.
-                  </p>
-                </div>
+              <div className="mb-5 rounded-[1.6rem] border border-slate-200 bg-white px-5 py-4 shadow-[0_16px_36px_rgba(15,23,42,0.06)]">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                      Administrative workspace
+                    </p>
+                    <p className="mt-2 text-sm leading-7 text-slate-600">
+                      Work across the modules and association builders assigned to your account.
+                    </p>
+                  </div>
 
-                <div className="rounded-[1.75rem] border border-slate-200 bg-[linear-gradient(135deg,#ffffff,#f8fafc)] px-5 py-5 shadow-[0_16px_36px_rgba(15,23,42,0.06)]">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    Platform stack
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
                       Laravel
                     </span>
                     <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">
                       Inertia
                     </span>
-                    <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-violet-700">
-                      Profile CMS
-                    </span>
+                    {(props.auth?.user?.managed_associations ?? []).length > 0 ? (
+                      <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-violet-700">
+                        {(props.auth?.user?.managed_associations ?? []).length} associations
+                      </span>
+                    ) : null}
                   </div>
-                  <p className="mt-4 text-sm leading-7 text-slate-600">
-                    FEMATA keeps Laravel powering routes, controllers, permissions, and data while the
-                    interface stays easier for the secretariat to read and manage.
-                  </p>
                 </div>
               </div>
 
