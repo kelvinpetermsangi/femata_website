@@ -103,6 +103,7 @@ export default function Footer({
               <AppLink href="/about" className="transition hover:text-white">{t.nav.about}</AppLink>
               <AppLink href="/leadership" className="transition hover:text-white">{t.nav.leadership}</AppLink>
               <AppLink href="/associations" className="transition hover:text-white">{t.nav.remas}</AppLink>
+              <AppLink href="/programs" className="transition hover:text-white">{t.nav.programs}</AppLink>
               <AppLink href="/news" className="transition hover:text-white">{t.nav.news}</AppLink>
               <AppLink href="/gallery" className="transition hover:text-white">{t.nav.gallery}</AppLink>
               <AppLink href="/documents" className="transition hover:text-white">{t.nav.documents}</AppLink>

@@ -1,15 +1,9 @@
 import { Head } from '@inertiajs/react';
 import AdvertCarousel from '@/components/AdvertCarousel';
+import AppLink from '@/components/AppLink';
 import { advertsForSlot } from '@/lib/adverts';
 import PublicLayout from '@/layouts/PublicLayout';
-import type { AdvertSlots, GalleryItem } from '@/types';
-
-type GalleryGroup = {
-  key: string;
-  title: string;
-  date?: string | null;
-  items: GalleryItem[];
-};
+import type { AdvertSlots, GalleryGroup, GalleryItem } from '@/types';
 
 function formatDate(date?: string | null) {
   if (!date) {
@@ -25,36 +19,6 @@ function formatDate(date?: string | null) {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
-  });
-}
-
-function buildGalleryGroups(items: GalleryItem[]): GalleryGroup[] {
-  const groups = new Map<string, GalleryGroup>();
-
-  items.forEach((item) => {
-    const title = item.event_name || 'FEMATA Field Archive';
-    const date = item.event_date || item.published_at || null;
-    const key = `${title}::${date ?? 'undated'}`;
-    const existing = groups.get(key);
-
-    if (existing) {
-      existing.items.push(item);
-      return;
-    }
-
-    groups.set(key, {
-      key,
-      title,
-      date,
-      items: [item],
-    });
-  });
-
-  return Array.from(groups.values()).sort((left, right) => {
-    const leftDate = left.date ? new Date(left.date).getTime() : 0;
-    const rightDate = right.date ? new Date(right.date).getTime() : 0;
-
-    return rightDate - leftDate;
   });
 }
 
@@ -123,14 +87,16 @@ function MediaTile({
 
 export default function Gallery({
   galleryItems,
+  galleryGroups = [],
   adverts,
   announcements,
 }: {
   galleryItems: GalleryItem[];
+  galleryGroups?: GalleryGroup[];
   adverts?: AdvertSlots;
   announcements?: [];
 }) {
-  const groups = buildGalleryGroups(galleryItems);
+  const groups = galleryGroups;
   const heroAdverts = advertsForSlot(adverts, 1);
   const inlineAdverts = advertsForSlot(adverts, 2);
   const closingAdverts = advertsForSlot(adverts, 3);
@@ -177,11 +143,11 @@ export default function Gallery({
             ) : (
               <div className="grid gap-8">
                 {groups.map((group, index) => {
-                  const leadItem = group.items[0];
-                  const remainingItems = group.items.slice(1);
+                  const leadItem = group.cover_item ?? group.items[0];
+                  const remainingItems = group.items.slice(1, 3);
 
                   return (
-                    <div key={group.key} className="grid gap-8">
+                    <div key={group.slug} className="grid gap-8">
                       <section className="ui-section-layer p-5 sm:p-7">
                         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
                           <div>
@@ -200,10 +166,14 @@ export default function Gallery({
                               </span>
                             ) : null}
                             <span className="ui-chip px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
-                              {group.items.length} items
+                              {group.item_count} items
                             </span>
                           </div>
                         </div>
+
+                        <p className="mb-6 max-w-3xl text-sm leading-8 text-[rgb(var(--muted))]">
+                          {group.note}
+                        </p>
 
                         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.06fr)_minmax(340px,0.94fr)]">
                           {leadItem ? <MediaTile item={leadItem} featured /> : null}
@@ -219,6 +189,15 @@ export default function Gallery({
                               </div>
                             ) : null}
                           </div>
+                        </div>
+
+                        <div className="mt-6 flex flex-wrap gap-3">
+                          <AppLink href={group.href} className="btn-primary">
+                            Open event story
+                          </AppLink>
+                          <span className="inline-flex min-h-[48px] items-center rounded-full border border-[rgb(var(--border))] bg-[rgba(var(--surface),0.9)] px-5 text-sm font-semibold text-[rgb(var(--primary))]">
+                            Photos and videos with context notes
+                          </span>
                         </div>
                       </section>
 

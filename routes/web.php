@@ -14,9 +14,13 @@ Route::controller(PublicController::class)->group(function () {
     Route::get('/news/{newsPost:slug}', 'newsSingle')->name('news.show');
     Route::get('/announcements', 'announcements')->name('announcements');
     Route::get('/gallery', 'gallery')->name('gallery');
+    Route::get('/gallery/events/{eventSlug}', 'galleryEvent')->name('gallery.events.show');
     Route::get('/documents', 'documents')->name('documents.index');
     Route::get('/documents/{document:slug}', 'documentSingle')->name('documents.show');
     Route::get('/documents/{document:slug}/download', 'downloadDocument')->name('documents.download');
+    Route::get('/programs', 'programs')->name('programs.index');
+    Route::get('/programs/{program:slug}', 'programSingle')->name('programs.show');
+    Route::get('/programs/{program:slug}/{page}', 'programPage')->name('programs.page');
     Route::get('/contact', 'contact')->name('contact');
     Route::post('/contact', 'submitContact')->name('contact.submit');
 });

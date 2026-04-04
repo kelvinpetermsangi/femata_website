@@ -12,6 +12,7 @@ use App\Models\GalleryItem;
 use App\Models\Leader;
 use App\Models\NewsPost;
 use App\Models\Page;
+use App\Models\Program;
 use App\Models\VideoPost;
 use App\Support\SiteSettings;
 use Illuminate\Http\RedirectResponse;
@@ -32,6 +33,7 @@ class PublicController extends Controller
         $documents = $this->buildDocuments();
         $galleryItems = $this->buildGallery();
         $associations = $this->buildAssociations();
+        $programs = $this->buildPrograms();
 
         return Inertia::render('Home', [
             'announcements' => $announcements,
@@ -40,6 +42,7 @@ class PublicController extends Controller
             'documents' => $documents,
             'galleryItems' => $galleryItems,
             'associations' => $associations,
+            'programs' => $programs,
             'adverts' => $this->buildAdvertSlots(Advert::PAGE_HOME),
             'homeContent' => SiteSettings::home(),
             'pageMeta' => $this->buildPageMeta(
@@ -261,9 +264,11 @@ class PublicController extends Controller
     public function gallery(): Response
     {
         $galleryItems = $this->buildGallery();
+        $galleryGroups = $this->buildGalleryGroups($galleryItems);
 
         return Inertia::render('Gallery', [
             'galleryItems' => $galleryItems,
+            'galleryGroups' => $galleryGroups,
             'adverts' => $this->buildAdvertSlots(Advert::PAGE_GALLERY),
             'announcements' => $this->buildAnnouncements(),
             'pageMeta' => $this->buildPageMeta(
@@ -278,6 +283,30 @@ class PublicController extends Controller
                 'image' => data_get($galleryItems, '0.image_path'),
                 'eyebrow' => 'Photos & Media',
             ],
+        ]);
+    }
+
+    public function galleryEvent(string $eventSlug): Response
+    {
+        $galleryGroups = $this->buildGalleryGroups($this->buildGallery());
+        $event = collect($galleryGroups)->firstWhere('slug', $eventSlug);
+
+        abort_unless($event !== null, 404);
+
+        return Inertia::render('Gallery/Show', [
+            'event' => $event,
+            'announcements' => $this->buildAnnouncements(),
+            'pageMeta' => $this->buildPageMeta(
+                title: data_get($event, 'title', 'Gallery event'),
+                eyebrow: 'Event gallery',
+                description: (string) (data_get($event, 'note') ?: data_get($event, 'title') ?: 'Event gallery'),
+                image: data_get($event, 'cover_item.image_path'),
+            ),
+            'relatedEvents' => collect($galleryGroups)
+                ->reject(fn ($item) => data_get($item, 'slug') === $eventSlug)
+                ->take(4)
+                ->values()
+                ->all(),
         ]);
     }
 
@@ -365,6 +394,32 @@ class PublicController extends Controller
                 'eyebrow' => 'Contact Us',
             ],
         ]);
+    }
+
+    public function programs(): Response
+    {
+        $programs = $this->buildPrograms();
+
+        return Inertia::render('Programs/Index', [
+            'programs' => $programs,
+            'announcements' => $this->buildAnnouncements(),
+            'pageMeta' => $this->buildPageMeta(
+                title: 'Programs',
+                eyebrow: 'FEMATA Programs',
+                description: 'Explore FEMATA flagship programs, annual initiatives, and project platforms.',
+                image: data_get($programs, '0.hero_image'),
+            ),
+        ]);
+    }
+
+    public function programSingle(Program $program): Response
+    {
+        return $this->renderProgramProfile($program);
+    }
+
+    public function programPage(Program $program, string $page): Response
+    {
+        return $this->renderProgramProfile($program, $page);
     }
 
     public function submitContact(Request $request): RedirectResponse
@@ -536,6 +591,50 @@ class PublicController extends Controller
             ->all();
     }
 
+    private function buildGalleryGroups(array $items): array
+    {
+        $groups = collect($items)
+            ->groupBy(function (array $item): string {
+                $title = (string) ($item['event_name'] ?? 'FEMATA Field Archive');
+                $date = (string) ($item['event_date'] ?? $item['published_at'] ?? 'undated');
+
+                return "{$title}::{$date}";
+            })
+            ->map(function ($group, string $key): array {
+                [$title, $date] = array_pad(explode('::', $key, 2), 2, null);
+                $items = collect($group)->values()->all();
+                $coverItem = $items[0] ?? null;
+                $note = collect($items)
+                    ->pluck('description')
+                    ->filter()
+                    ->first();
+
+                $slugBase = trim((string) $title) !== '' ? (string) str($title)->slug() : 'femata-gallery-event';
+                $dateSlug = $date && $date !== 'undated'
+                    ? '-'.(string) str($date)->replace('-', '')->value()
+                    : '';
+
+                return [
+                    'slug' => $slugBase.$dateSlug,
+                    'title' => $title ?: 'FEMATA Field Archive',
+                    'date' => $date === 'undated' ? null : $date,
+                    'note' => $note ?: 'This gallery grouping captures visuals and media highlights from the same FEMATA event or activity.',
+                    'item_count' => count($items),
+                    'cover_item' => $coverItem,
+                    'items' => $items,
+                    'href' => route('gallery.events.show', $slugBase.$dateSlug),
+                ];
+            })
+            ->sortByDesc(function (array $group): int {
+                $date = data_get($group, 'date');
+
+                return $date ? strtotime((string) $date) ?: 0 : 0;
+            })
+            ->values();
+
+        return $groups->all();
+    }
+
     private function buildDocuments(): array
     {
         return Document::query()
@@ -546,6 +645,16 @@ class PublicController extends Controller
             ->orderByDesc('created_at')
             ->get()
             ->map(fn (Document $document) => $this->mapDocument($document))
+            ->values()
+            ->all();
+    }
+
+    private function buildPrograms(): array
+    {
+        return Program::query()
+            ->active()
+            ->get()
+            ->map(fn (Program $program) => $this->mapProgram($program))
             ->values()
             ->all();
     }
@@ -736,6 +845,36 @@ class PublicController extends Controller
         ];
     }
 
+    private function renderProgramProfile(Program $program, ?string $requestedPage = null): Response
+    {
+        abort_unless($program->is_active, 404);
+
+        $mapped = $this->mapProgram($program, true);
+        $pages = collect($mapped['pages'] ?? []);
+        $requested = trim((string) $requestedPage);
+
+        $currentPage = $requested === '' || $requested === 'home'
+            ? $pages->firstWhere('key', 'home')
+            : $pages->first(fn ($page) => data_get($page, 'slug') === $requested || data_get($page, 'key') === $requested);
+
+        abort_unless($currentPage !== null, 404);
+
+        $mapped['current_page'] = $currentPage;
+
+        return Inertia::render('Programs/Show', [
+            'program' => $mapped,
+            'announcements' => $this->buildAnnouncements(),
+            'pageMeta' => $this->buildPageMeta(
+                title: $currentPage['key'] === 'home'
+                    ? $mapped['name']
+                    : "{$mapped['name']} | {$currentPage['label']}",
+                eyebrow: 'FEMATA Program',
+                description: (string) ($mapped['summary'] ?: $mapped['home_intro'] ?: $mapped['about_body'] ?: $mapped['name']),
+                image: $mapped['hero_image'],
+            ),
+        ]);
+    }
+
     private function resolveAssociationPage(array $pages, ?string $requestedPage = null): ?array
     {
         $visiblePages = collect($pages)->where('visible', true)->values();
@@ -753,6 +892,99 @@ class PublicController extends Controller
         return $visiblePages->first(
             fn ($page) => data_get($page, 'slug') === $requested || data_get($page, 'key') === $requested,
         );
+    }
+
+    private function mapProgram(Program $program, bool $withProfile = false): array
+    {
+        $pages = collect(Program::profilePages())
+            ->map(fn (array $page) => [
+                ...$page,
+                'href' => $page['key'] === 'home'
+                    ? route('programs.show', $program)
+                    : route('programs.page', ['program' => $program, 'page' => $page['slug']]),
+            ])
+            ->values()
+            ->all();
+
+        $years = collect($program->years ?? [])
+            ->map(function ($item): array {
+                $year = data_get($item, 'year');
+
+                return [
+                    'year' => $year !== null ? (int) $year : null,
+                    'edition_label' => data_get($item, 'edition_label'),
+                    'region' => data_get($item, 'region'),
+                    'venue' => data_get($item, 'venue'),
+                    'date_summary' => data_get($item, 'date_summary'),
+                    'theme' => data_get($item, 'theme'),
+                    'overview' => data_get($item, 'overview'),
+                    'highlights' => array_values(array_filter(data_get($item, 'highlights', []))),
+                    'vendor_registration_url' => data_get($item, 'vendor_registration_url'),
+                    'participant_registration_url' => data_get($item, 'participant_registration_url'),
+                    'sponsor_registration_url' => data_get($item, 'sponsor_registration_url'),
+                    'floor_plan_url' => data_get($item, 'floor_plan_url'),
+                    'brochure_url' => data_get($item, 'brochure_url'),
+                    'is_current' => (bool) data_get($item, 'is_current', false),
+                ];
+            })
+            ->sortByDesc(fn (array $item) => $item['year'] ?? 0)
+            ->values()
+            ->all();
+
+        $currentYear = collect($years)->firstWhere('is_current', true) ?? ($years[0] ?? null);
+
+        $payload = [
+            'id' => $program->id,
+            'name' => $program->name,
+            'slug' => $program->slug,
+            'tagline' => $program->tagline,
+            'summary' => $program->summary,
+            'hero_image' => $this->resolveUrl($program->hero_image),
+            'pages' => $pages,
+            'current_year' => $currentYear,
+            'current_year_value' => data_get($currentYear, 'year'),
+        ];
+
+        if (! $withProfile) {
+            return [
+                ...$payload,
+                'team_count' => count($program->team ?? []),
+                'year_count' => count($years),
+            ];
+        }
+
+        return [
+            ...$payload,
+            'home_title' => $program->home_title ?: $program->name,
+            'home_intro' => $program->home_intro ?: $program->summary,
+            'home_body' => $program->home_body ?: $program->summary,
+            'about_title' => $program->about_title ?: "About {$program->name}",
+            'about_body' => $program->about_body ?: $program->summary,
+            'team_intro' => $program->team_intro ?: 'Meet the delivery team coordinating this FEMATA program.',
+            'years_intro' => $program->years_intro ?: 'Browse previous and current editions, host regions, and event themes.',
+            'current_year_intro' => $program->current_year_intro ?: 'Registration, floor planning, sponsor information, and the current edition agenda are published here.',
+            'highlights' => collect($program->highlights ?? [])
+                ->filter(fn ($item) => filled(data_get($item, 'title')) || filled(data_get($item, 'text')))
+                ->values()
+                ->all(),
+            'metrics' => collect($program->metrics ?? [])
+                ->filter(fn ($item) => filled(data_get($item, 'label')) || filled(data_get($item, 'value')) || filled(data_get($item, 'note')))
+                ->values()
+                ->all(),
+            'team' => collect($program->team ?? [])
+                ->filter(fn ($item) => filled(data_get($item, 'name')))
+                ->map(fn ($item) => [
+                    'name' => data_get($item, 'name'),
+                    'title' => data_get($item, 'title'),
+                    'bio' => data_get($item, 'bio'),
+                    'photo_path' => $this->resolveUrl(data_get($item, 'photo_path')),
+                    'email' => data_get($item, 'email'),
+                    'phone' => data_get($item, 'phone'),
+                ])
+                ->values()
+                ->all(),
+            'years' => $years,
+        ];
     }
 
     private function buildAdvertSlots(string $pageKey, ?Association $association = null): array
@@ -869,6 +1101,14 @@ class PublicController extends Controller
             return $path;
         }
 
-        return Storage::url($path);
+        if (str_starts_with($path, '/')) {
+            return $path;
+        }
+
+        if (str_starts_with($path, 'storage/')) {
+            return '/'.$path;
+        }
+
+        return Storage::url(ltrim($path, '/'));
     }
 }

@@ -120,6 +120,7 @@ function GrowthSignalCard({
 export default function Home({
   announcements = [],
   associations = [],
+  programs = [],
   adverts = {},
   homeContent = defaultHomeContent,
 }: HomePageProps) {
@@ -548,6 +549,82 @@ export default function Home({
             </div>
           </div>
         </section>
+
+        {programs.length > 0 ? (
+          <section className="section-shell pt-0">
+            <div className="container-shell">
+              <div className="relative overflow-hidden rounded-[2.4rem] border border-slate-200 bg-[linear-gradient(135deg,#081b18,#0f3b34,#10253e)] px-6 py-8 shadow-[0_32px_80px_rgba(15,23,42,0.18)] sm:px-8 sm:py-10">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.10),transparent_22%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.14),transparent_18%)]" />
+
+                <div className="relative z-10">
+                  <div className="flex flex-wrap items-end justify-between gap-5">
+                    <div className="max-w-3xl">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/68">
+                        Corporate programs
+                      </p>
+                      <h2 className="mt-4 text-3xl font-semibold leading-tight text-white sm:text-4xl">
+                        FEMATA programs now sit in their own corporate-style segment
+                      </h2>
+                      <p className="mt-4 text-sm leading-8 text-white/78 sm:text-base">
+                        Explore flagship programs, annual industry platforms, and project-driven workstreams through dedicated mini-sites with their own home, about, team, edition history, and current-year details.
+                      </p>
+                    </div>
+
+                    <AppLink
+                      href="/programs"
+                      className="btn-secondary border-white/18 bg-white/10 text-white hover:bg-white/16"
+                    >
+                      Explore programs
+                    </AppLink>
+                  </div>
+
+                  <div className="mt-8 grid gap-5 lg:grid-cols-3">
+                    {programs.slice(0, 3).map((program) => (
+                      <div key={program.slug} className="rounded-[1.8rem] border border-white/10 bg-white/8 p-5 backdrop-blur-md">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/60">
+                          {program.current_year_value ? `${program.current_year_value} edition` : 'Program profile'}
+                        </p>
+                        <h3 className="mt-3 text-2xl font-semibold text-white">{program.name}</h3>
+                        {program.tagline ? (
+                          <p className="mt-3 text-sm font-medium text-emerald-200">{program.tagline}</p>
+                        ) : null}
+                        <p className="mt-4 text-sm leading-7 text-white/78">
+                          {program.summary}
+                        </p>
+
+                        {program.current_year?.theme ? (
+                          <div className="mt-5 rounded-[1.2rem] border border-white/10 bg-black/18 px-4 py-4">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/58">
+                              Current theme
+                            </p>
+                            <p className="mt-2 text-sm font-semibold text-white">
+                              {program.current_year.theme}
+                            </p>
+                          </div>
+                        ) : null}
+
+                        <div className="mt-5 flex flex-wrap gap-3">
+                          <AppLink
+                            href={`/programs/${program.slug}`}
+                            className="btn-secondary border-white/18 bg-white/10 text-white hover:bg-white/16"
+                          >
+                            Open program
+                          </AppLink>
+                          <AppLink
+                            href={`/programs/${program.slug}/current-year`}
+                            className="btn-primary"
+                          >
+                            Current year
+                          </AppLink>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
       </PublicLayout>
     </>
   );

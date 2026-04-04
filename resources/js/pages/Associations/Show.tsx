@@ -1,4 +1,5 @@
 import { Head } from '@inertiajs/react';
+import { useState } from 'react';
 import AdvertCarousel from '@/components/AdvertCarousel';
 import AssociationLeaderFlipCard from '@/components/association/AssociationLeaderFlipCard';
 import AssociationSocialLinks from '@/components/association/AssociationSocialLinks';
@@ -416,6 +417,54 @@ function labelForAssociationLeaderGroup(value: string) {
   return value === 'secretariat' ? 'Secretariat' : 'Management Team';
 }
 
+function AssociationLeadershipToggleBar({
+  activeGroup,
+  onChange,
+  counts,
+}: {
+  activeGroup: 'management' | 'secretariat';
+  onChange: (value: 'management' | 'secretariat') => void;
+  counts: Record<'management' | 'secretariat', number>;
+}) {
+  const tabs: Array<'management' | 'secretariat'> = ['management', 'secretariat'];
+
+  return (
+    <div className="flex justify-center">
+      <div className="ui-shell inline-flex p-2 shadow-[0_14px_30px_rgba(15,23,42,0.06)]">
+        {tabs.map((tab) => {
+          const active = activeGroup === tab;
+
+          return (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => onChange(tab)}
+              className={[
+                'inline-flex items-center gap-3 rounded-full px-5 py-3 text-sm font-semibold transition-all duration-200',
+                active
+                  ? 'border border-[rgb(var(--primary))]/20 bg-[rgb(var(--primary))]/[0.08] text-[rgb(var(--primary))] shadow-sm'
+                  : 'text-[rgb(var(--primary))] hover:bg-[rgb(var(--surface-2))]',
+              ].join(' ')}
+            >
+              <span>{labelForAssociationLeaderGroup(tab)}</span>
+              <span
+                className={[
+                  'inline-flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-[11px]',
+                  active
+                    ? 'bg-[rgba(var(--surface),0.94)] text-[rgb(var(--primary))]'
+                    : 'bg-[rgb(var(--surface-2))] text-[rgb(var(--muted))]',
+                ].join(' ')}
+              >
+                {counts[tab]}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function formatAssociationEventDate(value?: string | null) {
   if (!value) {
     return null;
@@ -478,6 +527,8 @@ function LeadershipContent({ association }: { association: Association }) {
   const visibleGroups = (['management', 'secretariat'] as const).filter(
     (key) => groupedLeaders[key].length > 0,
   );
+  const [activeGroup, setActiveGroup] = useState<'management' | 'secretariat'>('management');
+  const currentGroup = visibleGroups.includes(activeGroup) ? activeGroup : (visibleGroups[0] ?? 'management');
 
   if (leaders.length === 0) {
     return (
@@ -498,34 +549,39 @@ function LeadershipContent({ association }: { association: Association }) {
         <SectionLead
           eyebrow="Leadership"
           title="Management and secretariat leadership"
-          text="These leadership cards match the FEMATA profile experience, including grouped sections, a bio view, and a QR-enabled contact card."
+          text="Switch between the management team and secretariat using the same horizontal toggle pattern used on the main FEMATA leadership page."
         />
 
-        <div className="grid gap-10">
-          {visibleGroups.map((groupKey) => (
-            <section key={groupKey} className="grid gap-5">
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
-                    {labelForAssociationLeaderGroup(groupKey)}
-                  </p>
-                  <h3 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">
-                    {labelForAssociationLeaderGroup(groupKey)} profiles
-                  </h3>
-                </div>
+        <div className="grid gap-8">
+          <AssociationLeadershipToggleBar
+            activeGroup={currentGroup}
+            onChange={setActiveGroup}
+            counts={{
+              management: groupedLeaders.management.length,
+              secretariat: groupedLeaders.secretariat.length,
+            }}
+          />
 
-                <span className="ui-chip px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
-                  {groupedLeaders[groupKey].length} published
-                </span>
-              </div>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--muted))]">
+                {labelForAssociationLeaderGroup(currentGroup)}
+              </p>
+              <h3 className="mt-2 text-2xl font-semibold text-[rgb(var(--primary))]">
+                {labelForAssociationLeaderGroup(currentGroup)} profiles
+              </h3>
+            </div>
 
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {groupedLeaders[groupKey].map((leader, index) => (
-                  <AssociationLeaderFlipCard key={`${groupKey}-${leader.name}-${index}`} leader={leader} index={index} />
-                ))}
-              </div>
-            </section>
-          ))}
+            <span className="ui-chip px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--primary))]">
+              {groupedLeaders[currentGroup].length} published
+            </span>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {groupedLeaders[currentGroup].map((leader, index) => (
+              <AssociationLeaderFlipCard key={`${currentGroup}-${leader.name}-${index}`} leader={leader} index={index} />
+            ))}
+          </div>
         </div>
       </div>
     </section>

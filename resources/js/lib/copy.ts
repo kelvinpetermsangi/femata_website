@@ -6,6 +6,7 @@ type CopyLocale = {
     about: string;
     leadership: string;
     remas: string;
+    programs: string;
     news: string;
     gallery: string;
     documents: string;
@@ -49,6 +50,7 @@ export const copy: Record<Locale, CopyLocale> = {
       about: 'About FEMATA',
       leadership: 'Leadership',
       remas: 'Associations',
+      programs: 'Programs',
       news: 'News & Updates',
       gallery: 'Media Gallery',
       documents: 'Documents',
@@ -98,6 +100,7 @@ export const copy: Record<Locale, CopyLocale> = {
       about: 'Kuhusu FEMATA',
       leadership: 'Uongozi',
       remas: 'Vyama',
+      programs: 'Programu',
       news: 'Habari na Taarifa',
       gallery: 'Matukio na Picha',
       documents: 'Nyaraka',

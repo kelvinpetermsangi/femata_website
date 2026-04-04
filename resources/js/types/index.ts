@@ -79,6 +79,17 @@ export interface GalleryItem {
   published_at?: string | null;
 }
 
+export interface GalleryGroup {
+  slug: string;
+  title: string;
+  date?: string | null;
+  note?: string | null;
+  item_count: number;
+  cover_item?: GalleryItem | null;
+  items: GalleryItem[];
+  href: string;
+}
+
 export interface DocumentItem {
   id: number;
   title: string;
@@ -192,6 +203,78 @@ export interface AssociationType {
   sort_order?: number;
   is_active?: boolean;
   association_count?: number;
+}
+
+export interface ProgramHighlight {
+  title?: string | null;
+  text?: string | null;
+}
+
+export interface ProgramMetric {
+  label?: string | null;
+  value?: string | null;
+  note?: string | null;
+}
+
+export interface ProgramTeamMember {
+  name: string;
+  title?: string | null;
+  bio?: string | null;
+  photo_path?: string | null;
+  email?: string | null;
+  phone?: string | null;
+}
+
+export interface ProgramYear {
+  year?: number | null;
+  edition_label?: string | null;
+  region?: string | null;
+  venue?: string | null;
+  date_summary?: string | null;
+  theme?: string | null;
+  overview?: string | null;
+  highlights?: string[];
+  vendor_registration_url?: string | null;
+  participant_registration_url?: string | null;
+  sponsor_registration_url?: string | null;
+  floor_plan_url?: string | null;
+  brochure_url?: string | null;
+  is_current?: boolean;
+}
+
+export interface ProgramPageConfig {
+  key: string;
+  label: string;
+  slug: string;
+  href?: string;
+}
+
+export interface Program {
+  id: number;
+  name: string;
+  slug: string;
+  tagline?: string | null;
+  summary?: string | null;
+  hero_image?: string | null;
+  pages?: ProgramPageConfig[];
+  current_page?: ProgramPageConfig;
+  current_year?: ProgramYear | null;
+  current_year_value?: number | null;
+  home_title?: string | null;
+  home_intro?: string | null;
+  home_body?: string | null;
+  about_title?: string | null;
+  about_body?: string | null;
+  team_intro?: string | null;
+  years_intro?: string | null;
+  current_year_intro?: string | null;
+  highlights?: ProgramHighlight[];
+  metrics?: ProgramMetric[];
+  team?: ProgramTeamMember[];
+  years?: ProgramYear[];
+  team_count?: number;
+  year_count?: number;
+  is_active?: boolean;
 }
 
 export interface AdvertItem {
@@ -389,6 +472,7 @@ export interface HomePageProps {
   documents: DocumentItem[];
   leaders: Leader[];
   associations?: Association[];
+  programs?: Program[];
   adverts?: AdvertSlots;
   homeContent: HomeContent;
 }

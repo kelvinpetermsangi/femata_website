@@ -78,6 +78,12 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         badge: 'AT',
       },
       {
+        label: 'Programs',
+        href: '/admin/programs',
+        note: 'Flagship projects, annual exhibitions, and program mini-sites',
+        badge: 'PR',
+      },
+      {
         label: 'Adverts',
         href: '/admin/adverts',
         note: 'Image and video campaigns by slot, page, region, and association',
@@ -332,7 +338,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                   </h2>
                   <p className="mt-3 text-sm leading-7 text-slate-600">
                     Work across announcements, newsroom updates, leadership, documents, adverts,
-                    site settings, and association mini-sites through one organized secretariat dashboard.
+                    site settings, programs, and association mini-sites through one organized secretariat dashboard.
                   </p>
                 </div>
 

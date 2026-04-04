@@ -98,6 +98,7 @@ export default function Navbar({
       { label: t.nav.about, href: '/about' },
       { label: t.nav.leadership, href: '/leadership' },
       { label: t.nav.remas, href: '/associations' },
+      { label: t.nav.programs, href: '/programs' },
       { label: t.nav.news, href: '/news' },
       { label: t.nav.gallery, href: '/gallery' },
       { label: t.nav.documents, href: '/documents' },

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\LeaderController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\PressBriefingController;
 use App\Http\Controllers\Admin\AssociationController;
 use App\Http\Controllers\Admin\SiteSettingsController;
@@ -56,6 +57,12 @@ Route::get('/pages', [PageController::class, 'index'])->name('pages.index');
 Route::post('/pages', [PageController::class, 'store'])->name('pages.store');
 Route::put('/pages/{page}', [PageController::class, 'update'])->name('pages.update');
 Route::delete('/pages/{page}', [PageController::class, 'destroy'])->name('pages.destroy');
+
+Route::get('/programs', [ProgramController::class, 'index'])->name('programs.index');
+Route::post('/programs', [ProgramController::class, 'store'])->name('programs.store');
+Route::get('/programs/{program}', [ProgramController::class, 'show'])->name('programs.show');
+Route::put('/programs/{program}', [ProgramController::class, 'update'])->name('programs.update');
+Route::delete('/programs/{program}', [ProgramController::class, 'destroy'])->name('programs.destroy');
 
 Route::get('/press-briefings', [PressBriefingController::class, 'index'])->name('press-briefings.index');
 Route::post('/press-briefings', [PressBriefingController::class, 'store'])->name('press-briefings.store');

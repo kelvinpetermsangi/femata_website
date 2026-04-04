@@ -10,6 +10,7 @@ use App\Models\Leader;
 use App\Models\MediaLibrary;
 use App\Models\NewsPost;
 use App\Models\Page;
+use App\Models\Program;
 use App\Models\PressBriefing;
 use App\Models\SiteSetting;
 use App\Models\User;
@@ -21,6 +22,7 @@ use App\Policies\GalleryItemPolicy;
 use App\Policies\LeaderPolicy;
 use App\Policies\NewsPostPolicy;
 use App\Policies\PagePolicy;
+use App\Policies\ProgramPolicy;
 use App\Policies\PressBriefingPolicy;
 use App\Policies\SiteSettingPolicy;
 use App\Policies\VideoPostPolicy;
@@ -52,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
             'news_post' => NewsPost::class,
             'document' => Document::class,
             'page' => Page::class,
+            'program' => Program::class,
             'video_post' => VideoPost::class,
             'press_briefing' => PressBriefing::class,
             'site_setting' => SiteSetting::class,
@@ -65,6 +68,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Leader::class, LeaderPolicy::class);
         Gate::policy(NewsPost::class, NewsPostPolicy::class);
         Gate::policy(Page::class, PagePolicy::class);
+        Gate::policy(Program::class, ProgramPolicy::class);
         Gate::policy(PressBriefing::class, PressBriefingPolicy::class);
         Gate::policy(SiteSetting::class, SiteSettingPolicy::class);
         Gate::policy(VideoPost::class, VideoPostPolicy::class);
